@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 15% 5%;
+    --foreground: 60 5% 92%;
+    --card: 240 12% 8%;
+    --card-foreground: 60 5% 92%;
+    --popover: 240 12% 8%;
+    --popover-foreground: 60 5% 92%;
+    --primary: 11 75% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 12% 12%;
+    --secondary-foreground: 60 5% 92%;
+    --muted: 240 12% 12%;
+    --muted-foreground: 240 8% 55%;
+    --accent: 75 80% 55%;
+    --accent-foreground: 240 15% 5%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 12% 16%;
+    --input: 240 12% 16%;
+    --ring: 11 75% 56%;
+    --radius: 0rem;
+    --font-heading: 'Press Start 2P', monospace;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-display: 'Press Start 2P', monospace;
+    --font-mono: 'Press Start 2P', monospace;
+    --sidebar-background: 240 15% 5%;
+    --sidebar-foreground: 60 5% 92%;
+    --sidebar-primary: 11 75% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 12% 12%;
+    --sidebar-accent-foreground: 60 5% 92%;
+    --sidebar-border: 240 12% 16%;
+    --sidebar-ring: 11 75% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+    image-rendering: pixelated;
+  }
+}
+
+/* CRT scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* pixel font utility */
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* Neon glow effects */
+.glow-red {
+  text-shadow: 0 0 10px #E85D4A, 0 0 30px #E85D4A88, 0 0 60px #E85D4A44;
+}
+.glow-lime {
+  text-shadow: 0 0 10px #C8E650, 0 0 30px #C8E65088, 0 0 60px #C8E65044;
+}
+.glow-blue {
+  text-shadow: 0 0 10px #6B9FD4, 0 0 30px #6B9FD488;
+}
+.glow-box-red {
+  box-shadow: 0 0 16px #E85D4A66, inset 0 0 16px #E85D4A11;
+}
+.glow-box-lime {
+  box-shadow: 0 0 16px #C8E65066, inset 0 0 16px #C8E65011;
+}
+
+/* Pixel border */
+.pixel-border {
+  box-shadow:
+    4px 0 0 0 currentColor,
+    -4px 0 0 0 currentColor,
+    0 4px 0 0 currentColor,
+    0 -4px 0 0 currentColor;
+}
+
+/* Blink animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Pixel grid background */
+.pixel-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-inner {
+  animation: marquee 20s linear infinite;
+}
+
+/* Flicker */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
+.flicker {
+  animation: flicker 6s ease-in-out infinite;
+}
+
+/* selection */
+::selection {
+  background: #E85D4A;
+  color: white;
+}
+
+/* scroll behavior */
+html { scroll-behavior: smooth; }
+
+/* Retro Gaming Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #0c0b11;
+  /* Retro checkered/dithered background pattern */
+  background-image: 
+    conic-gradient(#1e1b29 25%, transparent 25% 50%, #1e1b29 50% 75%, transparent 75%);
+  background-size: 8px 8px;
+  border-left: 2px solid #1e1b29;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #E85D4A;
+  border: 2px solid #0c0b11;
+  /* Alternating 3D pixel block segments (14px block, 2px separator) */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #ff8a7a 0px,
+    #ff8a7a 2px,
+    #E85D4A 2px,
+    #E85D4A 12px,
+    #9d3324 12px,
+    #9d3324 14px,
+    #0c0b11 14px,
+    #0c0b11 16px
+  );
+  box-shadow: 0 0 8px rgba(232, 93, 74, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #C8E650;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #e2fa77 0px,
+    #e2fa77 2px,
+    #C8E650 2px,
+    #C8E650 12px,
+    #8fa82b 12px,
+    #8fa82b 14px,
+    #0c0b11 14px,
+    #0c0b11 16px
+  );
+  box-shadow: 0 0 8px rgba(200, 230, 80, 0.4);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: #9d3324;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #ff8a7a 0px,
+    #ff8a7a 2px,
+    #9d3324 2px,
+    #9d3324 12px,
+    #531109 12px,
+    #531109 14px,
+    #0c0b11 14px,
+    #0c0b11 16px
+  );
+}
+
+::-webkit-scrollbar-corner {
+  background-color: #0c0b11;
+}
+
+/* Custom Retro Pixel Cursors (Red 3D blocky arrow) */
+html, body, p, span, div, h1, h2, h3, h4, h5, h6, li, ul, ol, td, th, label, svg {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%230c0b11' d='M0 0 L0 24 L6 18 L10 26 L14 24 L10 16 L18 16 Z'/%3E%3Cpath fill='%23E85D4A' d='M2 3 L2 20 L5 17 L9 24 L11 23 L7 15 L15 15 Z'/%3E%3Cpath fill='%23ff8a7a' d='M2 3 L2 19 L3 19 L3 5 L14 15 L15 15 Z'/%3E%3Cpath fill='%239d3324' d='M3 19 L5 17 L9 24 L11 23 L7 15 Z'/%3E%3C/svg%3E") 0 0, auto;
+}
+
+/* Custom Retro Pixel Cursors for interactive items (Lime 3D blocky arrow) */
+a, button, select, input, textarea, [role="button"], .cursor-pointer, a *, button * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%230c0b11' d='M0 0 L0 24 L6 18 L10 26 L14 24 L10 16 L18 16 Z'/%3E%3Cpath fill='%23C8E650' d='M2 3 L2 20 L5 17 L9 24 L11 23 L7 15 L15 15 Z'/%3E%3Cpath fill='%23e2fa77' d='M2 3 L2 19 L3 19 L3 5 L14 15 L15 15 Z'/%3E%3Cpath fill='%238fa82b' d='M3 19 L5 17 L9 24 L11 23 L7 15 Z'/%3E%3C/svg%3E") 0 0, pointer !important;
+}
+
+
