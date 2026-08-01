@@ -59,8 +59,8 @@ export default function HeroSection() {
           >
             {/* INSERT COIN */}
             <div className="inline-flex items-center gap-2 border border-[#C8E650]/40 px-3 py-1.5 mb-8">
-              <span className="w-2 h-2 bg-[#C8E650] animate-pulse" />
-              <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest">INSERT COIN TO PLAY</span>
+              {/* <span className="w-2 h-2 bg-[#C8E650] animate-pulse" /> */}
+              <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest">PROVE THAT YOU ARE FEARLESS!</span>
             </div>
 
             <h1 className="font-pixel leading-relaxed mb-8">

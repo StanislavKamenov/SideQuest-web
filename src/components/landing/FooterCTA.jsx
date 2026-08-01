@@ -99,7 +99,7 @@ export default function FooterCTA() {
               </p>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-400 animate-pulse" />
-                <span className="font-pixel text-[7px] text-green-400">ACTIVE DEVELOPMENT</span>
+                <span className="font-pixel text-[7px] text-green-400">PRODUNCTION</span>
               </div>
             </div>
 
