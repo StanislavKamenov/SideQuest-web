@@ -1,140 +1,133 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-function AppScreen() {
-  return (
-    <div className="w-full h-full bg-[#0C0B0A] rounded-[36px] overflow-hidden flex flex-col text-white">
-      {/* Status bar */}
-      <div className="flex justify-between items-center px-6 pt-4 pb-2">
-        <span className="text-[11px] font-semibold text-white/70">9:41</span>
-        <div className="flex items-center gap-1.5">
-          <div className="flex gap-0.5 items-end">
-            <div className="w-1 h-2 bg-white/70 rounded-sm" />
-            <div className="w-1 h-3 bg-white/70 rounded-sm" />
-            <div className="w-1 h-4 bg-white/70 rounded-sm" />
-            <div className="w-1 h-[18px] bg-white/70 rounded-sm" />
-          </div>
-          <div className="w-6 h-3 border border-white/50 rounded-sm relative">
-            <div className="absolute left-0.5 top-0.5 bottom-0.5 w-[70%] bg-[#C8E650] rounded-[2px]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Header */}
-      <div className="px-6 pt-2 pb-3 flex justify-between items-center">
-        <div>
-          <p className="text-[11px] text-white/50">Good morning,</p>
-            <p className="text-base font-bold">Player 👋</p>
-        </div>
-        <div className="w-8 h-8 rounded-full bg-[#E85D4A] flex items-center justify-center text-xs font-bold">SK</div>
-      </div>
-
-      {/* XP Bar */}
-      <div className="mx-6 mb-4 bg-[#1D1C1A] rounded-xl p-3">
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wide">Explorer</span>
-          <span className="text-[11px] font-bold text-[#C8E650]">2,400 XP</span>
-        </div>
-        <div className="w-full h-1.5 bg-white/10 rounded-full">
-          <div className="h-full w-[62%] bg-gradient-to-r from-[#E85D4A] to-[#C8E650] rounded-full" />
-        </div>
-        <p className="text-[10px] text-white/30 mt-1">960 XP to Warrior</p>
-      </div>
-
-      {/* Missions */}
-      <div className="px-6 mb-3">
-        <div className="flex justify-between items-center mb-3">
-          <p className="text-[12px] font-semibold text-white/60 uppercase tracking-wide">Active Missions</p>
-          <span className="text-[11px] text-[#E85D4A] font-semibold">Виж всички</span>
-        </div>
-        <div className="space-y-2.5">
-          {[
-            { icon: '🏃', label: 'Morning Run', xp: '+80 XP', color: '#E85D4A', prog: '75%' },
-            { icon: '📚', label: 'Read 20 pages', xp: '+50 XP', color: '#6B9FD4', prog: '30%' },
-            { icon: '☕', label: 'Coffee with friend', xp: '+60 XP', color: '#7BC67E', prog: '0%' },
-          ].map(m => (
-            <div key={m.label} className="bg-[#1D1C1A] rounded-xl p-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg"
-                style={{ backgroundColor: `${m.color}22` }}>
-                {m.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-[13px] font-semibold truncate">{m.label}</p>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md ml-2 flex-shrink-0"
-                    style={{ color: m.color, backgroundColor: `${m.color}22` }}>{m.xp}</span>
-                </div>
-                <div className="w-full h-1 bg-white/10 rounded-full">
-                  <div className="h-full rounded-full" style={{ width: m.prog, backgroundColor: m.color }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom nav */}
-      <div className="mt-auto bg-[#141312] border-t border-white/5 flex justify-around items-center py-3 px-4">
-        {[
-          { emoji: '🏠', label: 'Home', active: true },
-          { emoji: '🗺️', label: 'Map' },
-          { emoji: '⚡', label: 'Missions' },
-          { emoji: '🏆', label: 'Rank' },
-          { emoji: '👤', label: 'Profile' },
-        ].map(tab => (
-          <div key={tab.label} className="flex flex-col items-center gap-0.5">
-            <span className="text-base">{tab.emoji}</span>
-            <span className={`text-[9px] font-medium ${tab.active ? 'text-[#E85D4A]' : 'text-white/30'}`}>{tab.label}</span>
-            {tab.active && <div className="w-1 h-1 rounded-full bg-[#E85D4A]" />}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+import screenshot from '../../assets/screenshot.png';
 
 export default function PhoneMockup() {
   return (
-    <div className="relative">
-      {/* Neon glow behind phone */}
-      <div className="absolute inset-0 bg-[#E85D4A]/15 blur-3xl rounded-full scale-75 translate-y-8" />
-      <div className="absolute inset-0 bg-[#C8E650]/8 blur-2xl rounded-full scale-50 -translate-y-4" />
+    <div className="relative flex justify-center items-center">
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#E85D4A]/20 to-[#C8E650]/10 blur-[80px] rounded-full scale-75" />
 
       <motion.div
-        animate={{ y: [0, -10, 0] }}
+        animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="relative"
+        className="relative z-10"
       >
-        {/* Scanline on phone too */}
-        <div className="w-[280px] h-[580px] rounded-[44px] bg-[#1a1a1a] p-2.5"
-          style={{ boxShadow: '0 0 40px #E85D4A33, 0 0 80px #E85D4A11, 0 30px 60px rgba(0,0,0,0.7)' }}>
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-7 bg-black rounded-full z-10" />
-          <div className="w-full h-full rounded-[36px] overflow-hidden">
-            <AppScreen />
+        {/* iPhone 15 Pro Frame */}
+        <div
+          className="w-[280px] h-[600px] rounded-[50px] bg-[#0d0d0d] p-[10px] relative"
+          style={{
+            boxShadow: 'inset 0 0 2px rgba(255,255,255,0.2), inset 0 4px 10px rgba(255,255,255,0.05), 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(232, 93, 74, 0.15)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          {/* Hardware buttons */}
+          <div className="absolute -left-[3px] top-[100px] w-[3px] h-[24px] bg-[#222] rounded-l-md" />
+          <div className="absolute -left-[3px] top-[140px] w-[3px] h-[40px] bg-[#222] rounded-l-md" />
+          <div className="absolute -left-[3px] top-[190px] w-[3px] h-[40px] bg-[#222] rounded-l-md" />
+          <div className="absolute -right-[3px] top-[160px] w-[3px] h-[60px] bg-[#222] rounded-r-md" />
+
+          {/* Screen */}
+          <div className="w-full h-full rounded-[40px] overflow-hidden relative border border-white/5"
+            style={{ backgroundColor: '#080820' }}
+          >
+
+            {/* ── iPhone Status Bar (overlay on top of screenshot) ── */}
+            {/* ── iPhone Status Bar ── */}
+            <div className="absolute top-0 left-0 w-full h-[44px] z-30 flex items-center justify-between px-6 pt-[6px]"
+              style={{ background: 'linear-gradient(to bottom, #080820 50%, rgba(8,8,32,0.5) 80%, transparent 100%)' }}
+            >
+              {/* Left: Time — vertically centered with Dynamic Island */}
+              <span className="text-white text-[13px] font-semibold tracking-tight mt-[2px]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                9:41
+              </span>
+
+              {/* Center: Dynamic Island */}
+              <div className="w-[90px] h-[26px] bg-black rounded-full flex items-center justify-between px-2 shrink-0"
+                style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.04)' }}
+              >
+                <div className="w-[6px] h-[6px] rounded-full bg-[#1a1a2e]" />
+                <div className="w-[8px] h-[8px] rounded-full bg-[#0a0a15] border border-white/[0.03] relative">
+                  <div className="absolute top-[1px] right-[1px] w-[2px] h-[2px] bg-[#2040aa]/40 rounded-full" />
+                </div>
+              </div>
+
+              {/* Right: Signal + Wifi + Battery — vertically centered with Dynamic Island */}
+              <div className="flex items-center gap-[5px] mt-[2px]">
+                {/* Cellular signal bars */}
+                <div className="flex items-end gap-[1.5px]">
+                  <div className="w-[3px] h-[3px] bg-white rounded-[0.5px]" />
+                  <div className="w-[3px] h-[5px] bg-white rounded-[0.5px]" />
+                  <div className="w-[3px] h-[7px] bg-white rounded-[0.5px]" />
+                  <div className="w-[3px] h-[9px] bg-white rounded-[0.5px]" />
+                </div>
+                {/* Wifi */}
+                <svg className="w-[13px] h-[13px] text-white" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zm-3.18-2.12a.75.75 0 011.06 0A3.22 3.22 0 008 9.5c.82 0 1.6.32 2.12.88a.75.75 0 101.06-1.06A4.72 4.72 0 008 8a4.72 4.72 0 00-3.18 1.32.75.75 0 000 1.06zm-2.47-2.5a.75.75 0 011.06 0A6.46 6.46 0 008 6a6.46 6.46 0 004.59 1.88.75.75 0 101.06-1.06A7.96 7.96 0 008 4.5a7.96 7.96 0 00-5.65 2.32.75.75 0 000 1.06z" />
+                </svg>
+                {/* Battery */}
+                <div className="flex items-center">
+                  <div className="w-[20px] h-[9px] border border-white/60 rounded-[2.5px] p-[1.5px] relative">
+                    <div className="w-full h-full bg-white rounded-[1px]" />
+                  </div>
+                  <div className="w-[1.5px] h-[4px] bg-white/40 rounded-r-full ml-[0.5px]" />
+                </div>
+              </div>
+            </div>
+
+            {/* ── App Screenshot ── 
+                 object-contain ensures the ENTIRE image is visible (no cropping).
+                 Background color matches the app's dark theme so no gaps are visible. */}
+            <img
+              src={screenshot}
+              alt="SideQuest App"
+              className="absolute left-0 w-full h-full object-contain"
+              style={{ top: '20px' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            {/* Fallback */}
+            <div className="hidden absolute inset-0 flex-col items-center justify-center text-center p-4 bg-[#0C0B0A]">
+              <span className="text-[#E85D4A] mb-2 text-2xl">⚠️</span>
+              <p className="text-white/70 text-sm font-pixel leading-relaxed">Снимката липсва</p>
+              <p className="text-white/40 text-[10px] mt-2 leading-relaxed">Добави screenshot.png<br />в src/assets/</p>
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Floating XP badge */}
+      {/* ── Floating XP Badge ── far right, clear of the phone */}
       <motion.div
-        animate={{ y: [0, -7, 0] }}
+        animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute -right-4 top-16 bg-[#0C0B0A] border border-[#E85D4A]/60 px-3 py-2"
-        style={{ boxShadow: '0 0 12px #E85D4A44' }}
+        className="absolute -right-36 md:-right-52 top-20 bg-black/70 backdrop-blur-md border border-[#E85D4A]/40 pl-3 pr-4 py-2.5 rounded-2xl flex items-center gap-3 z-30"
+        style={{ boxShadow: '0 8px 32px rgba(232, 93, 74, 0.25)' }}
       >
-        <p className="font-pixel text-[9px] text-[#E85D4A]">+80 XP</p>
-        <p className="font-pixel text-[7px] text-white/50 mt-0.5">MISSION!</p>
+        <div className="w-8 h-8 rounded-full bg-[#E85D4A]/20 flex items-center justify-center border border-[#E85D4A]/30 text-[#E85D4A] text-sm shadow-[0_0_10px_rgba(232,93,74,0.3)] shrink-0">
+          ⚡
+        </div>
+        <div>
+          <p className="font-pixel text-[11px] text-[#E85D4A] leading-tight">+80 XP</p>
+          <p className="font-pixel text-[7px] text-white/50 mt-1.5 leading-tight tracking-wider">MISSION COMPLETE!</p>
+        </div>
       </motion.div>
 
-      {/* Floating rank badge */}
+      {/* ── Floating Rank Badge ── far left, clear of the phone */}
       <motion.div
-        animate={{ y: [0, -8, 0] }}
+        animate={{ y: [0, -6, 0] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -left-6 bottom-24 bg-[#0C0B0A] border border-[#C8E650]/60 px-3 py-2"
-        style={{ boxShadow: '0 0 12px #C8E65044' }}
+        className="absolute -left-36 md:-left-44 bottom-28 bg-black/70 backdrop-blur-md border border-[#C8E650]/40 pl-3 pr-4 py-2.5 rounded-2xl flex items-center gap-3 z-30"
+        style={{ boxShadow: '0 8px 32px rgba(200, 230, 80, 0.2)' }}
       >
-        <p className="font-pixel text-[8px] text-[#C8E650]">EXPLORER</p>
-        <p className="font-pixel text-[7px] text-white/40 mt-0.5">RANK ACHIEVED</p>
+        <div className="w-8 h-8 rounded-full bg-[#C8E650]/20 flex items-center justify-center border border-[#C8E650]/30 text-[#C8E650] text-sm shadow-[0_0_10px_rgba(200,230,80,0.3)] shrink-0">
+          🏆
+        </div>
+        <div>
+          <p className="font-pixel text-[11px] text-[#C8E650] leading-tight">EXPLORER</p>
+          <p className="font-pixel text-[7px] text-white/50 mt-1.5 leading-tight tracking-wider">RANK ACHIEVED</p>
+        </div>
       </motion.div>
     </div>
   );
