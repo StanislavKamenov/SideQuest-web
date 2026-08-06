@@ -38,12 +38,14 @@ export default function PhoneMockup() {
               style={{ background: 'linear-gradient(to bottom, #080820 50%, rgba(8,8,32,0.5) 80%, transparent 100%)' }}
             >
               {/* Left: Time — vertically centered with Dynamic Island */}
-              <span className="text-white text-[13px] font-semibold tracking-tight mt-[2px]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
-                9:41
-              </span>
+              <div className="flex-1 flex justify-start pl-2">
+                <span className="text-white text-[11px] font-semibold tracking-tight mt-[1px]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+                  9:41
+                </span>
+              </div>
 
               {/* Center: Dynamic Island */}
-              <div className="w-[90px] h-[26px] bg-black rounded-full flex items-center justify-between px-2 shrink-0"
+              <div className="w-[84px] h-[24px] bg-black rounded-full flex items-center justify-between px-2 shrink-0 mx-auto"
                 style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.04)' }}
               >
                 <div className="w-[6px] h-[6px] rounded-full bg-[#1a1a2e]" />
@@ -53,24 +55,24 @@ export default function PhoneMockup() {
               </div>
 
               {/* Right: Signal + Wifi + Battery — vertically centered with Dynamic Island */}
-              <div className="flex items-center gap-[5px] mt-[2px]">
+              <div className="flex-1 flex ml-[1rem] justify-end items-center gap-[4px] mt-[1px] pr-0">
                 {/* Cellular signal bars */}
-                <div className="flex items-end gap-[1.5px]">
-                  <div className="w-[3px] h-[3px] bg-white rounded-[0.5px]" />
-                  <div className="w-[3px] h-[5px] bg-white rounded-[0.5px]" />
-                  <div className="w-[3px] h-[7px] bg-white rounded-[0.5px]" />
-                  <div className="w-[3px] h-[9px] bg-white rounded-[0.5px]" />
+                <div className="flex items-end gap-[1px]">
+                  <div className="w-[2.5px] h-[2.5px] bg-white rounded-[0.5px]" />
+                  <div className="w-[2.5px] h-[4px] bg-white rounded-[0.5px]" />
+                  <div className="w-[2.5px] h-[5.5px] bg-white rounded-[0.5px]" />
+                  <div className="w-[2.5px] h-[7px] bg-white rounded-[0.5px]" />
                 </div>
                 {/* Wifi */}
-                <svg className="w-[13px] h-[13px] text-white" viewBox="0 0 16 16" fill="currentColor">
+                <svg className="w-[11px] h-[11px] text-white" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 12.5a1.25 1.25 0 110 2.5 1.25 1.25 0 010-2.5zm-3.18-2.12a.75.75 0 011.06 0A3.22 3.22 0 008 9.5c.82 0 1.6.32 2.12.88a.75.75 0 101.06-1.06A4.72 4.72 0 008 8a4.72 4.72 0 00-3.18 1.32.75.75 0 000 1.06zm-2.47-2.5a.75.75 0 011.06 0A6.46 6.46 0 008 6a6.46 6.46 0 004.59 1.88.75.75 0 101.06-1.06A7.96 7.96 0 008 4.5a7.96 7.96 0 00-5.65 2.32.75.75 0 000 1.06z" />
                 </svg>
                 {/* Battery */}
                 <div className="flex items-center">
-                  <div className="w-[20px] h-[9px] border border-white/60 rounded-[2.5px] p-[1.5px] relative">
-                    <div className="w-full h-full bg-white rounded-[1px]" />
+                  <div className="w-[16px] h-[7.5px] border border-white/60 rounded-[2px] p-[1px] relative">
+                    <div className="w-full h-full bg-white rounded-[0.5px]" />
                   </div>
-                  <div className="w-[1.5px] h-[4px] bg-white/40 rounded-r-full ml-[0.5px]" />
+                  <div className="w-[1px] h-[3px] bg-white/40 rounded-r-full ml-[0.5px]" />
                 </div>
               </div>
             </div>

@@ -144,74 +144,16 @@ body::before {
 }
 
 /* scroll behavior */
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth; 
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;
+}
 
-/* Retro Gaming Custom Scrollbar */
+/* Hide scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: #0c0b11;
-  /* Retro checkered/dithered background pattern */
-  background-image: 
-    conic-gradient(#1e1b29 25%, transparent 25% 50%, #1e1b29 50% 75%, transparent 75%);
-  background-size: 8px 8px;
-  border-left: 2px solid #1e1b29;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #E85D4A;
-  border: 2px solid #0c0b11;
-  /* Alternating 3D pixel block segments (14px block, 2px separator) */
-  background-image: repeating-linear-gradient(
-    to bottom,
-    #ff8a7a 0px,
-    #ff8a7a 2px,
-    #E85D4A 2px,
-    #E85D4A 12px,
-    #9d3324 12px,
-    #9d3324 14px,
-    #0c0b11 14px,
-    #0c0b11 16px
-  );
-  box-shadow: 0 0 8px rgba(232, 93, 74, 0.3);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #C8E650;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    #e2fa77 0px,
-    #e2fa77 2px,
-    #C8E650 2px,
-    #C8E650 12px,
-    #8fa82b 12px,
-    #8fa82b 14px,
-    #0c0b11 14px,
-    #0c0b11 16px
-  );
-  box-shadow: 0 0 8px rgba(200, 230, 80, 0.4);
-}
-
-::-webkit-scrollbar-thumb:active {
-  background-color: #9d3324;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    #ff8a7a 0px,
-    #ff8a7a 2px,
-    #9d3324 2px,
-    #9d3324 12px,
-    #531109 12px,
-    #531109 14px,
-    #0c0b11 14px,
-    #0c0b11 16px
-  );
-}
-
-::-webkit-scrollbar-corner {
-  background-color: #0c0b11;
+  display: none;
 }
 
 /* Custom Retro Pixel Cursors (Red 3D blocky arrow) */
@@ -219,9 +161,9 @@ html, body, p, span, div, h1, h2, h3, h4, h5, h6, li, ul, ol, td, th, label, svg
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%230c0b11' d='M0 0 L0 24 L6 18 L10 26 L14 24 L10 16 L18 16 Z'/%3E%3Cpath fill='%23E85D4A' d='M2 3 L2 20 L5 17 L9 24 L11 23 L7 15 L15 15 Z'/%3E%3Cpath fill='%23ff8a7a' d='M2 3 L2 19 L3 19 L3 5 L14 15 L15 15 Z'/%3E%3Cpath fill='%239d3324' d='M3 19 L5 17 L9 24 L11 23 L7 15 Z'/%3E%3C/svg%3E") 0 0, auto;
 }
 
-/* Custom Retro Pixel Cursors for interactive items (Lime 3D blocky arrow) */
+/* Custom Retro Pixel Cursors for interactive items (Lime 3D blocky hand) */
 a, button, select, input, textarea, [role="button"], .cursor-pointer, a *, button * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%230c0b11' d='M0 0 L0 24 L6 18 L10 26 L14 24 L10 16 L18 16 Z'/%3E%3Cpath fill='%23C8E650' d='M2 3 L2 20 L5 17 L9 24 L11 23 L7 15 L15 15 Z'/%3E%3Cpath fill='%23e2fa77' d='M2 3 L2 19 L3 19 L3 5 L14 15 L15 15 Z'/%3E%3Cpath fill='%238fa82b' d='M3 19 L5 17 L9 24 L11 23 L7 15 Z'/%3E%3C/svg%3E") 0 0, pointer !important;
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22%230c0b11%22%20d%3D%22M5%202h2v3h1V4h2v1h1V4h2v3h1v5l-2%202H6L4%2012V7h1z%22%2F%3E%3Cpath%20fill%3D%22%23C8E650%22%20d%3D%22M6%203h1v5H6zM9%205h1v4H9zM11%205h1v4h-1zM4%208h1v3H4zM13%208v3l-1%201H7L5%2011V8h1v1h1V6h1v1h1V6h1v1h1z%22%2F%3E%3C%2Fsvg%3E") 10 4, pointer !important;
 }
 
 
