@@ -55,7 +55,7 @@ export default function PhoneMockup() {
               </div>
 
               {/* Right: Signal + Wifi + Battery — vertically centered with Dynamic Island */}
-              <div className="flex-1 flex ml-[1rem] justify-end items-center gap-[4px] mt-[1px] pr-0">
+              <div className="flex-1 flex ml-[rem] justify-end items-center gap-[4px] mt-[1px] pr-0">
                 {/* Cellular signal bars */}
                 <div className="flex items-end gap-[1px]">
                   <div className="w-[2.5px] h-[2.5px] bg-white rounded-[0.5px]" />
