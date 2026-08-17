@@ -225,17 +225,17 @@ export default function AdminExpenses() {
 
       {/* Add Expense Modal */}
       {showAddModal && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/60 z-50"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setShowAddModal(false)}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md bg-card border-2 border-border p-6 z-50"
+            className="relative w-full max-w-md bg-card border-2 border-border p-6 z-10"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-pixel text-[10px] text-foreground tracking-wider glow-red">ADD EXPENSE</h2>
@@ -284,7 +284,7 @@ export default function AdminExpenses() {
               </div>
             </form>
           </motion.div>
-        </>
+        </div>
       )}
     </div>
   );

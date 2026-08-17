@@ -1,16 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Save, User, Bell, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
-import { demoBusinessProfile } from '@/lib/demoData';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function AdminSettings() {
-  const [profile, setProfile] = useState(demoBusinessProfile);
+  const { user } = useAuth();
+  const [profile, setProfile] = useState({
+    id: null,
+    name: '',
+    email: '',
+    phone: '',
+    website: '',
+    address: '',
+    description: '',
+    logo_url: '',
+    notifications: {
+      emailOnNewRedemption: true,
+      emailWeeklySummary: true,
+      pushOnNewParticipant: true,
+    }
+  });
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('owner_id', user.id)
+        .single();
+        
+      if (data) {
+        setProfile((prev) => ({
+          ...prev,
+          id: data.id,
+          name: data.name || '',
+          email: data.contact_email || '',
+          phone: data.contact_phone || '',
+          website: data.website || '',
+          address: data.address || '',
+          description: data.description || '',
+          logo_url: data.logo_url || '',
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching business profile:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    if (!profile.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({
+          name: profile.name,
+          contact_email: profile.email,
+          contact_phone: profile.phone,
+          website: profile.website,
+          address: profile.address,
+          description: profile.description,
+        })
+        .eq('id', profile.id);
+        
+      if (error) throw error;
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Error saving profile:', err);
+    }
   };
 
   const updateField = (field, value) => {
@@ -25,7 +97,7 @@ export default function AdminSettings() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
@@ -55,8 +127,14 @@ export default function AdminSettings() {
         <form onSubmit={handleSave} className="p-5 space-y-4">
           {/* Logo placeholder */}
           <div className="flex items-center gap-4 mb-2">
-            <div className="w-16 h-16 bg-secondary border-2 border-border flex items-center justify-center">
-              <span className="font-pixel text-[16px] text-[#E85D4A]">SQ</span>
+            <div className="w-16 h-16 bg-secondary border-2 border-border flex items-center justify-center overflow-hidden">
+              {profile.logo_url ? (
+                <img src={profile.logo_url} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="font-pixel text-[16px] text-[#E85D4A]">
+                  {profile.name ? profile.name.substring(0, 2).toUpperCase() : 'SQ'}
+                </span>
+              )}
             </div>
             <div>
               <button type="button" className="font-pixel text-[7px] text-[#6B9FD4] tracking-wider hover:underline">
@@ -164,7 +242,6 @@ export default function AdminSettings() {
         <div className="p-5 space-y-4">
           {[
             { key: 'emailOnNewRedemption', label: 'Email on new redemption', desc: 'Get notified when a user redeems a reward' },
-            { key: 'emailOnPayment', label: 'Email on payment received', desc: 'Get notified when a payment is completed' },
             { key: 'emailWeeklySummary', label: 'Weekly summary email', desc: 'Receive a weekly digest of your business metrics' },
             { key: 'pushOnNewParticipant', label: 'Push on new participant', desc: 'Get a push notification when someone joins an event' },
           ].map(({ key, label, desc }) => (

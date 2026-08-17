@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, CheckCircle, XCircle, Clock, Gift } from 'lucide-react';
-import { demoRedemptions } from '@/lib/demoData';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
 
 const statusConfig = {
   pending: { label: 'PENDING', color: '#E8956A', icon: Clock },
@@ -10,9 +11,67 @@ const statusConfig = {
 };
 
 export default function AdminRedemptions() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [redemptions, setRedemptions] = useState(demoRedemptions);
+  const [redemptions, setRedemptions] = useState([]);
+
+  const fetchRedemptions = async () => {
+    if (!user) return;
+    try {
+      const { data: biz } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .single();
+
+      if (!biz) return;
+
+      const { data, error } = await supabase
+        .from('redemptions')
+        .select(`
+          id,
+          spent_coins,
+          status,
+          redeemed_at,
+          reward:reward_id!inner(title, business_id),
+          profiles:user_id(username, avatar_url)
+        `)
+        .eq('reward.business_id', biz.id)
+        .order('redeemed_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formatted = (data || []).map((r) => {
+        let uiStatus = 'pending';
+        if (r.status === 'used') uiStatus = 'approved';
+        else if (r.status === 'cancelled' || r.status === 'refunded') uiStatus = 'rejected';
+        
+        const rewardData = Array.isArray(r.reward) ? r.reward[0] : r.reward;
+        const profileData = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+
+        return {
+          id: r.id,
+          user: profileData?.username || 'Unknown User',
+          avatar: profileData?.avatar_url ? (
+            <img src={profileData.avatar_url} alt="avatar" className="w-6 h-6 rounded-full object-cover" />
+          ) : '👤',
+          reward: rewardData?.title || 'Unknown Reward',
+          xpCost: r.spent_coins || 0,
+          date: new Date(r.redeemed_at).toLocaleDateString(),
+          status: uiStatus,
+        };
+      });
+
+      setRedemptions(formatted);
+    } catch (err) {
+      console.error('Error fetching redemptions:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRedemptions();
+  }, [user]);
 
   const filtered = redemptions.filter((r) => {
     const matchesFilter = filter === 'all' || r.status === filter;
@@ -22,10 +81,26 @@ export default function AdminRedemptions() {
     return matchesFilter && matchesSearch;
   });
 
-  const handleAction = (id, action) => {
-    setRedemptions((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: action } : r))
-    );
+  const handleAction = async (id, action) => {
+    const dbStatus = action === 'approved' ? 'used' : 'cancelled';
+    try {
+      // Update locally for quick UI feedback
+      setRedemptions((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status: action } : r))
+      );
+      
+      const { error } = await supabase
+        .from('redemptions')
+        .update({ status: dbStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+    } catch (err) {
+      console.error('Error updating redemption status:', err);
+      // Revert if error
+      fetchRedemptions();
+    }
   };
 
   const counts = {
@@ -101,7 +176,7 @@ export default function AdminRedemptions() {
             >
               {/* User */}
               <div className="col-span-3 flex items-center gap-3">
-                <span className="text-lg">{r.avatar}</span>
+                <span className="flex items-center justify-center w-6 h-6">{r.avatar}</span>
                 <span className="font-body text-sm text-foreground">{r.user}</span>
               </div>
               {/* Reward */}

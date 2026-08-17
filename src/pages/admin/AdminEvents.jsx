@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -11,37 +11,215 @@ import {
   Calendar,
 } from 'lucide-react';
 import { demoEvents } from '@/lib/demoData';
+import MapPicker from '@/components/admin/MapPicker';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
 
 const statusColors = {
   active: { bg: 'bg-[#C8E650]/10', text: 'text-[#C8E650]', border: 'border-[#C8E650]/40' },
   upcoming: { bg: 'bg-[#6B9FD4]/10', text: 'text-[#6B9FD4]', border: 'border-[#6B9FD4]/40' },
   completed: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border' },
-  draft: { bg: 'bg-[#E8956A]/10', text: 'text-[#E8956A]', border: 'border-[#E8956A]/40' },
+  expired: { bg: 'bg-[#E8956A]/10', text: 'text-[#E8956A]', border: 'border-[#E8956A]/40' },
+  draft: { bg: 'bg-muted/50', text: 'text-muted-foreground', border: 'border-border/50' },
 };
 
 const categoryEmoji = {
   health: '💪',
   mind: '🧠',
   social: '🤝',
+  event: '🎯',
+  challenge: '⚔️',
+  side: '🌟',
+  solo: '👤',
+  squad: '👥',
 };
 
 export default function AdminEvents() {
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('active');
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const filtered = demoEvents.filter((e) => {
-    const matchesFilter = filter === 'all' || e.status === filter;
+  const { user } = useAuth();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [rarity, setRarity] = useState('common');
+  const [proofType, setProofType] = useState('photo');
+  const [radius, setRadius] = useState(150);
+  const [isCustomRadius, setIsCustomRadius] = useState(false);
+  const [xpReward, setXpReward] = useState('50');
+  const [coinsReward, setCoinsReward] = useState('100');
+  const [isActive, setIsActive] = useState(true);
+  const [durationHours, setDurationHours] = useState(24);
+  const [isCustomDuration, setIsCustomDuration] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+
+  const fetchEvents = async () => {
+    try {
+      setIsLoadingEvents(true);
+      const { data, error } = await supabase
+        .from('missions')
+        .select(`
+          id,
+          title,
+          description,
+          category,
+          is_active,
+          xp_reward,
+          starts_at,
+          expires_at
+        `)
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const now = new Date();
+      const transformed = (data || []).map(m => {
+        const start = new Date(m.starts_at);
+        const end = m.expires_at ? new Date(m.expires_at) : null;
+        
+        let status = 'draft';
+        if (!m.is_active) {
+          status = 'draft';
+        } else if (end && end < now) {
+          status = 'expired';
+        } else if (start > now) {
+          status = 'upcoming';
+        } else {
+          status = 'active';
+        }
+
+        return {
+          id: m.id,
+          name: m.title,
+          description: m.description || 'No description provided.',
+          category: m.category || 'event',
+          status,
+          date: start.toLocaleDateString(),
+          location: 'Map Location',
+          participants: 0,
+          maxParticipants: 100,
+          xpReward: m.xp_reward || 0
+        };
+      });
+
+      setEvents(transformed);
+    } catch (err) {
+      console.error('Failed to load events:', err);
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchEvents();
+    }
+  }, [user]);
+
+  const radiusOptions = [50, 100, 150, 300];
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setCoverImage({ file, url: imageUrl });
+    }
+  };
+
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!location) {
+      setFormError("Please select a location on the map.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      let cover_url = null;
+      if (coverImage?.file) {
+        const file = coverImage.file;
+        const ext = file.name.split('.').pop() || 'jpg';
+        const fileName = `${user.id}/covers/${Date.now()}.${ext}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('mission-media')
+          .upload(fileName, file);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: urlData } = supabase.storage
+          .from('mission-media')
+          .getPublicUrl(fileName);
+          
+        cover_url = urlData.publicUrl;
+      }
+
+      const starts_at = new Date().toISOString();
+      const expires_at = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+
+      const missionData = {
+        title,
+        description,
+        type: 'event',
+        category: 'event',
+        rarity,
+        lat: location.lat,
+        lng: location.lng,
+        radius_m: isCustomRadius ? parseInt(radius) : parseInt(radius),
+        created_by: user.id,
+        xp_reward: parseInt(xpReward),
+        coins_reward: parseInt(coinsReward),
+        is_active: isActive,
+        proof_upload_type: proofType,
+        cover_url,
+        starts_at,
+        expires_at,
+      };
+
+      const { error: insertError } = await supabase
+        .from('missions')
+        .insert(missionData);
+
+      if (insertError) throw insertError;
+
+      setShowCreateModal(false);
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setCoverImage(null);
+      setLocation(null);
+      setIsActive(true);
+      setDurationHours(24);
+      fetchEvents();
+      
+    } catch (err) {
+      console.error('Error creating event:', err);
+      setFormError(err.message || 'Failed to create event. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filtered = events.filter((e) => {
+    const matchesFilter = e.status === filter;
     const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const statusCounts = {
-    all: demoEvents.length,
-    active: demoEvents.filter((e) => e.status === 'active').length,
-    upcoming: demoEvents.filter((e) => e.status === 'upcoming').length,
-    completed: demoEvents.filter((e) => e.status === 'completed').length,
-    draft: demoEvents.filter((e) => e.status === 'draft').length,
+    active: events.filter((e) => e.status === 'active').length,
+    upcoming: events.filter((e) => e.status === 'upcoming').length,
+    completed: events.filter((e) => e.status === 'completed').length,
+    expired: events.filter((e) => e.status === 'expired').length,
   };
 
   return (
@@ -79,8 +257,8 @@ export default function AdminEvents() {
           />
         </div>
         {/* Status Tabs */}
-        <div className="flex items-center gap-1 bg-card border border-border p-1">
-          {['all', 'active', 'upcoming', 'completed', 'draft'].map((s) => (
+        <div className="flex flex-wrap items-center gap-1 bg-card border border-border p-1">
+          {['active', 'upcoming', 'completed', 'expired'].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -176,82 +354,290 @@ export default function AdminEvents() {
       {/* Create Event Modal */}
       <AnimatePresence>
         {showCreateModal && (
-          <>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 z-50"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
               onClick={() => setShowCreateModal(false)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-card border-2 border-border p-6 z-50 overflow-y-auto max-h-[90vh]"
+              className="relative w-full max-w-xl bg-card border border-[#6B9FD4]/30 shadow-[0_0_30px_rgba(107,159,212,0.1)] p-6 z-10 overflow-y-auto max-h-[90vh] custom-scrollbar"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-pixel text-[10px] text-foreground tracking-wider glow-red">CREATE EVENT</h2>
-                <button onClick={() => setShowCreateModal(false)} className="text-muted-foreground hover:text-foreground">
-                  <X className="w-5 h-5" />
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
+                <div>
+                  <h2 className="font-pixel text-[12px] text-foreground tracking-widest glow-purple">CREATE EVENT</h2>
+                  <p className="font-body text-xs text-muted-foreground mt-1">Place a new mission on the map</p>
+                </div>
+                <button onClick={() => setShowCreateModal(false)} className="text-muted-foreground hover:text-foreground bg-secondary/50 p-2">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setShowCreateModal(false); }}>
+              <form className="space-y-8" onSubmit={handleCreateEvent}>
+                {formError && (
+                  <div className="bg-red-500/10 border border-red-500/50 p-4">
+                    <p className="font-pixel text-[8px] text-red-500 tracking-wider">ERROR: {formError}</p>
+                  </div>
+                )}
+                
+                {/* Info Box */}
+                <div className="bg-[#6B9FD4]/10 border border-[#6B9FD4]/30 p-4 flex items-start gap-3">
+                  <div className="mt-0.5">ℹ️</div>
+                  <p className="font-body text-xs text-[#6B9FD4] leading-relaxed">
+                    Creating an event for your business venue. Category and type are automatically set to "event".
+                  </p>
+                </div>
+
+                {/* RARITY */}
                 <div>
-                  <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">EVENT NAME</label>
-                  <input className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none" placeholder="e.g. Morning Run Challenge" />
+                  <label className="font-pixel text-[8px] text-[#E8C36A] tracking-widest mb-3 block">● RARITY · DROP TIER</label>
+                  <p className="font-body text-[10px] text-muted-foreground mb-3">Higher rarity = bolder card + bigger default coin reward.</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {['common', 'rare', 'epic', 'legendary'].map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRarity(r)}
+                        className={`py-2 px-1 font-pixel text-[6px] tracking-wider border transition-all ${
+                          rarity === r 
+                            ? 'bg-[#E8C36A]/20 border-[#E8C36A] text-[#E8C36A] shadow-[0_0_10px_rgba(232,195,106,0.3)]' 
+                            : 'bg-secondary border-border text-muted-foreground hover:bg-secondary/80'
+                        }`}
+                      >
+                        {r.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* BRIEFING */}
                 <div>
-                  <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">DESCRIPTION</label>
-                  <textarea rows={3} className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none resize-none" placeholder="What's this event about?" />
+                  <label className="font-pixel text-[8px] text-[#6B9FD4] tracking-widest mb-3 block">● BRIEFING</label>
+                  <div className="space-y-4">
+                    <div>
+                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">TITLE *</span>
+                      <input 
+                        value={title} onChange={(e) => setTitle(e.target.value)} required
+                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#6B9FD4] focus:outline-none" 
+                        placeholder="e.g. Sunset photo at the bridge" 
+                      />
+                    </div>
+                    <div>
+                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">DESCRIPTION</span>
+                      <textarea 
+                        value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
+                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#6B9FD4] focus:outline-none resize-none" 
+                        placeholder="What should people do?" 
+                      />
+                    </div>
+                    <div>
+                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">COVER IMAGE (OPTIONAL)</span>
+                      {coverImage ? (
+                        <div className="relative w-full h-32 group">
+                          <img 
+                            src={coverImage.url} 
+                            alt="Cover Preview" 
+                            className="w-full h-full object-cover border border-[#6B9FD4]/50" 
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button 
+                              type="button" 
+                              onClick={() => setCoverImage(null)}
+                              className="bg-red-500/80 text-white px-3 py-1.5 font-pixel text-[6px] tracking-wider hover:bg-red-500"
+                            >
+                              REMOVE IMAGE
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="w-full h-24 bg-background border border-border border-dashed flex flex-col items-center justify-center text-muted-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
+                          <span className="text-xl mb-1">📸</span>
+                          <span className="font-pixel text-[6px] tracking-wider">PICK AN IMAGE</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleImageUpload} 
+                            className="hidden" 
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">START DATE</label>
-                    <input type="date" className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">END DATE</label>
-                    <input type="date" className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">LOCATION</label>
-                    <input className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none" placeholder="City or Online" />
-                  </div>
-                  <div>
-                    <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">XP REWARD</label>
-                    <input type="number" className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none" placeholder="100" />
-                  </div>
-                </div>
+
+                {/* PROOF */}
                 <div>
-                  <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 block">CATEGORY</label>
-                  <select className="w-full bg-background border-2 border-border px-4 py-2.5 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none">
-                    <option value="health">💪 Health</option>
-                    <option value="mind">🧠 Mind</option>
-                    <option value="social">🤝 Social</option>
-                  </select>
+                  <label className="font-pixel text-[8px] text-[#5DE8A4] tracking-widest mb-3 block">● PROOF · PLAYER UPLOADS</label>
+                  <p className="font-body text-[10px] text-muted-foreground mb-3">Choose what players must submit to complete this challenge.</p>
+                  <div className="flex gap-3">
+                    {[
+                      { id: 'photo', label: 'Photo', icon: '📷' },
+                      { id: 'video', label: 'Video', icon: '🎥' },
+                      { id: 'both', label: 'Both', icon: '📸' }
+                    ].map(opt => (
+                      <button
+                        key={opt.id} type="button" onClick={() => setProofType(opt.id)}
+                        className={`flex-1 py-3 px-2 flex items-center justify-center gap-2 border transition-all ${
+                          proofType === opt.id
+                            ? 'bg-[#5DE8A4]/10 border-[#5DE8A4] text-[#5DE8A4]'
+                            : 'bg-secondary border-border text-muted-foreground'
+                        }`}
+                      >
+                        <span>{opt.icon}</span>
+                        <span className="font-pixel text-[7px] tracking-wider">{opt.label.toUpperCase()}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="flex-1 px-4 py-2.5 border border-border font-pixel text-[8px] text-muted-foreground tracking-wider hover:text-foreground transition-colors"
-                  >
+
+                {/* LOCATION */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#D47BA8] tracking-widest mb-3 block">● LOCATION · DROP POINT</label>
+                  <MapPicker onLocationSelect={(pos) => setLocation(pos)} />
+                </div>
+
+                {/* RADIUS */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#D47BA8] tracking-widest mb-3 block">● RADIUS · COMPLETION ZONE</label>
+                  <div className="flex flex-wrap gap-2">
+                    {radiusOptions.map(r => (
+                      <button
+                        key={r} type="button" 
+                        onClick={() => { setIsCustomRadius(false); setRadius(r); }}
+                        className={`py-2 px-3 font-pixel text-[7px] tracking-wider border transition-all ${
+                          !isCustomRadius && radius === r
+                            ? 'bg-[#D47BA8]/20 border-[#D47BA8] text-[#D47BA8]'
+                            : 'bg-secondary border-border text-muted-foreground'
+                        }`}
+                      >
+                        {r}m
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomRadius(true)}
+                      className={`py-2 px-3 font-pixel text-[7px] tracking-wider border transition-all ${
+                        isCustomRadius
+                          ? 'bg-[#D47BA8]/20 border-[#D47BA8] text-[#D47BA8]'
+                          : 'bg-secondary border-border text-muted-foreground'
+                      }`}
+                    >
+                      CUSTOM +
+                    </button>
+                  </div>
+                  {isCustomRadius && (
+                    <div className="mt-3">
+                      <input 
+                        type="number" value={radius} onChange={(e) => setRadius(Number(e.target.value))}
+                        className="w-full max-w-[200px] bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#D47BA8] focus:outline-none" 
+                        placeholder="Radius in meters" 
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* DURATION */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#E86A6A] tracking-widest mb-3 block">● DURATION · ACTIVE TIME</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '1h', value: 1 },
+                      { label: '12h', value: 12 },
+                      { label: '24h', value: 24 },
+                      { label: '3d', value: 72 },
+                      { label: '1w', value: 168 }
+                    ].map(opt => (
+                      <button
+                        key={opt.label} type="button" 
+                        onClick={() => { setIsCustomDuration(false); setDurationHours(opt.value); }}
+                        className={`py-2 px-3 font-pixel text-[7px] tracking-wider border transition-all ${
+                          !isCustomDuration && durationHours === opt.value
+                            ? 'bg-[#E86A6A]/20 border-[#E86A6A] text-[#E86A6A]'
+                            : 'bg-secondary border-border text-muted-foreground'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomDuration(true)}
+                      className={`py-2 px-3 font-pixel text-[7px] tracking-wider border transition-all ${
+                        isCustomDuration
+                          ? 'bg-[#E86A6A]/20 border-[#E86A6A] text-[#E86A6A]'
+                          : 'bg-secondary border-border text-muted-foreground'
+                      }`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  {isCustomDuration && (
+                    <div className="mt-3">
+                      <input 
+                        type="number" value={durationHours} onChange={(e) => setDurationHours(Number(e.target.value))}
+                        className="w-full max-w-[200px] bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#E86A6A] focus:outline-none" 
+                        placeholder="Duration in hours" 
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* REWARDS & STATUS */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#E8C36A] tracking-widest mb-3 block">● REWARDS · OUTPUT</label>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">XP</span>
+                      <input 
+                        type="number" value={xpReward} onChange={(e) => setXpReward(e.target.value)}
+                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none" 
+                      />
+                    </div>
+                    <div>
+                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">COINS</span>
+                      <input 
+                        type="number" value={coinsReward} onChange={(e) => setCoinsReward(e.target.value)}
+                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none" 
+                      />
+                    </div>
+                  </div>
+
+                  <div className={`p-4 border transition-all flex items-center justify-between mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
+                    <div>
+                      <p className="font-pixel text-[8px] text-foreground tracking-wider">ACTIVE IMMEDIATELY</p>
+                      <p className="font-body text-[10px] text-muted-foreground mt-1">Visible to nearby players right away</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <div className="flex gap-4 pt-4 border-t border-border">
+                  <button type="button" onClick={() => setShowCreateModal(false)} disabled={isSubmitting} className="flex-1 bg-secondary text-foreground px-4 py-3 font-pixel text-[8px] tracking-wider hover:bg-secondary/80 transition-colors disabled:opacity-50">
                     CANCEL
                   </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2.5 bg-[#E85D4A] text-white font-pixel text-[8px] tracking-wider hover:bg-[#d44d3a] transition-colors"
-                  >
-                    CREATE EVENT
+                  <button type="submit" disabled={isSubmitting} className="flex-1 bg-[#C8E650] text-black px-4 py-3 font-pixel text-[8px] tracking-wider hover:bg-[#b5d148] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></span>
+                        DEPLOYING...
+                      </>
+                    ) : (
+                      'DEPLOY EVENT'
+                    )}
                   </button>
                 </div>
               </form>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </div>
