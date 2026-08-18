@@ -41,7 +41,9 @@ export const AuthProvider = ({ children }) => {
         .eq('id', sessionUser.id)
         .single();
 
-      if (error || !profileData || profileData.role !== 'business') {
+      const isSysAdmin = profileData?.role === 'admin' || profileData?.is_admin === true;
+
+      if (error || !profileData || (profileData.role !== 'business' && !isSysAdmin)) {
         // Not a business or no profile -> sign out
         await supabase.auth.signOut();
         clearAuth();
@@ -110,16 +112,19 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Profile not found. Contact support.');
       }
 
-      if (profileData.role !== 'business') {
-        // Not a business account — sign out and throw
+      const isSysAdmin = profileData?.role === 'admin' || profileData?.is_admin === true;
+
+      if (profileData.role !== 'business' && !isSysAdmin) {
+        // Not a business or admin account — sign out and throw
         await supabase.auth.signOut();
         throw new Error('ACCESS_DENIED_NOT_BUSINESS');
       }
 
       setProfile(profileData);
+      return { ...data, profile: profileData };
     }
 
-    return data;
+    return { ...data, profile: null };
   };
 
   const loginWithGoogle = async () => {
@@ -140,7 +145,8 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
   };
 
-  const isBusiness = profile?.role === 'business';
+  const isSysAdmin = profile?.role === 'admin' || profile?.is_admin === true;
+  const isBusiness = profile?.role === 'business' || isSysAdmin;
 
   return (
     <AuthContext.Provider value={{
@@ -150,6 +156,7 @@ export const AuthProvider = ({ children }) => {
       isLoadingAuth,
       authError,
       isBusiness,
+      isSysAdmin,
       login,
       loginWithGoogle,
       logout,

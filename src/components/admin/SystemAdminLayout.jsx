@@ -3,26 +3,28 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import {
   LayoutDashboard,
-  CalendarDays,
-  Gift,
-  CreditCard,
-  Receipt,
+  Users,
+  Building2,
+  Target,
   Settings,
   LogOut,
   Menu,
   X,
   ChevronRight,
+  ArrowLeftRight,
+  DollarSign,
+  ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
 
 const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'OVERVIEW', end: true },
-  { to: '/admin/events', icon: CalendarDays, label: 'EVENTS' },
-  { to: '/admin/redemptions', icon: Gift, label: 'REDEMPTIONS' },
-  { to: '/admin/payments', icon: CreditCard, label: 'PAYMENTS' },
-  { to: '/admin/expenses', icon: Receipt, label: 'EXPENSES' },
-  { to: '/admin/settings', icon: Settings, label: 'SETTINGS' },
+  { to: '/sysadmin', icon: LayoutDashboard, label: 'OVERVIEW', end: true },
+  { to: '/sysadmin/businesses', icon: Building2, label: 'BUSINESSES' },
+  { to: '/sysadmin/missions', icon: Target, label: 'MISSIONS' },
+  { to: '/sysadmin/players', icon: Users, label: 'PLAYERS' },
+  { to: '/sysadmin/review-queue', icon: ShieldAlert, label: 'REVIEW QUEUE' },
+  { to: '/sysadmin/payments', icon: DollarSign, label: 'PAYMENTS' },
 ];
 
 function SidebarLink({ to, icon: Icon, label, active, onClick }) {
@@ -32,7 +34,7 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 font-pixel text-[8px] tracking-wider transition-all group relative ${
         active
-          ? 'text-[#E85D4A] bg-[#E85D4A]/10 border-r-2 border-[#E85D4A]'
+          ? 'text-[#A663E0] bg-[#A663E0]/10 border-r-2 border-[#A663E0]'
           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
       }`}
     >
@@ -45,8 +47,8 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
   );
 }
 
-export default function AdminLayout() {
-  const { user, profile, logout, isSysAdmin } = useAuth();
+export default function SystemAdminLayout() {
+  const { user, profile, logout, isBusiness } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,13 +69,13 @@ export default function AdminLayout() {
       <div className="p-5 border-b border-border">
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} alt="SideQuest" className="w-8 h-8 object-contain" />
-          <span className="font-pixel text-[9px] text-foreground glow-red tracking-tight">
-            SIDE<span className="text-[#E85D4A]">QUEST</span>
+          <span className="font-pixel text-[9px] text-foreground tracking-tight" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
+            SIDE<span className="text-[#A663E0]">QUEST</span>
           </span>
         </Link>
         <div className="flex items-center gap-2 mt-3">
-          <span className="w-1.5 h-1.5 bg-[#C8E650] animate-pulse" />
-          <span className="font-pixel text-[6px] text-[#C8E650] tracking-widest">ADMIN PANEL</span>
+          <span className="w-1.5 h-1.5 bg-[#4EE6D0] animate-pulse" />
+          <span className="font-pixel text-[6px] text-[#4EE6D0] tracking-widest">SYSTEM ADMIN</span>
         </div>
       </div>
 
@@ -94,23 +96,23 @@ export default function AdminLayout() {
 
       {/* User section */}
       <div className="p-4 border-t border-border">
-        {isSysAdmin && (
+        {isBusiness && (
           <button
-            onClick={() => navigate('/sysadmin')}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 mb-3 bg-[#A663E0]/10 border border-[#A663E0]/50 font-pixel text-[7px] text-[#A663E0] hover:bg-[#A663E0]/20 transition-all tracking-wider"
+            onClick={() => navigate('/admin')}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 mb-3 bg-[#E85D4A]/10 border border-[#E85D4A]/50 font-pixel text-[7px] text-[#E85D4A] hover:bg-[#E85D4A]/20 transition-all tracking-wider"
           >
-            <Settings className="w-3 h-3" />
-            SYS ADMIN PANEL
+            <ArrowLeftRight className="w-3 h-3" />
+            BUSINESS PANEL
           </button>
         )}
 
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-[#E85D4A]/20 border border-[#E85D4A]/40 flex items-center justify-center font-pixel text-[10px] text-[#E85D4A]">
-            {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'B'}
+          <div className="w-8 h-8 bg-[#A663E0]/20 border border-[#A663E0]/40 flex items-center justify-center font-pixel text-[10px] text-[#A663E0]">
+            {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-pixel text-[7px] text-foreground truncate tracking-wide">
-              {profile?.username || 'Business'}
+              {profile?.username || 'Admin'}
             </p>
             <p className="font-body text-[10px] text-muted-foreground truncate">
               {user?.email || 'admin@sidequest.app'}
@@ -119,7 +121,7 @@ export default function AdminLayout() {
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-border font-pixel text-[7px] text-muted-foreground hover:text-[#E85D4A] hover:border-[#E85D4A]/50 transition-all tracking-wider"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-border font-pixel text-[7px] text-muted-foreground hover:text-[#A663E0] hover:border-[#A663E0]/50 transition-all tracking-wider"
         >
           <LogOut className="w-3 h-3" />
           LOG OUT
@@ -177,8 +179,8 @@ export default function AdminLayout() {
           </button>
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="SideQuest" className="w-7 h-7" />
-            <span className="font-pixel text-[8px] glow-red">
-              SIDE<span className="text-[#E85D4A]">QUEST</span>
+            <span className="font-pixel text-[8px]" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
+              SIDE<span className="text-[#A663E0]">QUEST</span>
             </span>
           </Link>
           <div className="w-5" /> {/* Spacer */}

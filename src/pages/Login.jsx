@@ -28,8 +28,14 @@ export default function Login() {
     setShowNotBusiness(false);
     setLoading(true);
     try {
-      await login(email, password);
-      navigate("/admin");
+      const { profile } = await login(email, password);
+      
+      const isSysAdmin = profile?.role === 'admin' || profile?.is_admin === true;
+      if (isSysAdmin) {
+        navigate("/sysadmin");
+      } else {
+        navigate("/admin");
+      }
     } catch (err) {
       if (err.message === "ACCESS_DENIED_NOT_BUSINESS") {
         setShowNotBusiness(true);
