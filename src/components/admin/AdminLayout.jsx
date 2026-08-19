@@ -21,6 +21,7 @@ const navItems = [
   { to: '/admin/events', icon: CalendarDays, label: 'EVENTS' },
   { to: '/admin/redemptions', icon: Gift, label: 'REDEMPTIONS' },
   { to: '/admin/payments', icon: CreditCard, label: 'PAYMENTS' },
+  { to: '/admin/billing', icon: Receipt, label: 'BILLING' },
   { to: '/admin/expenses', icon: Receipt, label: 'EXPENSES' },
   { to: '/admin/settings', icon: Settings, label: 'SETTINGS' },
 ];

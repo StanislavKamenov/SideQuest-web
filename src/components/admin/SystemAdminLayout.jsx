@@ -13,7 +13,9 @@ import {
   ChevronRight,
   ArrowLeftRight,
   DollarSign,
-  ShieldAlert
+  ShieldAlert,
+  MessageSquare,
+  Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
@@ -24,6 +26,8 @@ const navItems = [
   { to: '/sysadmin/missions', icon: Target, label: 'MISSIONS' },
   { to: '/sysadmin/players', icon: Users, label: 'PLAYERS' },
   { to: '/sysadmin/review-queue', icon: ShieldAlert, label: 'REVIEW QUEUE' },
+  { to: '/sysadmin/reports', icon: MessageSquare, label: 'REPORTS' },
+  { to: '/sysadmin/audit-log', icon: Database, label: 'AUDIT LOG' },
   { to: '/sysadmin/payments', icon: DollarSign, label: 'PAYMENTS' },
 ];
 

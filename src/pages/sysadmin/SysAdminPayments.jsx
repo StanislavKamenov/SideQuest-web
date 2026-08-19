@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, DollarSign, CalendarDays, Calendar, Building2, CheckCircle, Clock, XCircle, RotateCcw } from 'lucide-react';
-import { demoPayments } from '@/lib/demoData';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const statusConfig = {
   completed: { label: 'COMPLETED', color: '#C8E650', icon: CheckCircle },
@@ -11,30 +13,85 @@ const statusConfig = {
 };
 
 export default function SysAdminPayments() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [payments, setPayments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
-  const filtered = demoPayments.filter((p) => {
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const { data, error: fnError } = await supabase.functions.invoke('list-payments', {
+          method: 'POST',
+        });
+
+        if (fnError) throw fnError;
+        if (data?.error) throw new Error(data.error);
+
+        setPayments(data?.data || []);
+      } catch (err) {
+        console.error("Error fetching platform payments:", err);
+        setError(err.message || "Failed to load platform payments");
+        toast({
+          title: "Error Loading Payments",
+          description: err.message || "Could not fetch platform payment history.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchPayments();
+    }
+  }, [user]);
+
+  const filtered = payments.filter((p) => {
     const matchesFilter = filter === 'all' || p.status === filter;
-    const matchesSearch = p.customer.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = (p.customer || '').toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
-  // Since demo data uses "2026-08" for current month, let's hardcode it for demo accuracy
-  const currentMonthPrefix = '2026-08';
-  const currentYearPrefix = '2026';
+  const currentMonthPrefix = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentYearPrefix = new Date().toISOString().slice(0, 4); // YYYY
 
-  const lifetimeRevenue = demoPayments
+  const lifetimeRevenue = payments
     .filter((p) => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const thisYearRevenue = demoPayments
+  const thisYearRevenue = payments
     .filter((p) => p.date.startsWith(currentYearPrefix) && p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const thisMonthRevenue = demoPayments
+  const thisMonthRevenue = payments
     .filter((p) => p.date.startsWith(currentMonthPrefix) && p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="w-8 h-8 border-4 border-[#A663E0]/30 border-t-[#A663E0] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 bg-card border border-border">
+        <h2 className="font-pixel text-[12px] text-red-400 tracking-widest">ERROR LOADING REVENUE DATA</h2>
+        <p className="font-body text-sm text-muted-foreground/60 mt-2">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -65,7 +122,7 @@ export default function SysAdminPayments() {
               </div>
               <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">THIS MONTH</span>
             </div>
-            <p className="font-pixel text-3xl text-foreground">${thisMonthRevenue.toLocaleString()}</p>
+            <p className="font-pixel text-3xl text-foreground">${thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </motion.div>
 
@@ -85,7 +142,7 @@ export default function SysAdminPayments() {
               </div>
               <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">THIS YEAR</span>
             </div>
-            <p className="font-pixel text-3xl text-foreground">${thisYearRevenue.toLocaleString()}</p>
+            <p className="font-pixel text-3xl text-foreground">${thisYearRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </motion.div>
 
@@ -106,7 +163,7 @@ export default function SysAdminPayments() {
               <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">LIFETIME</span>
             </div>
             <p className="font-pixel text-3xl text-[#A663E0]" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.4)' }}>
-              ${lifetimeRevenue.toLocaleString()}
+              ${lifetimeRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
         </motion.div>
@@ -152,7 +209,7 @@ export default function SysAdminPayments() {
         </div>
 
         {filtered.map((p, i) => {
-          const sc = statusConfig[p.status];
+          const sc = statusConfig[p.status] || statusConfig.failed;
           const StatusIcon = sc.icon;
           return (
             <motion.div
@@ -172,7 +229,7 @@ export default function SysAdminPayments() {
                 </div>
               </div>
               <div className="col-span-2">
-                <span className="font-pixel text-[10px] text-foreground">${p.amount.toLocaleString()}</span>
+                <span className="font-pixel text-[10px] text-foreground">${p.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className="col-span-2">
                 <span className="font-body text-xs text-muted-foreground">{p.date}</span>

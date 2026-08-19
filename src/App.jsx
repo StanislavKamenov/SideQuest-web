@@ -17,6 +17,7 @@ import AdminRedemptions from '@/pages/admin/AdminRedemptions';
 import AdminPayments from '@/pages/admin/AdminPayments';
 import AdminExpenses from '@/pages/admin/AdminExpenses';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminBilling from '@/pages/admin/AdminBilling';
 
 // SysAdmin components
 import SystemAdminLayout from '@/components/admin/SystemAdminLayout';
@@ -26,6 +27,8 @@ import SysAdminMissions from '@/pages/sysadmin/SysAdminMissions';
 import SysAdminPlayers from '@/pages/sysadmin/SysAdminPlayers';
 import SysAdminPayments from '@/pages/sysadmin/SysAdminPayments';
 import SysAdminReviewQueue from '@/pages/sysadmin/SysAdminReviewQueue';
+import SysAdminReports from '@/pages/sysadmin/SysAdminReports';
+import SysAdminAuditLog from '@/pages/sysadmin/SysAdminAuditLog';
 
 // Protected route wrapper for business-only access
 function BusinessRoute({ children }) {
@@ -93,6 +96,7 @@ const AppRoutes = () => {
         <Route path="events" element={<AdminEvents />} />
         <Route path="redemptions" element={<AdminRedemptions />} />
         <Route path="payments" element={<AdminPayments />} />
+        <Route path="billing" element={<AdminBilling />} />
         <Route path="expenses" element={<AdminExpenses />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
@@ -112,6 +116,8 @@ const AppRoutes = () => {
         <Route path="players" element={<SysAdminPlayers />} />
         <Route path="payments" element={<SysAdminPayments />} />
         <Route path="review-queue" element={<SysAdminReviewQueue />} />
+        <Route path="reports" element={<SysAdminReports />} />
+        <Route path="audit-log" element={<SysAdminAuditLog />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
