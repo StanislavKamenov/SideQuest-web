@@ -164,7 +164,13 @@ export default function SysAdminReviewQueue() {
                   className="w-full md:w-48 h-48 bg-black/50 relative cursor-pointer group shrink-0"
                   onClick={() => setSelectedProof(proof)}
                 >
-                  {proof.proof_url ? (
+                  {proof.ai_assessment?.frames?.length > 0 ? (
+                    <div className="w-full h-full grid grid-cols-2 gap-0.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                      {proof.ai_assessment.frames.slice(0, 4).map((f, i) => (
+                        <img key={i} src={f} className="w-full h-full object-cover" alt="Frame" />
+                      ))}
+                    </div>
+                  ) : proof.proof_url ? (
                     <img src={proof.proof_url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="Proof" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-zinc-600">No Image</div>
@@ -225,32 +231,21 @@ export default function SysAdminReviewQueue() {
                   {/* Anti Cheat Summary */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
                     <div className="bg-white/5 rounded px-3 py-2">
-                      <span className="block text-xs text-zinc-500 uppercase">GPS Check</span>
-                      <span className="text-sm text-zinc-300 flex items-center mt-1">
-                        <MapPin size={14} className="mr-1 text-zinc-400" />
-                        {proof.flags?.some(f => f.reason === 'out_of_range') ? (
-                          <span className="text-red-400">Out of range</span>
-                        ) : 'Valid'}
+                      <span className="block text-xs text-zinc-500 uppercase">Decision Engine</span>
+                      <span className="text-sm font-bold text-zinc-300 mt-1 block">
+                        {proof.verification_decision ? proof.verification_decision.toUpperCase() : 'N/A'}
                       </span>
                     </div>
                     <div className="bg-white/5 rounded px-3 py-2">
-                      <span className="block text-xs text-zinc-500 uppercase">Hash Check</span>
-                      <span className="text-sm text-zinc-300 mt-1 block">
-                        {proof.flags?.some(f => f.reason === 'duplicate_proof') ? (
-                          <span className="text-red-400">Mismatch/Dup</span>
-                        ) : 'Unique'}
+                      <span className="block text-xs text-zinc-500 uppercase">Risk Score</span>
+                      <span className={`text-sm font-bold mt-1 block ${proof.risk_score > 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {proof.risk_score ?? 'N/A'}
                       </span>
                     </div>
                     <div className="bg-white/5 rounded px-3 py-2 col-span-2">
-                      <span className="block text-xs text-zinc-500 uppercase">AI Assessment</span>
+                      <span className="block text-xs text-zinc-500 uppercase">Decision Reason</span>
                       <span className="text-sm text-zinc-300 mt-1 block truncate">
-                        {proof.ai_assessment ? (
-                          <span className={proof.ai_assessment.recommendation === 'reject' ? 'text-red-400' : 'text-emerald-400'}>
-                            {proof.ai_assessment.recommendation.toUpperCase()}: {proof.ai_assessment.reasoning}
-                          </span>
-                        ) : (
-                          <span className="text-zinc-500">Not available</span>
-                        )}
+                        {proof.verification_reason || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -312,9 +307,17 @@ export default function SysAdminReviewQueue() {
               exit={{ opacity: 0, y: 20 }}
               className="bg-zinc-900 border border-white/10 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl"
             >
-              <div className="w-full md:w-1/2 bg-black flex items-center justify-center min-h-[300px]">
-                {selectedProof.proof_url && (
+              <div className="w-full md:w-1/2 bg-black flex items-center justify-center min-h-[300px] overflow-y-auto p-4">
+                {selectedProof.ai_assessment?.frames?.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    {selectedProof.ai_assessment.frames.map((f, i) => (
+                      <img key={i} src={f} className="w-full h-auto object-contain rounded border border-white/10" alt={`Frame ${i}`} />
+                    ))}
+                  </div>
+                ) : selectedProof.proof_url ? (
                   <img src={selectedProof.proof_url} className="max-w-full max-h-[90vh] object-contain" alt="Full Proof" />
+                ) : (
+                  <div className="text-zinc-500">No media</div>
                 )}
               </div>
               <div className="w-full md:w-1/2 p-6 overflow-y-auto">
@@ -331,6 +334,50 @@ export default function SysAdminReviewQueue() {
                     <div className="bg-white/5 p-4 rounded-lg">
                       <div className="text-white font-medium mb-1">{selectedProof.profiles?.full_name} (@{selectedProof.profiles?.username})</div>
                       <div className="text-sm text-zinc-400">Trust Score: <strong className={selectedProof.profiles?.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}>{selectedProof.profiles?.trust_score}</strong></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-2">Decision Engine</h4>
+                    <div className="bg-white/5 p-4 rounded-lg space-y-3">
+                      <div>
+                        <span className="text-xs text-zinc-500 uppercase">Decision</span>
+                        <div className="text-white font-bold">{selectedProof.verification_decision?.toUpperCase() || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <span className="text-xs text-zinc-500 uppercase">Reason</span>
+                        <div className="text-zinc-300 text-sm">{selectedProof.verification_reason || 'N/A'}</div>
+                      </div>
+                      <div className="flex gap-6">
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase">Risk Score</span>
+                          <div className={`font-bold ${selectedProof.risk_score > 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                            {selectedProof.risk_score ?? 'N/A'}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase">AI Confidence</span>
+                          <div className="text-white font-bold">
+                            {selectedProof.ai_confidence ? `${Math.round(selectedProof.ai_confidence * 100)}%` : 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                      {selectedProof.ai_assessment?.video_consistency && (
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase">Video Consistency</span>
+                          <div className="text-white font-bold">{selectedProof.ai_assessment.video_consistency.toUpperCase()}</div>
+                        </div>
+                      )}
+                      {selectedProof.fraud_indicators?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-zinc-500 uppercase">Fraud Indicators</span>
+                          <ul className="list-disc pl-4 text-red-400 text-sm mt-1">
+                            {selectedProof.fraud_indicators.map((ind, i) => (
+                              <li key={i}>{ind}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
 

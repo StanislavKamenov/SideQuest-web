@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-import { Target, Search, Loader2, Power } from 'lucide-react';
+import { Target, Search, Loader2, Power, CheckCircle } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SysAdminMissions() {
   const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('active');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: missions, isLoading } = useQuery({
-    queryKey: ['sysadmin-missions', search],
+    queryKey: ['sysadmin-missions', search, activeTab],
     queryFn: async () => {
       let q = supabase
         .from('missions')
@@ -25,6 +27,16 @@ export default function SysAdminMissions() {
         q = q.ilike('title', `%${search}%`);
       }
       
+      const now = new Date().toISOString();
+
+      if (activeTab === 'active') {
+        q = q.eq('is_active', true).or(`expires_at.is.null,expires_at.gt.${now}`);
+      } else if (activeTab === 'deactivated') {
+        q = q.eq('is_active', false);
+      } else if (activeTab === 'completed') {
+        q = q.eq('is_active', true).lte('expires_at', now);
+      }
+      
       const { data, error } = await q;
       if (error) throw error;
       return data;
@@ -37,10 +49,10 @@ export default function SysAdminMissions() {
         .from('missions')
         .update({ is_active })
         .eq('id', id)
-        .select()
-        .single();
+        .select();
       if (error) throw error;
-      return data;
+      if (!data || data.length === 0) throw new Error("Update failed: no rows affected (possible permissions issue).");
+      return data[0];
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries(['sysadmin-missions']);
@@ -65,15 +77,25 @@ export default function SysAdminMissions() {
         </div>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search missions..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-card border border-border pl-10 pr-4 py-3 font-body text-sm text-foreground focus:border-[#A663E0] focus:outline-none transition-colors"
-        />
+      <div className="flex flex-col gap-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search missions..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-card border border-border pl-10 pr-4 py-3 font-body text-sm text-foreground focus:border-[#A663E0] focus:outline-none transition-colors"
+          />
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-card border border-border">
+            <TabsTrigger value="active" className="font-pixel text-[10px] data-[state=active]:bg-[#4EE6D0]/10 data-[state=active]:text-[#4EE6D0]">ACTIVE</TabsTrigger>
+            <TabsTrigger value="deactivated" className="font-pixel text-[10px] data-[state=active]:bg-[#E85D4A]/10 data-[state=active]:text-[#E85D4A]">DEACTIVATED</TabsTrigger>
+            <TabsTrigger value="completed" className="font-pixel text-[10px] data-[state=active]:bg-[#A663E0]/10 data-[state=active]:text-[#A663E0]">COMPLETED</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {isLoading ? (
@@ -103,18 +125,25 @@ export default function SysAdminMissions() {
                 </div>
               </div>
               
-              <button
-                onClick={() => toggleMission.mutate({ id: mission.id, is_active: !mission.is_active })}
-                disabled={toggleMission.isPending}
-                className={`flex items-center gap-2 px-4 py-2 border font-pixel text-[8px] transition-colors ${
-                  mission.is_active 
-                    ? 'bg-[#E85D4A]/10 border-[#E85D4A]/50 text-[#E85D4A] hover:bg-[#E85D4A]/20' 
-                    : 'bg-[#C8E650]/10 border-[#C8E650]/50 text-[#C8E650] hover:bg-[#C8E650]/20'
-                }`}
-              >
-                <Power className="w-3 h-3" />
-                {mission.is_active ? 'DEACTIVATE' : 'ACTIVATE'}
-              </button>
+              {activeTab === 'completed' ? (
+                <div className="flex items-center gap-2 px-4 py-2 border font-pixel text-[8px] bg-secondary/20 border-border text-muted-foreground cursor-not-allowed">
+                  <CheckCircle className="w-3 h-3" />
+                  COMPLETED
+                </div>
+              ) : (
+                <button
+                  onClick={() => toggleMission.mutate({ id: mission.id, is_active: !mission.is_active })}
+                  disabled={toggleMission.isPending}
+                  className={`flex items-center gap-2 px-4 py-2 border font-pixel text-[8px] transition-colors ${
+                    mission.is_active 
+                      ? 'bg-[#E85D4A]/10 border-[#E85D4A]/50 text-[#E85D4A] hover:bg-[#E85D4A]/20' 
+                      : 'bg-[#C8E650]/10 border-[#C8E650]/50 text-[#C8E650] hover:bg-[#C8E650]/20'
+                  }`}
+                >
+                  <Power className="w-3 h-3" />
+                  {mission.is_active ? 'DEACTIVATE' : 'ACTIVATE'}
+                </button>
+              )}
             </div>
           ))}
         </div>
