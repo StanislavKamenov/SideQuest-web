@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import {
@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
+import ArcadeScene from '@/components/landing/3d/ArcadeScene';
+import HeroArcade from '@/components/landing/3d/HeroArcade';
 
 const navItems = [
   { to: '/sysadmin', icon: LayoutDashboard, label: 'OVERVIEW', end: true },
@@ -38,10 +40,24 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 font-pixel text-[8px] tracking-wider transition-all group relative ${
         active
-          ? 'text-[#A663E0] bg-[#A663E0]/10 border-r-2 border-[#A663E0]'
+          ? 'text-[#A663E0] bg-[#A663E0]/10'
           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
       }`}
     >
+      {/* Active indicator bar */}
+      {active && (
+        <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-[#A663E0]"
+          style={{ boxShadow: '0 0 8px #A663E0' }}
+        />
+      )}
+      {/* Active pixel arrow */}
+      {active && (
+        <span className="text-[#A663E0] text-[7px] mr-[-4px]"
+          style={{ textShadow: '0 0 6px #A663E0' }}
+        >
+          ▸
+        </span>
+      )}
       <Icon className="w-4 h-4 flex-shrink-0" />
       <span>{label}</span>
       {active && (
@@ -52,10 +68,21 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
 }
 
 export default function SystemAdminLayout() {
-  const { user, profile, logout, isBusiness } = useAuth();
+  const { user, profile, logout, hasBusinessRecord } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      setMousePosition({ x, y });
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -78,8 +105,12 @@ export default function SystemAdminLayout() {
           </span>
         </Link>
         <div className="flex items-center gap-2 mt-3">
-          <span className="w-1.5 h-1.5 bg-[#4EE6D0] animate-pulse" />
-          <span className="font-pixel text-[6px] text-[#4EE6D0] tracking-widest">SYSTEM ADMIN</span>
+          <span className="w-1.5 h-1.5 bg-[#4EE6D0] animate-pulse" style={{ boxShadow: '0 0 4px #4EE6D0' }} />
+          <span className="font-pixel text-[6px] text-[#4EE6D0] tracking-widest"
+            style={{ textShadow: '0 0 6px #4EE6D066' }}
+          >
+            SYSTEM TERMINAL
+          </span>
         </div>
       </div>
 
@@ -100,29 +131,36 @@ export default function SystemAdminLayout() {
 
       {/* User section */}
       <div className="p-4 border-t border-border">
-        {isBusiness && (
+        {hasBusinessRecord && (
           <button
             onClick={() => navigate('/admin')}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 mb-3 bg-[#E85D4A]/10 border border-[#E85D4A]/50 font-pixel text-[7px] text-[#E85D4A] hover:bg-[#E85D4A]/20 transition-all tracking-wider"
+            style={{ textShadow: '0 0 6px #E85D4A66' }}
           >
             <ArrowLeftRight className="w-3 h-3" />
             BUSINESS PANEL
           </button>
         )}
 
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-[#A663E0]/20 border border-[#A663E0]/40 flex items-center justify-center font-pixel text-[10px] text-[#A663E0]">
-            {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-pixel text-[7px] text-foreground truncate tracking-wide">
-              {profile?.username || 'Admin'}
-            </p>
-            <p className="font-body text-[10px] text-muted-foreground truncate">
-              {user?.email || 'admin@sidequest.app'}
-            </p>
+        {/* Player status card */}
+        <div className="crt-card p-3 mb-3" style={{ borderColor: '#A663E033' }}>
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-8 h-8 bg-[#A663E0]/20 border border-[#A663E0]/40 flex items-center justify-center font-pixel text-[10px] text-[#A663E0]"
+              style={{ boxShadow: '0 0 8px #A663E022' }}
+            >
+              {profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-pixel text-[7px] text-foreground truncate tracking-wide">
+                {profile?.username || 'Admin'}
+              </p>
+              <p className="font-body text-[10px] text-muted-foreground truncate">
+                {user?.email || 'admin@sidequest.app'}
+              </p>
+            </div>
           </div>
         </div>
+
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-border font-pixel text-[7px] text-muted-foreground hover:text-[#A663E0] hover:border-[#A663E0]/50 transition-all tracking-wider"
@@ -135,9 +173,14 @@ export default function SystemAdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 bg-card border-r border-border z-40">
+    <div className="min-h-screen bg-background flex relative">
+      {/* 3D Ambient Layer */}
+      <ArcadeScene>
+        <HeroArcade scrollProgress={0.1} mousePosition={mousePosition} />
+      </ArcadeScene>
+
+      {/* Desktop Sidebar — System Terminal */}
+      <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 arcade-sidebar-purple z-40">
         {sidebarContent}
       </aside>
 
@@ -157,7 +200,7 @@ export default function SystemAdminLayout() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border z-50 md:hidden flex flex-col"
+              className="fixed inset-y-0 left-0 w-64 arcade-sidebar-purple z-50 md:hidden flex flex-col"
             >
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -172,9 +215,9 @@ export default function SystemAdminLayout() {
       </AnimatePresence>
 
       {/* Main content */}
-      <div className="flex-1 md:ml-60">
+      <div className="flex-1 md:ml-60 relative z-10">
         {/* Mobile header */}
-        <header className="md:hidden sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
+        <header className="md:hidden sticky top-0 z-30 arcade-hud px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
             className="text-foreground"
@@ -187,7 +230,7 @@ export default function SystemAdminLayout() {
               SIDE<span className="text-[#A663E0]">QUEST</span>
             </span>
           </Link>
-          <div className="w-5" /> {/* Spacer */}
+          <div className="w-5" />
         </header>
 
         {/* Page content */}

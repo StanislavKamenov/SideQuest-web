@@ -1,10 +1,16 @@
 import React, { useEffect, useRef } from 'react';
+import useReducedMotion from './landing/3d/hooks/useReducedMotion';
+import useDeviceCapability from './landing/3d/hooks/useDeviceCapability';
 
 export default function RetroCursorTrail() {
+  const reducedMotion = useReducedMotion();
+  const tier = useDeviceCapability();
   const canvasRef = useRef(null);
   const lastPos = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    if (reducedMotion || tier === 'low') return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -119,6 +125,7 @@ export default function RetroCursorTrail() {
         height: '100vh',
         pointerEvents: 'none',
         zIndex: 99999,
+        display: (reducedMotion || tier === 'low') ? 'none' : 'block'
       }}
     />
   );

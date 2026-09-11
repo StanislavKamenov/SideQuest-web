@@ -6,6 +6,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [hasBusinessAccount, setHasBusinessAccount] = useState(false);
+  const [hasBusinessRecord, setHasBusinessRecord] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [authError, setAuthError] = useState(null);
@@ -30,6 +32,8 @@ export const AuthProvider = ({ children }) => {
   const clearAuth = () => {
     setUser(null);
     setProfile(null);
+    setHasBusinessAccount(false);
+    setHasBusinessRecord(false);
     setIsAuthenticated(false);
   };
 
@@ -43,7 +47,16 @@ export const AuthProvider = ({ children }) => {
 
       const isSysAdmin = profileData?.role === 'admin' || profileData?.is_admin === true;
 
-      if (error || !profileData || (profileData.role !== 'business' && !isSysAdmin)) {
+      // Check if user has a registered business
+      const { data: businessData } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', sessionUser.id)
+        .maybeSingle();
+
+      const userHasBusiness = profileData?.role === 'business' || !!businessData;
+
+      if (error || !profileData || (!userHasBusiness && !isSysAdmin)) {
         // Not a business or no profile -> sign out
         await supabase.auth.signOut();
         clearAuth();
@@ -51,6 +64,8 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(sessionUser);
         setProfile(profileData);
+        setHasBusinessAccount(userHasBusiness);
+        setHasBusinessRecord(!!businessData);
         setIsAuthenticated(true);
         setAuthError(null);
       }
@@ -112,15 +127,24 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Profile not found. Contact support.');
       }
 
-      const isSysAdmin = profileData?.role === 'admin' || profileData?.is_admin === true;
+      const { data: businessData } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', data.user.id)
+        .maybeSingle();
 
-      if (profileData.role !== 'business' && !isSysAdmin) {
+      const isSysAdmin = profileData?.role === 'admin' || profileData?.is_admin === true;
+      const userHasBusiness = profileData?.role === 'business' || !!businessData;
+
+      if (!userHasBusiness && !isSysAdmin) {
         // Not a business or admin account — sign out and throw
         await supabase.auth.signOut();
         throw new Error('ACCESS_DENIED_NOT_BUSINESS');
       }
 
       setProfile(profileData);
+      setHasBusinessAccount(userHasBusiness);
+      setHasBusinessRecord(!!businessData);
       return { ...data, profile: profileData };
     }
 
@@ -141,12 +165,14 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    setHasBusinessAccount(false);
+    setHasBusinessRecord(false);
     setIsAuthenticated(false);
     setAuthError(null);
   };
 
   const isSysAdmin = profile?.role === 'admin' || profile?.is_admin === true;
-  const isBusiness = profile?.role === 'business' || isSysAdmin;
+  const isBusiness = hasBusinessAccount;
 
   return (
     <AuthContext.Provider value={{
@@ -157,6 +183,7 @@ export const AuthProvider = ({ children }) => {
       authError,
       isBusiness,
       isSysAdmin,
+      hasBusinessRecord,
       login,
       loginWithGoogle,
       logout,

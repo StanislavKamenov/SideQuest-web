@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import ProofFeed from './pages/ProofFeed';
+import ArcadeLoader from '@/components/ArcadeLoader';
 import RetroCursorTrail from '@/components/RetroCursorTrail';
 import FAQ from './pages/FAQ';
 import Login from './pages/Login';
@@ -132,6 +133,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
+          <ArcadeLoader isLoading={false} />
           <AppRoutes />
         </Router>
         <Toaster />

@@ -1,74 +1,121 @@
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
-import { useQuery } from '@tanstack/react-query';
+export default function PageNotFound() {
+  const location = useLocation();
+  const pageName = location.pathname.substring(1);
+  const [glitchText, setGlitchText] = useState('GAME OVER');
 
-export default function PageNotFound({}) {
-    const location = useLocation();
-    const pageName = location.pathname.substring(1);
+  // Glitch text effect
+  useEffect(() => {
+    const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const original = 'GAME OVER';
+    let interval;
+    let count = 0;
 
-    const { data: authData, isFetched } = useQuery({
-        queryKey: ['user'],
-        queryFn: async () => {
-            try {
-                const user = await db.auth.me();
-                return { user, isAuthenticated: true };
-            } catch (error) {
-                return { user: null, isAuthenticated: false };
-            }
-        }
-    });
-    
-    return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-            <div className="max-w-md w-full">
-                <div className="text-center space-y-6">
-                    {/* 404 Error Code */}
-                    <div className="space-y-2">
-                        <h1 className="text-7xl font-light text-slate-300">404</h1>
-                        <div className="h-0.5 w-16 bg-slate-200 mx-auto"></div>
-                    </div>
-                    
-                    {/* Main Message */}
-                    <div className="space-y-3">
-                        <h2 className="text-2xl font-medium text-slate-800">
-                            Page Not Found
-                        </h2>
-                        <p className="text-slate-600 leading-relaxed">
-                            The page <span className="font-medium text-slate-700">"{pageName}"</span> could not be found in this application.
-                        </p>
-                    </div>
-                    
-                    {/* Admin Note */}
-                    {isFetched && authData.isAuthenticated && authData.user?.role === 'admin' && (
-                        <div className="mt-8 p-4 bg-slate-100 rounded-lg border border-slate-200">
-                            <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
-                                    <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                                </div>
-                                <div className="text-left space-y-1">
-                                    <p className="text-sm font-medium text-slate-700">Admin Note</p>
-                                    <p className="text-sm text-slate-600 leading-relaxed">
-                                        This could mean that the AI hasn't implemented this page yet. Ask it to implement it in the chat.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* Action Button */}
-                    <div className="pt-6">
-                        <button 
-                            onClick={() => window.location.href = '/'} 
-                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Go Home
-                        </button>
-                    </div>
-                </div>
-            </div>
+    interval = setInterval(() => {
+      count++;
+      if (count > 20) {
+        setGlitchText(original);
+        clearInterval(interval);
+        return;
+      }
+      const glitched = original.split('').map((char, i) => {
+        if (i < count / 2) return char;
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+      setGlitchText(glitched);
+    }, 80);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{ background: 'linear-gradient(180deg, #0a0912 0%, #0c0b16 100%)' }}
+    >
+      {/* Ambient glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#E85D4A]/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Corner brackets */}
+      <div className="absolute top-8 left-8 w-px h-16 bg-[#E85D4A]/30" />
+      <div className="absolute top-8 left-8 w-16 h-px bg-[#E85D4A]/30" />
+      <div className="absolute bottom-8 right-8 w-px h-16 bg-[#E85D4A]/30" />
+      <div className="absolute bottom-8 right-8 w-16 h-px bg-[#E85D4A]/30" />
+
+      {/* CRT scanline */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 6px)',
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="max-w-md w-full text-center relative z-10"
+      >
+        {/* 404 number */}
+        <div className="mb-8">
+          <motion.p
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', damping: 10 }}
+            className="font-pixel text-[5rem] sm:text-[7rem] leading-none glitch-text"
+            style={{
+              color: '#E85D4A',
+              textShadow: '0 0 30px #E85D4A, 0 0 60px #E85D4A66, 0 0 120px #E85D4A33, 3px 0 #00E5FF44, -3px 0 #FF00E544',
+            }}
+          >
+            404
+          </motion.p>
         </div>
-    )
+
+        {/* GAME OVER */}
+        <h1 className="font-pixel text-[clamp(1rem,4vw,1.5rem)] text-foreground mb-4 tracking-wider"
+          style={{ textShadow: '0 0 15px rgba(255,255,255,0.2)' }}
+        >
+          {glitchText}
+        </h1>
+
+        {/* Description */}
+        <div className="crt-card p-5 mb-8 text-left">
+          <div className="flex items-center justify-between mb-3 relative z-10">
+            <span className="font-pixel text-[6px] text-muted-foreground/40 tracking-widest">ERROR_LOG.txt</span>
+            <span className="w-1.5 h-1.5 bg-[#E85D4A] animate-pulse" style={{ boxShadow: '0 0 4px #E85D4A' }} />
+          </div>
+          <p className="font-pixel text-[7px] text-[#E85D4A] mb-2 tracking-wider relative z-10" style={{ textShadow: '0 0 6px #E85D4A66' }}>
+            ERROR: PAGE NOT FOUND
+          </p>
+          <p className="font-body text-sm text-muted-foreground leading-relaxed relative z-10">
+            The route <span className="font-pixel text-[8px] text-[#00E5FF]" style={{ textShadow: '0 0 6px #00E5FF66' }}>/{pageName}</span> does not exist in the arcade. It may have been removed or you entered an incorrect path.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="space-y-3">
+          <Link
+            to="/"
+            className="block w-full bg-[#E85D4A] text-white px-6 py-3 font-pixel text-[9px] tracking-wider hover:bg-[#d44d3a] transition-all arcade-btn text-center"
+            style={{ boxShadow: '0 3px 0 0 #9d3324, 0 0 16px rgba(232,93,74,0.3)' }}
+          >
+            🪙 INSERT COIN — RETURN TO ARCADE
+          </Link>
+
+          <button
+            onClick={() => window.history.back()}
+            className="block w-full border-2 border-border text-muted-foreground px-6 py-3 font-pixel text-[9px] tracking-wider hover:border-[#C8E650]/50 hover:text-[#C8E650] transition-all text-center"
+          >
+            ← GO BACK
+          </button>
+        </div>
+
+        {/* Blinking prompt */}
+        <p className="font-pixel text-[7px] text-muted-foreground/40 mt-10">
+          <span className="text-[#C8E650]">▸</span> INSERT COIN TO CONTINUE<span className="blink">█</span>
+        </p>
+      </motion.div>
+    </div>
+  );
 }

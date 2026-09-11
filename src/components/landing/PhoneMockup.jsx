@@ -90,6 +90,14 @@ export default function PhoneMockup() {
                 e.target.nextSibling.style.display = 'flex';
               }}
             />
+            
+            {/* CRT overlay over screen */}
+            <div className="absolute inset-0 z-20 pointer-events-none mix-blend-overlay"
+              style={{
+                background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)'
+              }}
+            />
+
             {/* Fallback */}
             <div className="hidden absolute inset-0 flex-col items-center justify-center text-center p-4 bg-[#0C0B0A]">
               <span className="text-[#E85D4A] mb-2 text-2xl">⚠️</span>
@@ -100,11 +108,29 @@ export default function PhoneMockup() {
         </div>
       </motion.div>
 
+      {/* ── Floating Pixel Stars ── */}
+      <motion.div
+        animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="hidden md:block absolute right-12 top-10 font-pixel text-[#C8E650]"
+        style={{ textShadow: '0 0 10px #C8E650' }}
+      >
+        ✦
+      </motion.div>
+      <motion.div
+        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.8, 0.2] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+        className="hidden md:block absolute left-16 bottom-16 font-pixel text-[#E85D4A]"
+        style={{ textShadow: '0 0 10px #E85D4A' }}
+      >
+        ✧
+      </motion.div>
+
       {/* ── Floating XP Badge ── far right, clear of the phone */}
       <motion.div
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute -right-36 md:-right-52 top-20 bg-black/70 backdrop-blur-md border border-[#E85D4A]/40 pl-3 pr-4 py-2.5 rounded-2xl flex items-center gap-3 z-30"
+        className="hidden md:flex absolute -right-36 md:-right-52 top-20 bg-black/70 backdrop-blur-md border border-[#E85D4A]/40 pl-3 pr-4 py-2.5 rounded-2xl items-center gap-3 z-30"
         style={{ boxShadow: '0 8px 32px rgba(232, 93, 74, 0.25)' }}
       >
         <div className="w-8 h-8 rounded-full bg-[#E85D4A]/20 flex items-center justify-center border border-[#E85D4A]/30 text-[#E85D4A] text-sm shadow-[0_0_10px_rgba(232,93,74,0.3)] shrink-0">
@@ -120,7 +146,7 @@ export default function PhoneMockup() {
       <motion.div
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -left-36 md:-left-44 bottom-28 bg-black/70 backdrop-blur-md border border-[#C8E650]/40 pl-3 pr-4 py-2.5 rounded-2xl flex items-center gap-3 z-30"
+        className="hidden md:flex absolute -left-36 md:-left-44 bottom-28 bg-black/70 backdrop-blur-md border border-[#C8E650]/40 pl-3 pr-4 py-2.5 rounded-2xl items-center gap-3 z-30"
         style={{ boxShadow: '0 8px 32px rgba(200, 230, 80, 0.2)' }}
       >
         <div className="w-8 h-8 rounded-full bg-[#C8E650]/20 flex items-center justify-center border border-[#C8E650]/30 text-[#C8E650] text-sm shadow-[0_0_10px_rgba(200,230,80,0.3)] shrink-0">
