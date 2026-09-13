@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, DollarSign, CreditCard, ArrowUpRight, Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { Search, DollarSign, CreditCard, ArrowUpRight, Clock, CheckCircle, XCircle, RotateCcw, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -99,10 +99,10 @@ export default function AdminPayments() {
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-          PAYMENTS
+          PAYMENTS & INVOICES
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          Track incoming payments and invoices
+          Track your payments and invoices to SideQuest
         </p>
       </div>
 
@@ -117,7 +117,7 @@ export default function AdminPayments() {
             <div className="w-9 h-9 flex items-center justify-center border-2 border-[#C8E650]/40 bg-[#C8E650]/10">
               <DollarSign className="w-4 h-4 text-[#C8E650]" />
             </div>
-            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">TOTAL RECEIVED</span>
+            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">LIFETIME SPENT</span>
           </div>
           <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-[#C8E650]" style={{ textShadow: '0 0 12px #C8E65044' }}>
             ${totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -151,7 +151,7 @@ export default function AdminPayments() {
             <div className="w-9 h-9 flex items-center justify-center border-2 border-[#6B9FD4]/40 bg-[#6B9FD4]/10">
               <ArrowUpRight className="w-4 h-4 text-[#6B9FD4]" />
             </div>
-            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">THIS MONTH</span>
+            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">SPENT THIS MONTH</span>
           </div>
           <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-[#6B9FD4]" style={{ textShadow: '0 0 12px #6B9FD444' }}>
             ${thisMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -192,11 +192,11 @@ export default function AdminPayments() {
       <div className="bg-card border border-border overflow-hidden">
         <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-secondary/30">
           <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">INVOICE</span>
-          <span className="col-span-3 font-pixel text-[6px] text-muted-foreground tracking-widest">CUSTOMER</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">CUSTOMER</span>
           <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">AMOUNT</span>
           <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">DATE</span>
-          <span className="col-span-1 font-pixel text-[6px] text-muted-foreground tracking-widest">METHOD</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">STATUS</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">STATUS</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">ACTION</span>
         </div>
 
         {filtered.map((p, i) => {
@@ -213,9 +213,9 @@ export default function AdminPayments() {
               <div className="col-span-2">
                 <span className="font-pixel text-[8px] text-[#6B9FD4] tracking-wide">{p.invoice}</span>
               </div>
-              <div className="col-span-3 flex items-center gap-2">
+              <div className="col-span-2 flex items-center gap-2">
                 <CreditCard className="w-3 h-3 text-muted-foreground hidden md:block" />
-                <span className="font-body text-sm text-foreground">{p.customer}</span>
+                <span className="font-body text-sm text-foreground truncate" title={p.customer}>{p.customer}</span>
               </div>
               <div className="col-span-2">
                 <span className="font-pixel text-[10px] text-foreground">${p.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -223,10 +223,7 @@ export default function AdminPayments() {
               <div className="col-span-2">
                 <span className="font-body text-xs text-muted-foreground">{p.date}</span>
               </div>
-              <div className="col-span-1">
-                <span className="font-body text-xs text-muted-foreground">{p.method}</span>
-              </div>
-              <div className="col-span-2 flex justify-end">
+              <div className="col-span-2">
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 font-pixel text-[6px] tracking-wider"
                   style={{ color: sc.color, backgroundColor: sc.color + '15', border: `1px solid ${sc.color}44` }}
@@ -234,6 +231,19 @@ export default function AdminPayments() {
                   <StatusIcon className="w-2.5 h-2.5" />
                   {sc.label}
                 </span>
+              </div>
+              <div className="col-span-2 flex justify-end">
+                {p.hosted_invoice_url && (
+                  <a 
+                    href={p.hosted_invoice_url} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1 border border-border bg-secondary/10 hover:bg-secondary/30 transition-colors font-pixel text-[6px] tracking-wider text-muted-foreground hover:text-foreground"
+                  >
+                    <ExternalLink className="w-2.5 h-2.5" />
+                    VIEW INVOICE
+                  </a>
+                )}
               </div>
             </motion.div>
           );

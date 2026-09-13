@@ -58,6 +58,18 @@ export default function AdminEvents() {
   const [events, setEvents] = useState([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
 
+  // Reward Config State
+  const [enableReward, setEnableReward] = useState(false);
+  const [rewardTitle, setRewardTitle] = useState('');
+  const [rewardDescription, setRewardDescription] = useState('');
+  const [rewardCodeType, setRewardCodeType] = useState('generated');
+  const [sharedCode, setSharedCode] = useState('');
+  const [uniqueCodes, setUniqueCodes] = useState('');
+  const [maxTotal, setMaxTotal] = useState(1);
+  const [maxPerUser, setMaxPerUser] = useState(1);
+  const [isUnlimitedTotal, setIsUnlimitedTotal] = useState(true);
+  const [isUnlimitedPerUser, setIsUnlimitedPerUser] = useState(false);
+
   const fetchEvents = async () => {
     try {
       setIsLoadingEvents(true);
@@ -185,11 +197,63 @@ export default function AdminEvents() {
         expires_at,
       };
 
-      const { error: insertError } = await supabase
+      const { error: insertError, data: newMissions } = await supabase
         .from('missions')
-        .insert(missionData);
+        .insert(missionData)
+        .select('id');
 
       if (insertError) throw insertError;
+      
+      const missionId = newMissions[0].id;
+
+      if (enableReward) {
+        // Fetch business
+        const { data: biz, error: bizError } = await supabase
+          .from('businesses')
+          .select('id, name')
+          .eq('owner_id', user.id)
+          .single();
+          
+        if (!bizError && biz) {
+          const rewardData = {
+            source: 'event',
+            mission_id: missionId,
+            business_id: biz.id,
+            partner_name: biz.name,
+            title: rewardTitle || title + ' Reward',
+            description: rewardDescription,
+            code_type: rewardCodeType,
+            shared_code: rewardCodeType === 'shared' ? sharedCode : null,
+            max_redemptions_total: isUnlimitedTotal ? null : parseInt(maxTotal),
+            max_redemptions_per_user: isUnlimitedPerUser ? null : parseInt(maxPerUser),
+            cost_coins: 0,
+            cost_xp: 0,
+            stock: 9999999, // practically unlimited claims, usage limited by max_redemptions
+            is_active: true
+          };
+          
+          const { data: newRewards, error: rewardError } = await supabase
+            .from('rewards')
+            .insert(rewardData)
+            .select('id');
+            
+          if (!rewardError && newRewards?.length > 0 && rewardCodeType === 'unique') {
+            const rewardId = newRewards[0].id;
+            const codes = uniqueCodes.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
+            if (codes.length > 0) {
+              const uniqueCodesData = codes.map(c => ({
+                reward_id: rewardId,
+                business_id: biz.id,
+                code: c
+              }));
+              await supabase.from('reward_unique_codes').insert(uniqueCodesData);
+              
+              // update stock to match the number of unique codes
+              await supabase.from('rewards').update({ stock: codes.length }).eq('id', rewardId);
+            }
+          }
+        }
+      }
 
       setShowCreateModal(false);
       // Reset form
@@ -199,6 +263,16 @@ export default function AdminEvents() {
       setLocation(null);
       setIsActive(true);
       setDurationHours(24);
+      setEnableReward(false);
+      setRewardTitle('');
+      setRewardDescription('');
+      setRewardCodeType('generated');
+      setSharedCode('');
+      setUniqueCodes('');
+      setMaxTotal(1);
+      setMaxPerUser(1);
+      setIsUnlimitedTotal(true);
+      setIsUnlimitedPerUser(false);
       fetchEvents();
       
     } catch (err) {
@@ -617,6 +691,122 @@ export default function AdminEvents() {
                       <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
                     </label>
                   </div>
+                </div>
+
+                {/* CUSTOM REWARD */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#A78BFA] tracking-widest mb-3 block">● COUPON / REWARD</label>
+                  <div className={`p-4 border transition-all flex items-center justify-between mb-4 ${enableReward ? 'border-[#A78BFA]/50 bg-[#A78BFA]/5' : 'border-border bg-secondary/30'}`}>
+                    <div>
+                      <p className="font-pixel text-[8px] text-foreground tracking-wider">ATTACH REWARD CODE</p>
+                      <p className="font-body text-[10px] text-muted-foreground mt-1">Users will receive a coupon upon completion</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={enableReward} onChange={(e) => setEnableReward(e.target.checked)} />
+                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#A78BFA] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#A78BFA]"></div>
+                    </label>
+                  </div>
+
+                  {enableReward && (
+                    <div className="space-y-4 p-4 border border-[#A78BFA]/30 bg-background">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">REWARD TITLE (OPTIONAL)</span>
+                          <input 
+                            value={rewardTitle} onChange={(e) => setRewardTitle(e.target.value)} 
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none" 
+                            placeholder="e.g. Free Coffee" 
+                          />
+                        </div>
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">REWARD DESCRIPTION</span>
+                          <input 
+                            value={rewardDescription} onChange={(e) => setRewardDescription(e.target.value)} 
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none" 
+                            placeholder="Valid for any small drink" 
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">CODE TYPE</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: 'generated', label: 'App Generated', desc: 'RL-XXXX-XXXX' },
+                            { id: 'shared', label: 'Shared Code', desc: 'Same code for all' },
+                            { id: 'unique', label: 'Unique Codes', desc: 'Pre-uploaded list' }
+                          ].map(t => (
+                            <button
+                              key={t.id} type="button" onClick={() => setRewardCodeType(t.id)}
+                              className={`p-2 border transition-all text-left ${
+                                rewardCodeType === t.id
+                                  ? 'bg-[#A78BFA]/10 border-[#A78BFA] text-[#A78BFA]'
+                                  : 'bg-secondary border-border text-muted-foreground'
+                              }`}
+                            >
+                              <div className="font-pixel text-[7px] tracking-wider mb-1">{t.label.toUpperCase()}</div>
+                              <div className="font-body text-[9px] opacity-70">{t.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {rewardCodeType === 'shared' && (
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">YOUR PROMO CODE *</span>
+                          <input 
+                            value={sharedCode} onChange={(e) => setSharedCode(e.target.value)} required
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none uppercase" 
+                            placeholder="e.g. SUMMER20" 
+                          />
+                        </div>
+                      )}
+
+                      {rewardCodeType === 'unique' && (
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">UNIQUE CODES LIST (CSV OR NEWLINES) *</span>
+                          <textarea 
+                            value={uniqueCodes} onChange={(e) => setUniqueCodes(e.target.value)} required rows={4}
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none resize-none" 
+                            placeholder="CODE1\nCODE2\nCODE3" 
+                          />
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-border mt-4">
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-3">REDEMPTION LIMITS (AT VENUE)</span>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block">MAX USAGES TOTAL</span>
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" checked={isUnlimitedTotal} onChange={(e) => setIsUnlimitedTotal(e.target.checked)} className="rounded bg-background border-border" />
+                                <span className="font-pixel text-[6px] text-muted-foreground">UNLIMITED</span>
+                              </label>
+                            </div>
+                            <input 
+                              type="number" value={maxTotal} onChange={(e) => setMaxTotal(e.target.value)} disabled={isUnlimitedTotal} min="1"
+                              className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none disabled:opacity-50" 
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block">MAX PER USER</span>
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" checked={isUnlimitedPerUser} onChange={(e) => setIsUnlimitedPerUser(e.target.checked)} className="rounded bg-background border-border" />
+                                <span className="font-pixel text-[6px] text-muted-foreground">UNLIMITED</span>
+                              </label>
+                            </div>
+                            <input 
+                              type="number" value={maxPerUser} onChange={(e) => setMaxPerUser(e.target.value)} disabled={isUnlimitedPerUser} min="1"
+                              className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none disabled:opacity-50" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
                 </div>
 
                 {/* CTA */}

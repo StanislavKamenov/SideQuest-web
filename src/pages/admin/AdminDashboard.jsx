@@ -1,66 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
   CalendarDays,
   Gift,
-  Receipt,
-  ArrowUpRight,
   Clock,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { demoKPIs, demoRevenueChart, demoRecentActivity } from '@/lib/demoData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/lib/AuthContext';
 
-const kpiCards = [
-  {
-    label: 'TOTAL REVENUE',
-    value: `$${demoKPIs.totalRevenue.value.toLocaleString()}`,
-    change: demoKPIs.totalRevenue.change,
-    icon: DollarSign,
-    color: '#C8E650',
-  },
-  {
-    label: 'ACTIVE EVENTS',
-    value: demoKPIs.activeEvents.value,
-    change: demoKPIs.activeEvents.change,
-    icon: CalendarDays,
-    color: '#E85D4A',
-  },
-  {
-    label: 'REDEMPTIONS',
-    value: demoKPIs.totalRedemptions.value,
-    change: demoKPIs.totalRedemptions.change,
-    icon: Gift,
-    color: '#6B9FD4',
-  },
-  {
-    label: 'EXPENSES',
-    value: `$${demoKPIs.monthlyExpenses.value.toLocaleString()}`,
-    change: demoKPIs.monthlyExpenses.change,
-    icon: Receipt,
-    color: '#D47BA8',
-  },
-];
-
-const activityIcons = {
-  redemption: '🎁',
-  payment: '💳',
-  event: '📅',
-  expense: '💸',
-};
-
-function KPICard({ label, value, change, icon: Icon, color, index }) {
-  const isPositive = change >= 0;
+function KPICard({ label, value, icon: Icon, color, index, isLoading }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -77,35 +28,116 @@ function KPICard({ label, value, change, icon: Icon, color, index }) {
         >
           <Icon className="w-5 h-5" style={{ color }} />
         </div>
-        <div className={`flex items-center gap-1 font-pixel text-[7px] tracking-wider ${
-          isPositive ? 'text-[#C8E650]' : 'text-[#E85D4A]'
-        }`}>
-          {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {isPositive ? '+' : ''}{change}%
-        </div>
       </div>
-      <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-foreground mb-1" style={{ textShadow: `0 0 12px ${color}44` }}>
-        {value}
-      </p>
+      {isLoading ? (
+        <div className="h-[28px] md:h-[36px] flex items-center mb-1">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-foreground mb-1" style={{ textShadow: `0 0 12px ${color}44` }}>
+          {value}
+        </p>
+      )}
       <p className="font-pixel text-[6px] text-muted-foreground tracking-widest">{label}</p>
     </motion.div>
   );
 }
 
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
+export default function AdminDashboard() {
+  const { user } = useAuth();
+
+  // 1. Fetch Business ID
+  const { data: business, isLoading: isLoadingBusiness, error: businessError } = useQuery({
+    queryKey: ['admin-business', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('id, name')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const businessId = business?.id;
+
+  // 2. Fetch Dashboard Metrics
+  const { data: metrics, isLoading: isLoadingMetrics, error: metricsError } = useQuery({
+    queryKey: ['admin-dashboard-metrics', businessId],
+    queryFn: async () => {
+      // Fetch Active Events count
+      const { count: activeEventsCount, error: eventsError } = await supabase
+        .from('missions')
+        .select('*', { count: 'exact', head: true })
+        .eq('business_id', businessId)
+        .eq('is_active', true)
+        .eq('category', 'event');
+
+      if (eventsError) throw eventsError;
+
+      // Fetch Redemptions count (used)
+      // Since redemptions doesn't have business_id directly, we must join with rewards
+      const { data: redemptionsData, error: redemptionsError } = await supabase
+        .from('redemptions')
+        .select(`
+          id,
+          rewards!inner(business_id)
+        `)
+        .eq('status', 'used')
+        .eq('rewards.business_id', businessId);
+
+      if (redemptionsError) throw redemptionsError;
+      const redemptionsCount = redemptionsData.length;
+
+      // Fetch Recent Activity (latest 5 used redemptions)
+      const { data: recentRedemptions, error: recentError } = await supabase
+        .from('redemptions')
+        .select(`
+          id,
+          used_at,
+          status,
+          user:profiles!redemptions_user_id_fkey(username, display_name),
+          reward:rewards!inner(title, business_id)
+        `)
+        .eq('rewards.business_id', businessId)
+        .eq('status', 'used')
+        .order('used_at', { ascending: false })
+        .limit(5);
+
+      if (recentError) throw recentError;
+
+      return {
+        activeEvents: activeEventsCount || 0,
+        totalRedemptions: redemptionsCount || 0,
+        recentActivity: recentRedemptions || [],
+      };
+    },
+    enabled: !!businessId,
+  });
+
+  if (businessError || metricsError) {
     return (
-      <div className="bg-card border-2 border-border p-3">
-        <p className="font-pixel text-[8px] text-foreground mb-2 tracking-wider">{label}</p>
-        <p className="font-body text-xs text-[#C8E650]">Revenue: ${payload[0]?.value?.toLocaleString()}</p>
-        <p className="font-body text-xs text-[#E85D4A]">Expenses: ${payload[1]?.value?.toLocaleString()}</p>
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-card border border-destructive/50">
+        <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="font-pixel text-sm text-foreground mb-2">ERROR LOADING DASHBOARD</h2>
+        <p className="font-body text-sm text-muted-foreground">{businessError?.message || metricsError?.message}</p>
       </div>
     );
   }
-  return null;
-};
 
-export default function AdminDashboard() {
+  if (!isLoadingBusiness && !business) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-card border border-border">
+        <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
+        <h2 className="font-pixel text-sm text-foreground mb-2">NO BUSINESS FOUND</h2>
+        <p className="font-body text-sm text-muted-foreground">It seems you don't have a registered business profile.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -115,7 +147,7 @@ export default function AdminDashboard() {
             DASHBOARD
           </h1>
           <p className="font-body text-sm text-muted-foreground">
-            Welcome back! Here's what's happening with your business.
+            Welcome back, {business?.name || 'Partner'}! Here's what's happening with your business.
           </p>
         </div>
         <div className="hidden sm:flex items-center gap-2 border border-border px-3 py-2">
@@ -126,104 +158,66 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((kpi, i) => (
-          <KPICard key={kpi.label} {...kpi} index={i} />
-        ))}
+      {/* KPI Grid - Adjusted to remove financial data */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <KPICard
+          label="ACTIVE EVENTS"
+          value={metrics?.activeEvents}
+          icon={CalendarDays}
+          color="#E85D4A"
+          index={0}
+          isLoading={isLoadingMetrics}
+        />
+        <KPICard
+          label="REDEMPTIONS"
+          value={metrics?.totalRedemptions}
+          icon={Gift}
+          color="#6B9FD4"
+          index={1}
+          isLoading={isLoadingMetrics}
+        />
       </div>
 
-      {/* Charts + Activity Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Revenue Chart */}
+      {/* Recent Activity Row */}
+      <div className="grid grid-cols-1 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-card border border-border p-5"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-pixel text-[9px] text-foreground tracking-wider mb-1">REVENUE vs EXPENSES</h2>
-              <p className="font-body text-xs text-muted-foreground">Last 7 months overview</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-[#C8E650]" />
-                <span className="font-pixel text-[6px] text-muted-foreground">REVENUE</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-[#E85D4A]" />
-                <span className="font-pixel text-[6px] text-muted-foreground">EXPENSES</span>
-              </div>
-            </div>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={demoRevenueChart}>
-                <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#C8E650" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#C8E650" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#E85D4A" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#E85D4A" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(240, 12%, 16%)" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fill: 'hsl(240, 8%, 55%)', fontSize: 10, fontFamily: '"Press Start 2P"' }}
-                  axisLine={{ stroke: 'hsl(240, 12%, 16%)' }}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: 'hsl(240, 8%, 55%)', fontSize: 9 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#C8E650"
-                  strokeWidth={2}
-                  fill="url(#revenueGradient)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="#E85D4A"
-                  strokeWidth={2}
-                  fill="url(#expenseGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.2 }}
           className="bg-card border border-border p-5"
         >
           <h2 className="font-pixel text-[9px] text-foreground tracking-wider mb-1">RECENT ACTIVITY</h2>
-          <p className="font-body text-xs text-muted-foreground mb-4">Latest updates</p>
-          <div className="space-y-3">
-            {demoRecentActivity.slice(0, 6).map((act) => (
-              <div key={act.id} className="flex items-start gap-3 py-2 border-b border-border/50 last:border-0">
-                <span className="text-lg flex-shrink-0 mt-0.5">{activityIcons[act.type]}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-body text-xs text-foreground leading-relaxed truncate">{act.text}</p>
-                  <p className="font-pixel text-[6px] text-muted-foreground mt-1 tracking-wider">{act.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="font-body text-xs text-muted-foreground mb-4">Latest redemptions</p>
+          
+          {isLoadingMetrics ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : metrics?.recentActivity.length > 0 ? (
+            <div className="space-y-3">
+              {metrics.recentActivity.map((act) => {
+                const displayName = act.user?.display_name || act.user?.username || 'Unknown User';
+                const rewardTitle = act.reward?.title || 'Reward';
+                const timeString = new Date(act.used_at).toLocaleString();
+                
+                return (
+                  <div key={act.id} className="flex items-start gap-3 py-2 border-b border-border/50 last:border-0">
+                    <span className="text-lg flex-shrink-0 mt-0.5">🎁</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-xs text-foreground leading-relaxed truncate">
+                        <span className="font-semibold text-[#4EE6D0]">{displayName}</span> redeemed <span className="font-semibold">{rewardTitle}</span>
+                      </p>
+                      <p className="font-pixel text-[6px] text-muted-foreground mt-1 tracking-wider">{timeString}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="font-pixel text-[8px] text-muted-foreground tracking-wider">NO RECENT ACTIVITY</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

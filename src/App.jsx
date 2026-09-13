@@ -16,9 +16,8 @@ import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminEvents from '@/pages/admin/AdminEvents';
 import AdminRedemptions from '@/pages/admin/AdminRedemptions';
 import AdminPayments from '@/pages/admin/AdminPayments';
-import AdminExpenses from '@/pages/admin/AdminExpenses';
-import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminBilling from '@/pages/admin/AdminBilling';
+import AdminSettings from '@/pages/admin/AdminSettings';
 
 // SysAdmin components
 import SystemAdminLayout from '@/components/admin/SystemAdminLayout';
@@ -98,7 +97,6 @@ const AppRoutes = () => {
         <Route path="redemptions" element={<AdminRedemptions />} />
         <Route path="payments" element={<AdminPayments />} />
         <Route path="billing" element={<AdminBilling />} />
-        <Route path="expenses" element={<AdminExpenses />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 
