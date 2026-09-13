@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import {
   LayoutDashboard,
@@ -12,6 +14,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Lock,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
@@ -77,6 +80,37 @@ export default function AdminLayout() {
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  const { data: subscriptionTier } = useQuery({
+    queryKey: ['admin-sidebar-tier', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 'free';
+      const { data: bData } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+      if (!bData) return 'free';
+
+      const { data: subData } = await supabase
+        .from('business_subscriptions')
+        .select('tier')
+        .eq('business_id', bData.id)
+        .maybeSingle();
+
+      return subData?.tier || 'free';
+    },
+    enabled: !!user?.id,
+  });
+
+  const isBasicPlan = subscriptionTier === 'free';
+
+  const isRestrictedRoute = (
+    location.pathname === '/admin' ||
+    location.pathname === '/admin/' ||
+    location.pathname.startsWith('/admin/redemptions') ||
+    location.pathname.startsWith('/admin/payments')
+  );
 
   const handleLogout = async () => {
     await logout();
@@ -233,7 +267,26 @@ export default function AdminLayout() {
 
         {/* Page content */}
         <main className="p-4 md:p-8 max-w-7xl mx-auto">
-          <Outlet />
+          {isBasicPlan && isRestrictedRoute ? (
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)] border border-border bg-card p-8 text-center relative overflow-hidden mt-4">
+              <div className="absolute inset-0 bg-background/5" style={{ backgroundImage: 'radial-gradient(circle at center, rgba(232,93,74,0.05) 0%, transparent 70%)' }}></div>
+              <div className="w-16 h-16 rounded-full border border-border bg-background flex items-center justify-center mb-6 relative z-10">
+                <Lock className="w-7 h-7 text-muted-foreground" />
+              </div>
+              <h2 className="font-pixel text-lg text-foreground tracking-widest mb-3 relative z-10">FEATURE LOCKED</h2>
+              <p className="font-body text-sm text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed relative z-10">
+                This section is available on the <span className="text-[#6B9FD4] font-semibold">Starter</span> plan and above. Upgrade to unlock advanced analytics and powerful tools to grow your brand.
+              </p>
+              <Link 
+                to="/admin/billing" 
+                className="px-8 py-3 bg-foreground text-background font-pixel text-[9px] tracking-widest hover:bg-foreground/90 transition-all relative z-10"
+              >
+                VIEW PLANS
+              </Link>
+            </div>
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
     </div>
