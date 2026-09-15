@@ -4,8 +4,10 @@ import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { Target, Search, Loader2, Power, CheckCircle } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminMissions() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('active');
   const { toast } = useToast();
@@ -57,12 +59,12 @@ export default function SysAdminMissions() {
     onSuccess: (data) => {
       queryClient.invalidateQueries(['sysadmin-missions']);
       toast({ 
-        title: `Mission ${data.is_active ? 'Activated' : 'Deactivated'}`, 
+        title: data.is_active ? t("sysadmin.missions.toast.activated") : t("sysadmin.missions.toast.deactivated"), 
         className: 'bg-[#C8E650] text-black font-pixel' 
       });
     },
     onError: (err) => {
-      toast({ title: 'Failed to update mission', description: err.message, variant: 'destructive', className: 'font-pixel' });
+      toast({ title: t("sysadmin.missions.toast.updateFailed"), description: err.message, variant: 'destructive', className: 'font-pixel' });
     }
   });
 
@@ -72,7 +74,7 @@ export default function SysAdminMissions() {
         <div className="flex items-center gap-3">
           <div className="w-2 h-8 bg-[#A663E0]" />
           <h1 className="font-pixel text-xl text-foreground tracking-tight">
-            MISSIONS
+            {t("sysadmin.missions.title")}
           </h1>
         </div>
       </div>
@@ -82,7 +84,7 @@ export default function SysAdminMissions() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search missions..."
+            placeholder={t("sysadmin.missions.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-card border border-border pl-10 pr-4 py-3 font-body text-sm text-foreground focus:border-[#A663E0] focus:outline-none transition-colors"
@@ -91,9 +93,9 @@ export default function SysAdminMissions() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-card border border-border">
-            <TabsTrigger value="active" className="font-pixel text-[10px] data-[state=active]:bg-[#4EE6D0]/10 data-[state=active]:text-[#4EE6D0]">ACTIVE</TabsTrigger>
-            <TabsTrigger value="deactivated" className="font-pixel text-[10px] data-[state=active]:bg-[#E85D4A]/10 data-[state=active]:text-[#E85D4A]">DEACTIVATED</TabsTrigger>
-            <TabsTrigger value="completed" className="font-pixel text-[10px] data-[state=active]:bg-[#A663E0]/10 data-[state=active]:text-[#A663E0]">COMPLETED</TabsTrigger>
+            <TabsTrigger value="active" className="font-pixel text-[10px] data-[state=active]:bg-[#4EE6D0]/10 data-[state=active]:text-[#4EE6D0]">{t("sysadmin.missions.tab.active")}</TabsTrigger>
+            <TabsTrigger value="deactivated" className="font-pixel text-[10px] data-[state=active]:bg-[#E85D4A]/10 data-[state=active]:text-[#E85D4A]">{t("sysadmin.missions.tab.deactivated")}</TabsTrigger>
+            <TabsTrigger value="completed" className="font-pixel text-[10px] data-[state=active]:bg-[#A663E0]/10 data-[state=active]:text-[#A663E0]">{t("sysadmin.missions.tab.completed")}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -104,7 +106,7 @@ export default function SysAdminMissions() {
         </div>
       ) : missions?.length === 0 ? (
         <div className="bg-card border border-border p-12 text-center text-muted-foreground font-pixel text-[10px]">
-          NO MISSIONS FOUND
+          {t("sysadmin.missions.noMissions")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -117,10 +119,10 @@ export default function SysAdminMissions() {
                 <div>
                   <h3 className="font-pixel text-sm text-foreground">{mission.title}</h3>
                   <p className="font-body text-xs text-muted-foreground mt-1">
-                    {mission.type} • {mission.xp_reward} XP • {mission.coin_reward} Coins
+                    {mission.type} • {mission.xp_reward} {t("sysadmin.missions.xp")} • {mission.coin_reward} {t("sysadmin.missions.coins")}
                   </p>
                   <p className="font-body text-[10px] text-muted-foreground/70 mt-0.5">
-                    By: {mission.business?.name || 'System'}
+                    {t("sysadmin.missions.by")} {mission.business?.name || t("sysadmin.missions.system")}
                   </p>
                 </div>
               </div>
@@ -128,7 +130,7 @@ export default function SysAdminMissions() {
               {activeTab === 'completed' ? (
                 <div className="flex items-center gap-2 px-4 py-2 border font-pixel text-[8px] bg-secondary/20 border-border text-muted-foreground cursor-not-allowed">
                   <CheckCircle className="w-3 h-3" />
-                  COMPLETED
+                  {t("sysadmin.missions.completedBtn")}
                 </div>
               ) : (
                 <button
@@ -141,7 +143,7 @@ export default function SysAdminMissions() {
                   }`}
                 >
                   <Power className="w-3 h-3" />
-                  {mission.is_active ? 'DEACTIVATE' : 'ACTIVATE'}
+                  {mission.is_active ? t("sysadmin.missions.deactivateBtn") : t("sysadmin.missions.activateBtn")}
                 </button>
               )}
             </div>

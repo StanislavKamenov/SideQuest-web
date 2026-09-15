@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   CalendarDays,
   Gift,
@@ -44,6 +45,7 @@ function KPICard({ label, value, icon: Icon, color, index, isLoading }) {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // 1. Fetch Business ID
@@ -122,7 +124,7 @@ export default function AdminDashboard() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-card border border-destructive/50">
         <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-        <h2 className="font-pixel text-sm text-foreground mb-2">ERROR LOADING DASHBOARD</h2>
+        <h2 className="font-pixel text-sm text-foreground mb-2">{t("admin.dashboard.errorTitle")}</h2>
         <p className="font-body text-sm text-muted-foreground">{businessError?.message || metricsError?.message}</p>
       </div>
     );
@@ -132,8 +134,8 @@ export default function AdminDashboard() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-card border border-border">
         <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
-        <h2 className="font-pixel text-sm text-foreground mb-2">NO BUSINESS FOUND</h2>
-        <p className="font-body text-sm text-muted-foreground">It seems you don't have a registered business profile.</p>
+        <h2 className="font-pixel text-sm text-foreground mb-2">{t("admin.dashboard.noBusinessTitle")}</h2>
+        <p className="font-body text-sm text-muted-foreground">{t("admin.dashboard.noBusinessMessage")}</p>
       </div>
     );
   }
@@ -144,10 +146,10 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-            DASHBOARD
+            {t("admin.dashboard.title")}
           </h1>
           <p className="font-body text-sm text-muted-foreground">
-            Welcome back, {business?.name || 'Partner'}! Here's what's happening with your business.
+            {t("admin.dashboard.welcomeMessage", { name: business?.name || 'Partner' })}
           </p>
         </div>
         <div className="hidden sm:flex items-center gap-2 border border-border px-3 py-2">
@@ -161,7 +163,7 @@ export default function AdminDashboard() {
       {/* KPI Grid - Adjusted to remove financial data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <KPICard
-          label="ACTIVE EVENTS"
+          label={t("admin.dashboard.kpiActiveEvents")}
           value={metrics?.activeEvents}
           icon={CalendarDays}
           color="#E85D4A"
@@ -169,7 +171,7 @@ export default function AdminDashboard() {
           isLoading={isLoadingMetrics}
         />
         <KPICard
-          label="REDEMPTIONS"
+          label={t("admin.dashboard.kpiRedemptions")}
           value={metrics?.totalRedemptions}
           icon={Gift}
           color="#6B9FD4"
@@ -186,8 +188,8 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="bg-card border border-border p-5"
         >
-          <h2 className="font-pixel text-[9px] text-foreground tracking-wider mb-1">RECENT ACTIVITY</h2>
-          <p className="font-body text-xs text-muted-foreground mb-4">Latest redemptions</p>
+          <h2 className="font-pixel text-[9px] text-foreground tracking-wider mb-1">{t("admin.dashboard.recentActivityTitle")}</h2>
+          <p className="font-body text-xs text-muted-foreground mb-4">{t("admin.dashboard.recentActivitySubtitle")}</p>
           
           {isLoadingMetrics ? (
             <div className="flex justify-center p-8">
@@ -205,7 +207,9 @@ export default function AdminDashboard() {
                     <span className="text-lg flex-shrink-0 mt-0.5">🎁</span>
                     <div className="flex-1 min-w-0">
                       <p className="font-body text-xs text-foreground leading-relaxed truncate">
-                        <span className="font-semibold text-[#4EE6D0]">{displayName}</span> redeemed <span className="font-semibold">{rewardTitle}</span>
+                        <Trans i18nKey="admin.dashboard.redeemedMessage" values={{ user: displayName, reward: rewardTitle }}>
+                          <span className="font-semibold text-[#4EE6D0]">{{user}}</span> redeemed <span className="font-semibold">{{reward}}</span>
+                        </Trans>
                       </p>
                       <p className="font-pixel text-[6px] text-muted-foreground mt-1 tracking-wider">{timeString}</p>
                     </div>
@@ -215,7 +219,7 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="font-pixel text-[8px] text-muted-foreground tracking-wider">NO RECENT ACTIVITY</p>
+              <p className="font-pixel text-[8px] text-muted-foreground tracking-wider">{t("admin.dashboard.noRecentActivity")}</p>
             </div>
           )}
         </motion.div>

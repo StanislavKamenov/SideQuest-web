@@ -1,34 +1,35 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Navbar from '@/components/landing/Navbar';
 import FooterCTA from '@/components/landing/FooterCTA';
 import ArcadeScene from '@/components/landing/3d/ArcadeScene';
 import AmbientArcade from '@/components/landing/3d/AmbientArcade';
 import { Search, HelpCircle, ChevronDown, Award, Shield, Cpu } from 'lucide-react';
 
-const faqData = [
+const getFaqData = (t) => [
   {
-    category: 'GENERAL', icon: HelpCircle, color: '#E85D4A',
+    category: t('landing.faqPage.categories.general.title'), icon: HelpCircle, color: '#E85D4A',
     questions: [
-      { q: 'WHAT IS SIDEQUEST?', a: 'SideQuest is a gamified productivity and lifestyle app that turns your real-world activities into epic quests. By completing daily tasks, habits, and adventurous missions, you earn experience points (XP), level up, and unlock pixel-art achievements.' },
-      { q: 'HOW DOES THE APP ENCOURAGE SCREEN-FREE TIME?', a: 'Unlike traditional apps that keep you scrolling, SideQuest rewards you for taking action in the real world. Many of our quests are specifically designed to be completed offline (like outdoor exploration, workouts, or learning a physical skill). You log your completion, get approved, and then put your phone back down.' },
-      { q: 'IS SIDEQUEST FREE TO USE?', a: 'Yes, SideQuest is completely free to download and play! We offer core questing, leveling, and leaderboard systems to all players. We also have a premium tier for advanced players who want detailed analytics, custom quest templates, and exclusive pixel-art cosmetics.' }
+      { q: t('landing.faqPage.categories.general.q1.q'), a: t('landing.faqPage.categories.general.q1.a') },
+      { q: t('landing.faqPage.categories.general.q2.q'), a: t('landing.faqPage.categories.general.q2.a') },
+      { q: t('landing.faqPage.categories.general.q3.q'), a: t('landing.faqPage.categories.general.q3.a') }
     ]
   },
   {
-    category: 'GAMEPLAY & XP', icon: Award, color: '#C8E650',
+    category: t('landing.faqPage.categories.gameplay.title'), icon: Award, color: '#C8E650',
     questions: [
-      { q: 'HOW DO I EARN XP?', a: 'You earn XP by completing quests, logging daily habits, and hitting streaks. Each quest has a difficulty level (Easy, Medium, Hard, Epic) which determines how much XP you receive. Some quests also offer special item loot!' },
-      { q: 'WHAT IS "PROOF OF COMPLETION"?', a: 'To keep the gameplay fair, certain community and guild quests require you to submit a "proof" — this could be a photo of your completed workout, a screenshot of your learning streak, or a short log. Other users or auto-moderation verify your proof before XP is awarded.' },
-      { q: 'CAN I CREATE MY OWN CUSTOM QUESTS?', a: 'Absolutely! You can create custom quests for your own daily chores, routines, or personal goals. You can set the XP values, repetition schedule, and add reminders.' }
+      { q: t('landing.faqPage.categories.gameplay.q1.q'), a: t('landing.faqPage.categories.gameplay.q1.a') },
+      { q: t('landing.faqPage.categories.gameplay.q2.q'), a: t('landing.faqPage.categories.gameplay.q2.a') },
+      { q: t('landing.faqPage.categories.gameplay.q3.q'), a: t('landing.faqPage.categories.gameplay.q3.a') }
     ]
   },
   {
-    category: 'SECURITY & TECH', icon: Shield, color: '#6B9FD4',
+    category: t('landing.faqPage.categories.security.title'), icon: Shield, color: '#6B9FD4',
     questions: [
-      { q: 'HOW IS MY PRIVACY PROTECTED?', a: 'Your privacy is our number one priority. Any photo proofs you upload for private quests are visible only to you. For public/guild quests, you can choose what to share. We never sell your personal data or location history.' },
-      { q: 'CAN I SYNC SIDEQUEST WITH MY HEALTH APPS?', a: 'Yes! SideQuest supports integrations with Apple Health and Google Fit. You can auto-complete fitness and sleep quests by syncing your device data directly.' },
-      { q: 'WHAT PLATFORMS IS SIDEQUEST AVAILABLE ON?', a: 'SideQuest is built using React Native & Expo, making it available on both iOS (App Store) and Android (Google Play Store). You can find download links at the top and bottom of our site.' }
+      { q: t('landing.faqPage.categories.security.q1.q'), a: t('landing.faqPage.categories.security.q1.a') },
+      { q: t('landing.faqPage.categories.security.q2.q'), a: t('landing.faqPage.categories.security.q2.a') },
+      { q: t('landing.faqPage.categories.security.q3.q'), a: t('landing.faqPage.categories.security.q3.a') }
     ]
   }
 ];
@@ -85,8 +86,11 @@ function FAQAccordionItem({ question, answer, isOpen, onToggle, activeColor }) {
 }
 
 export default function FAQ() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [openItems, setOpenItems] = useState({});
+
+  const faqData = getFaqData(t);
 
   const toggleItem = (categoryIndex, questionIndex) => {
     const key = `${categoryIndex}-${questionIndex}`;
@@ -127,16 +131,16 @@ export default function FAQ() {
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 border border-[#C8E650]/40 px-3 py-1 mb-6">
                 <span className="w-2 h-2 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 6px #C8E650' }} />
-                <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest">KNOWLEDGE DATABASE</span>
+                <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest">{t('landing.faqPage.badge')}</span>
               </div>
 
               <h1 className="font-pixel text-[clamp(0.9rem,3.5vw,1.5rem)] text-foreground mb-6 tracking-wide"
                 style={{ textShadow: '0 0 20px #E85D4A88' }}
               >
-                HELP TERMINAL
+                {t('landing.faqPage.title')}
               </h1>
               <p className="font-body text-sm text-muted-foreground max-w-md mx-auto">
-                Need help on your quest? Search our knowledge base or browse questions by category below.
+                {t('landing.faqPage.description')}
               </p>
 
               {/* Search Bar — terminal input */}
@@ -146,7 +150,7 @@ export default function FAQ() {
                 </div>
                 <input
                   type="text"
-                  placeholder="SEARCH THE KNOWLEDGE BASE..."
+                  placeholder={t('landing.faqPage.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-[#0a0912] border-2 border-border pl-11 pr-5 py-3.5 font-pixel text-[8px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-[#E85D4A] transition-all duration-300"
@@ -198,7 +202,7 @@ export default function FAQ() {
           ) : (
             <div className="text-center py-12 crt-card">
               <Cpu className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-bounce relative z-10" />
-              <p className="font-pixel text-[9px] text-muted-foreground relative z-10">NO SEARCH RESULTS FOUND ON YOUR RADAR.</p>
+              <p className="font-pixel text-[9px] text-muted-foreground relative z-10">{t('landing.faqPage.noResults')}</p>
             </div>
           )}
         </main>

@@ -1,12 +1,15 @@
 import React from 'react';
-
-const items = [
-  '★ REAL MISSIONS', '◆ XP SYSTEM', '★ SQUAD MODE', '◆ LIVE MAP',
-  '★ PROOF REQUIRED', '◆ 5 RANKS', '★ REAL MISSIONS', '◆ XP SYSTEM',
-  '★ SQUAD MODE', '◆ LIVE MAP', '★ PROOF REQUIRED', '◆ 5 RANKS',
-];
+import { useTranslation } from 'react-i18next';
 
 export default function MarqueeBar() {
+  const { t } = useTranslation();
+
+  const items = [
+    `★ ${t('landing.marquee.realMissions')}`, `◆ ${t('landing.marquee.xpSystem')}`, `★ ${t('landing.marquee.squadMode')}`, `◆ ${t('landing.marquee.liveMap')}`,
+    `★ ${t('landing.marquee.proofRequired')}`, `◆ ${t('landing.marquee.ranks')}`, `★ ${t('landing.marquee.realMissions')}`, `◆ ${t('landing.marquee.xpSystem')}`,
+    `★ ${t('landing.marquee.squadMode')}`, `◆ ${t('landing.marquee.liveMap')}`, `★ ${t('landing.marquee.proofRequired')}`, `◆ ${t('landing.marquee.ranks')}`,
+  ];
+
   return (
     <div className="relative py-3 overflow-hidden border-y-2 border-[#E85D4A]/60"
       style={{

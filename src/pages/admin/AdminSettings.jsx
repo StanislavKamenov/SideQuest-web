@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Save, User, Bell, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminSettings() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [profile, setProfile] = useState({
     id: null,
@@ -101,10 +103,10 @@ export default function AdminSettings() {
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-          SETTINGS
+          {t("admin.settings.title")}
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          Manage your business profile and preferences
+          {t("admin.settings.subtitle")}
         </p>
       </div>
 
@@ -119,8 +121,8 @@ export default function AdminSettings() {
             <User className="w-4 h-4 text-[#E85D4A]" />
           </div>
           <div>
-            <h2 className="font-pixel text-[9px] text-foreground tracking-wider">BUSINESS PROFILE</h2>
-            <p className="font-body text-xs text-muted-foreground">Your company information</p>
+            <h2 className="font-pixel text-[9px] text-foreground tracking-wider">{t("admin.settings.businessProfile")}</h2>
+            <p className="font-body text-xs text-muted-foreground">{t("admin.settings.businessProfileDesc")}</p>
           </div>
         </div>
 
@@ -138,16 +140,16 @@ export default function AdminSettings() {
             </div>
             <div>
               <button type="button" className="font-pixel text-[7px] text-[#6B9FD4] tracking-wider hover:underline">
-                CHANGE LOGO
+                {t("admin.settings.changeLogo")}
               </button>
-              <p className="font-body text-[10px] text-muted-foreground mt-0.5">PNG, JPG up to 2MB</p>
+              <p className="font-body text-[10px] text-muted-foreground mt-0.5">{t("admin.settings.logoSpecs")}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-                <User className="w-3 h-3" /> BUSINESS NAME
+                <User className="w-3 h-3" /> {t("admin.settings.businessName")}
               </label>
               <input
                 value={profile.name}
@@ -157,7 +159,7 @@ export default function AdminSettings() {
             </div>
             <div>
               <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-                <Mail className="w-3 h-3" /> EMAIL
+                <Mail className="w-3 h-3" /> {t("admin.settings.email")}
               </label>
               <input
                 value={profile.email}
@@ -167,7 +169,7 @@ export default function AdminSettings() {
             </div>
             <div>
               <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-                <Phone className="w-3 h-3" /> PHONE
+                <Phone className="w-3 h-3" /> {t("admin.settings.phone")}
               </label>
               <input
                 value={profile.phone}
@@ -177,7 +179,7 @@ export default function AdminSettings() {
             </div>
             <div>
               <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-                <Globe className="w-3 h-3" /> WEBSITE
+                <Globe className="w-3 h-3" /> {t("admin.settings.website")}
               </label>
               <input
                 value={profile.website}
@@ -189,7 +191,7 @@ export default function AdminSettings() {
 
           <div>
             <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-              <MapPin className="w-3 h-3" /> ADDRESS
+              <MapPin className="w-3 h-3" /> {t("admin.settings.address")}
             </label>
             <input
               value={profile.address}
@@ -200,7 +202,7 @@ export default function AdminSettings() {
 
           <div>
             <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-1.5 flex items-center gap-1.5">
-              <FileText className="w-3 h-3" /> DESCRIPTION
+              <FileText className="w-3 h-3" /> {t("admin.settings.description")}
             </label>
             <textarea
               rows={3}
@@ -216,7 +218,7 @@ export default function AdminSettings() {
               className="flex items-center gap-2 bg-[#E85D4A] text-white px-5 py-2.5 font-pixel text-[8px] tracking-wider hover:bg-[#d44d3a] transition-colors"
             >
               <Save className="w-4 h-4" />
-              {saved ? 'SAVED ✓' : 'SAVE CHANGES'}
+              {saved ? t("admin.settings.saved") : t("admin.settings.saveChanges")}
             </button>
           </div>
         </form>
@@ -234,21 +236,21 @@ export default function AdminSettings() {
             <Bell className="w-4 h-4 text-[#C8E650]" />
           </div>
           <div>
-            <h2 className="font-pixel text-[9px] text-foreground tracking-wider">NOTIFICATIONS</h2>
-            <p className="font-body text-xs text-muted-foreground">Choose what you get notified about</p>
+            <h2 className="font-pixel text-[9px] text-foreground tracking-wider">{t("admin.settings.notificationsTitle")}</h2>
+            <p className="font-body text-xs text-muted-foreground">{t("admin.settings.notificationsDesc")}</p>
           </div>
         </div>
 
         <div className="p-5 space-y-4">
           {[
-            { key: 'emailOnNewRedemption', label: 'Email on new redemption', desc: 'Get notified when a user redeems a reward' },
-            { key: 'emailWeeklySummary', label: 'Weekly summary email', desc: 'Receive a weekly digest of your business metrics' },
-            { key: 'pushOnNewParticipant', label: 'Push on new participant', desc: 'Get a push notification when someone joins an event' },
-          ].map(({ key, label, desc }) => (
+            { key: 'emailOnNewRedemption' },
+            { key: 'emailWeeklySummary' },
+            { key: 'pushOnNewParticipant' },
+          ].map(({ key }) => (
             <div key={key} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
               <div>
-                <p className="font-body text-sm text-foreground">{label}</p>
-                <p className="font-body text-xs text-muted-foreground mt-0.5">{desc}</p>
+                <p className="font-body text-sm text-foreground">{t(`admin.settings.notifications.${key}.label`)}</p>
+                <p className="font-body text-xs text-muted-foreground mt-0.5">{t(`admin.settings.notifications.${key}.desc`)}</p>
               </div>
               <button
                 onClick={() => toggleNotification(key)}
@@ -273,15 +275,15 @@ export default function AdminSettings() {
         className="bg-card border border-[#E85D4A]/30"
       >
         <div className="px-5 py-4 border-b border-[#E85D4A]/20">
-          <h2 className="font-pixel text-[9px] text-[#E85D4A] tracking-wider">DANGER ZONE</h2>
+          <h2 className="font-pixel text-[9px] text-[#E85D4A] tracking-wider">{t("admin.settings.dangerZone")}</h2>
         </div>
         <div className="p-5 flex items-center justify-between">
           <div>
-            <p className="font-body text-sm text-foreground">Delete business account</p>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">This action cannot be undone</p>
+            <p className="font-body text-sm text-foreground">{t("admin.settings.deleteAccount")}</p>
+            <p className="font-body text-xs text-muted-foreground mt-0.5">{t("admin.settings.deleteAccountDesc")}</p>
           </div>
           <button className="px-4 py-2 border border-[#E85D4A]/40 font-pixel text-[7px] text-[#E85D4A] tracking-wider hover:bg-[#E85D4A]/10 transition-colors">
-            DELETE
+            {t("admin.settings.deleteBtn")}
           </button>
         </div>
       </motion.div>

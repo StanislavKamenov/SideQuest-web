@@ -1,16 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-const features = [
-  { icon: '⚡', title: 'REAL MISSIONS', desc: 'Health, social life, and mind. Concrete actions — not abstract goals.', color: '#E85D4A', id: 'SYS_001' },
-  { icon: '📸', title: 'PROOF REQUIRED', desc: 'Photo or video confirmation. No self-deception — honesty is mandatory.', color: '#6B9FD4', id: 'SYS_002' },
-  { icon: '🗺️', title: 'LIVE MAP', desc: 'Active missions and hotspots near you in real time.', color: '#7BC67E', id: 'SYS_003' },
-  { icon: '🏆', title: 'XP & LEADERBOARD', desc: 'Earn experience and climb from Recruit to Legend.', color: '#C8E650', id: 'SYS_004' },
-  { icon: '👥', title: 'SQUAD MODE', desc: 'Invite friends and complete challenges together.', color: '#D47BA8', id: 'SYS_005' },
-  { icon: '📊', title: 'PROFILE', desc: 'Full history, stats and achievements in one place.', color: '#E8956A', id: 'SYS_006' },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function FeaturesSection() {
+  const { t } = useTranslation();
+
+  const features = [
+    { icon: '⚡', title: t('landing.features.items.realMissions.title'), desc: t('landing.features.items.realMissions.desc'), color: '#E85D4A', id: 'SYS_001' },
+    { icon: '📸', title: t('landing.features.items.proofRequired.title'), desc: t('landing.features.items.proofRequired.desc'), color: '#6B9FD4', id: 'SYS_002' },
+    { icon: '🗺️', title: t('landing.features.items.liveMap.title'), desc: t('landing.features.items.liveMap.desc'), color: '#7BC67E', id: 'SYS_003' },
+    { icon: '🏆', title: t('landing.features.items.xpLeaderboard.title'), desc: t('landing.features.items.xpLeaderboard.desc'), color: '#C8E650', id: 'SYS_004' },
+    { icon: '👥', title: t('landing.features.items.squadMode.title'), desc: t('landing.features.items.squadMode.desc'), color: '#D47BA8', id: 'SYS_005' },
+    { icon: '📊', title: t('landing.features.items.profile.title'), desc: t('landing.features.items.profile.desc'), color: '#E8956A', id: 'SYS_006' },
+  ];
+
   return (
     <section id="features" className="py-24 relative"
       style={{ background: 'linear-gradient(180deg, rgba(10,9,18,0.9) 0%, rgba(12,11,22,0.9) 100%)' }}
@@ -25,15 +28,15 @@ export default function FeaturesSection() {
         >
           <div className="inline-flex items-center gap-2 border border-[#E85D4A]/30 px-3 py-1 mb-6">
             <span className="w-1.5 h-1.5 bg-[#E85D4A] animate-pulse" style={{ boxShadow: '0 0 6px #E85D4A' }} />
-            <span className="font-pixel text-[7px] text-[#E85D4A] tracking-widest">SYSTEM FEATURES</span>
+            <span className="font-pixel text-[7px] text-[#E85D4A] tracking-widest">{t('landing.features.badge')}</span>
           </div>
           <h2 className="font-pixel text-[clamp(0.7rem,2.5vw,1.2rem)] text-foreground mb-4 leading-relaxed"
             style={{ textShadow: '0 0 20px #E85D4A88' }}
           >
-            FEATURES
+            {t('landing.features.title')}
           </h2>
           <p className="font-body text-muted-foreground max-w-md mx-auto">
-            Everything you need to turn everyday habits into a systematic change.
+            {t('landing.features.description')}
           </p>
         </motion.div>
 

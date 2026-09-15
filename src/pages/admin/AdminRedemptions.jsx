@@ -3,14 +3,17 @@ import { motion } from 'framer-motion';
 import { Search, CheckCircle, XCircle, Clock, Gift } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { useTranslation } from 'react-i18next';
 
+// Labels from translation
 const statusConfig = {
-  pending: { label: 'PENDING', color: '#E8956A', icon: Clock },
-  approved: { label: 'APPROVED', color: '#C8E650', icon: CheckCircle },
-  rejected: { label: 'REJECTED', color: '#E85D4A', icon: XCircle },
+  pending: { color: '#E8956A', icon: Clock },
+  approved: { color: '#C8E650', icon: CheckCircle },
+  rejected: { color: '#E85D4A', icon: XCircle },
 };
 
 export default function AdminRedemptions() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -115,10 +118,10 @@ export default function AdminRedemptions() {
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-          REDEMPTIONS
+          {t("admin.redemptions.title")}
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          Review and manage reward redemption requests
+          {t("admin.redemptions.subtitle")}
         </p>
       </div>
 
@@ -133,7 +136,7 @@ export default function AdminRedemptions() {
             }`}
           >
             <p className="font-pixel text-[clamp(0.9rem,2vw,1.3rem)] text-foreground mb-1">{count}</p>
-            <p className="font-pixel text-[6px] text-muted-foreground tracking-widest">{key.toUpperCase()}</p>
+            <p className="font-pixel text-[6px] text-muted-foreground tracking-widest">{t(`admin.redemptions.filter.${key}`)}</p>
           </button>
         ))}
       </div>
@@ -143,7 +146,7 @@ export default function AdminRedemptions() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search by user or reward..."
+          placeholder={t("admin.redemptions.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-card border border-border pl-10 pr-4 py-2.5 font-body text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-[#E85D4A] focus:outline-none transition-colors"
@@ -154,12 +157,12 @@ export default function AdminRedemptions() {
       <div className="bg-card border border-border overflow-hidden">
         {/* Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-secondary/30">
-          <span className="col-span-3 font-pixel text-[6px] text-muted-foreground tracking-widest">USER</span>
-          <span className="col-span-3 font-pixel text-[6px] text-muted-foreground tracking-widest">REWARD</span>
-          <span className="col-span-1 font-pixel text-[6px] text-muted-foreground tracking-widest">XP</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">DATE</span>
-          <span className="col-span-1 font-pixel text-[6px] text-muted-foreground tracking-widest">STATUS</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">ACTIONS</span>
+          <span className="col-span-3 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.redemptions.table.user")}</span>
+          <span className="col-span-3 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.redemptions.table.reward")}</span>
+          <span className="col-span-1 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.redemptions.table.xp")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.redemptions.table.date")}</span>
+          <span className="col-span-1 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.redemptions.table.status")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">{t("admin.redemptions.table.actions")}</span>
         </div>
 
         {/* Rows */}
@@ -199,7 +202,7 @@ export default function AdminRedemptions() {
                   style={{ color: sc.color, backgroundColor: sc.color + '15', border: `1px solid ${sc.color}44` }}
                 >
                   <StatusIcon className="w-2.5 h-2.5" />
-                  {sc.label}
+                  {t(`admin.redemptions.filter.${r.status}`)}
                 </span>
               </div>
               {/* Actions */}
@@ -210,13 +213,13 @@ export default function AdminRedemptions() {
                       onClick={() => handleAction(r.id, 'approved')}
                       className="px-2.5 py-1 font-pixel text-[6px] tracking-wider text-[#C8E650] border border-[#C8E650]/40 hover:bg-[#C8E650]/10 transition-colors"
                     >
-                      APPROVE
+                      {t("admin.redemptions.approveBtn")}
                     </button>
                     <button
                       onClick={() => handleAction(r.id, 'rejected')}
                       className="px-2.5 py-1 font-pixel text-[6px] tracking-wider text-[#E85D4A] border border-[#E85D4A]/40 hover:bg-[#E85D4A]/10 transition-colors"
                     >
-                      REJECT
+                      {t("admin.redemptions.rejectBtn")}
                     </button>
                   </>
                 )}
@@ -230,7 +233,7 @@ export default function AdminRedemptions() {
 
         {filtered.length === 0 && (
           <div className="text-center py-12">
-            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">NO REDEMPTIONS FOUND</p>
+            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">{t("admin.redemptions.noRedemptions")}</p>
           </div>
         )}
       </div>

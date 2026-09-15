@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useTranslation } from "react-i18next";
 import { LogIn, Mail, Lock, Loader2, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
@@ -8,6 +9,7 @@ import ArcadeScene from "@/components/landing/3d/ArcadeScene";
 import AmbientArcade from "@/components/landing/3d/AmbientArcade";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +44,7 @@ export default function Login() {
         setShowNotBusiness(true);
         setTimeout(() => setShowNotBusiness(false), 5000);
       } else {
-        setError(err.message || "Invalid email or password");
+        setError(err.message || t("auth.login.errors.invalidCredentials"));
       }
     } finally {
       setLoading(false);
@@ -53,7 +55,7 @@ export default function Login() {
     try {
       await loginWithGoogle();
     } catch (err) {
-      setError(err.message || "Google login failed");
+      setError(err.message || t("auth.login.errors.googleFailed"));
     }
   };
 
@@ -91,16 +93,16 @@ export default function Login() {
           >
             <span className="w-2 h-2 bg-[#E85D4A] animate-pulse" style={{ boxShadow: '0 0 6px #E85D4A' }} />
             <span className="font-pixel text-[7px] text-[#E85D4A] tracking-widest">
-              PLAYER LOGIN STATION
+              {t("auth.login.badge")}
             </span>
           </div>
           <h1 className="font-pixel text-[clamp(0.8rem,2.5vw,1.1rem)] text-foreground leading-relaxed mb-2 mt-2"
             style={{ textShadow: '0 0 20px #E85D4A88' }}
           >
-            AUTHENTICATE
+            {t("auth.login.title")}
           </h1>
           <p className="font-body text-sm text-muted-foreground">
-            Access your business command center
+            {t("auth.login.subtitle")}
           </p>
         </div>
 
@@ -111,7 +113,7 @@ export default function Login() {
             <span className="w-1.5 h-1.5 bg-[#E85D4A]" style={{ boxShadow: '0 0 4px #E85D4A' }} />
             <span className="w-1.5 h-1.5 bg-[#C8E650]" style={{ boxShadow: '0 0 4px #C8E650' }} />
             <span className="w-1.5 h-1.5 bg-[#6B9FD4]" style={{ boxShadow: '0 0 4px #6B9FD4' }} />
-            <span className="font-pixel text-[5px] text-muted-foreground/30 ml-1 tracking-widest">AUTH_TERMINAL.exe</span>
+            <span className="font-pixel text-[5px] text-muted-foreground/30 ml-1 tracking-widest">{t("auth.login.terminal")}</span>
           </div>
 
           <div className="relative z-10 pt-4">
@@ -126,7 +128,7 @@ export default function Login() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              CONTINUE WITH GOOGLE
+              {t("auth.login.googleBtn")}
             </button>
 
             {/* Divider */}
@@ -138,7 +140,7 @@ export default function Login() {
                 <span className="px-4 font-pixel text-[7px] text-muted-foreground tracking-widest"
                   style={{ backgroundColor: 'hsl(240 12% 8%)' }}
                 >
-                  OR
+                  {t("auth.login.or")}
                 </span>
               </div>
             </div>
@@ -159,7 +161,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label className="font-pixel text-[7px] text-muted-foreground tracking-widest" htmlFor="login-email">
-                  EMAIL
+                  {t("auth.login.emailLabel")}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -168,7 +170,7 @@ export default function Login() {
                     type="email"
                     autoComplete="email"
                     autoFocus
-                    placeholder="you@business.com"
+                    placeholder={t("auth.login.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-[#0a0912] border-2 border-border pl-10 pr-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground/30 focus:border-[#E85D4A] focus:outline-none transition-colors"
@@ -180,7 +182,7 @@ export default function Login() {
 
               <div className="space-y-2">
                 <label className="font-pixel text-[7px] text-muted-foreground tracking-widest" htmlFor="login-password">
-                  PASSWORD
+                  {t("auth.login.passwordLabel")}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -188,7 +190,7 @@ export default function Login() {
                     id="login-password"
                     type="password"
                     autoComplete="current-password"
-                    placeholder="••••••••"
+                    placeholder={t("auth.login.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-[#0a0912] border-2 border-border pl-10 pr-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground/30 focus:border-[#E85D4A] focus:outline-none transition-colors"
@@ -207,12 +209,12 @@ export default function Login() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    AUTHENTICATING...
+                    {t("auth.login.loadingBtn")}
                   </>
                 ) : (
                   <>
                     <LogIn className="w-4 h-4" />
-                    LOG IN
+                    {t("auth.login.loginBtn")}
                   </>
                 )}
               </button>
@@ -222,7 +224,7 @@ export default function Login() {
 
         {/* Footer note */}
         <p className="text-center font-pixel text-[7px] text-muted-foreground mt-6 tracking-wide">
-          BUSINESS ACCOUNTS ONLY ⬥ <Link to="/" className="text-[#C8E650] hover:underline glow-lime">BACK TO ARCADE</Link>
+          {t("auth.login.footerNote")} ⬥ <Link to="/" className="text-[#C8E650] hover:underline glow-lime">{t("auth.login.backToArcade")}</Link>
         </p>
       </motion.div>
 
@@ -244,10 +246,10 @@ export default function Login() {
               <p className="font-pixel text-[8px] text-[#E85D4A] tracking-wide mb-1"
                 style={{ textShadow: '0 0 6px #E85D4A66' }}
               >
-                ACCESS DENIED
+                {t("auth.login.accessDenied.title")}
               </p>
               <p className="font-body text-sm text-muted-foreground">
-                This account is not a business account. Only business accounts can access the admin panel.
+                {t("auth.login.accessDenied.message")}
               </p>
             </div>
             <button

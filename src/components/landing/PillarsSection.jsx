@@ -1,13 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-const pillars = [
-  { icon: '💪', label: 'BODY', color: '#E85D4A', desc: 'Running, workouts, sleep, nutrition — missions that keep you moving every day.', cmd: 'SELECT_BODY.exe' },
-  { icon: '🤝', label: 'SOCIAL', color: '#6B9FD4', desc: 'Meet a friend, call a loved one. Real connections are built offline.', cmd: 'SELECT_SOCIAL.exe' },
-  { icon: '🧠', label: 'MIND', color: '#C8E650', desc: 'Reading, meditation, new skills. Grow beyond your comfort zone.', cmd: 'SELECT_MIND.exe' },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function PillarsSection() {
+  const { t } = useTranslation();
+
+  const pillars = [
+    { icon: '💪', label: t('landing.pillars.items.body.title'), color: '#E85D4A', desc: t('landing.pillars.items.body.desc'), cmd: 'SELECT_BODY.exe' },
+    { icon: '🤝', label: t('landing.pillars.items.social.title'), color: '#6B9FD4', desc: t('landing.pillars.items.social.desc'), cmd: 'SELECT_SOCIAL.exe' },
+    { icon: '🧠', label: t('landing.pillars.items.mind.title'), color: '#C8E650', desc: t('landing.pillars.items.mind.desc'), cmd: 'SELECT_MIND.exe' },
+  ];
+
   return (
     <section className="py-6 border-y-2 border-border relative"
       style={{ background: 'linear-gradient(180deg, rgba(12,11,22,0.95) 0%, rgba(10,9,18,0.95) 100%)' }}
@@ -16,7 +19,7 @@ export default function PillarsSection() {
         {/* Section label */}
         <div className="text-center mb-4">
           <span className="font-pixel text-[7px] text-muted-foreground/60 tracking-widest">
-            ▸ SELECT MISSION TYPE
+            ▸ {t('landing.pillars.title')}
           </span>
         </div>
 

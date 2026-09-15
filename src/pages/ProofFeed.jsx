@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/landing/Navbar';
 import FooterCTA from '../components/landing/FooterCTA';
 import ArcadeScene from '../components/landing/3d/ArcadeScene';
@@ -103,12 +104,12 @@ function ProofCard({ post, index }) {
             textShadow: `0 0 8px ${post.categoryColor}`,
           }}
         >
-          {post.category}
+          {t(`landing.proofFeed.categories.${post.category}`)}
         </div>
         {/* Video indicator */}
         {post.type === 'video' && (
           <div className="absolute top-2 right-2 font-pixel text-[7px] px-2 py-1 border border-white/30 bg-black/70 text-white z-10">
-            ▶ VIDEO
+            ▶ {t('landing.proofFeed.video')}
           </div>
         )}
         {/* XP badge */}
@@ -148,7 +149,7 @@ function ProofCard({ post, index }) {
               <span className="font-pixel text-[6px] text-green-400 border border-green-400/30 px-1.5 py-0.5"
                 style={{ textShadow: '0 0 6px rgba(74,222,128,0.5)' }}
               >
-                ✓ VERIFIED
+                ✓ {t('landing.proofFeed.verified')}
               </span>
             )}
             <span className="font-pixel text-[6px] text-muted-foreground">{post.time}</span>
@@ -165,6 +166,7 @@ function ProofCard({ post, index }) {
 }
 
 export default function ProofFeed() {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('ALL');
 
   const filtered = activeCategory === 'ALL'
@@ -194,15 +196,15 @@ export default function ProofFeed() {
                 style={{ borderColor: 'rgba(232,93,74,0.4)' }}
               >
                 <span className="w-2 h-2 bg-[#E85D4A] animate-pulse" style={{ boxShadow: '0 0 6px #E85D4A' }} />
-                <span className="font-pixel text-[8px] text-[#E85D4A] tracking-widest">LIVE PROOF FEED</span>
+                <span className="font-pixel text-[8px] text-[#E85D4A] tracking-widest">{t('landing.proofFeed.badge')}</span>
               </div>
               <h1 className="font-pixel text-[clamp(0.9rem,3vw,1.8rem)] text-foreground leading-relaxed mb-4"
                 style={{ textShadow: '0 0 20px #E85D4A88' }}
               >
-                HIGH SCORE GALLERY
+                {t('landing.proofFeed.title')}
               </h1>
               <p className="font-body text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Real missions. Real people. Real proof. Every photo and video uploaded by SideQuest players — verified and logged.
+                {t('landing.proofFeed.description')}
               </p>
             </motion.div>
 
@@ -211,9 +213,9 @@ export default function ProofFeed() {
               className="flex justify-center gap-6 mt-10"
             >
               {[
-                { value: '1,248', label: 'PROOFS TODAY', color: '#E85D4A' },
-                { value: '347', label: 'ACTIVE PLAYERS', color: '#C8E650' },
-                { value: '89%', label: 'VERIFIED RATE', color: '#00E5FF' },
+                { value: '1,248', label: t('landing.proofFeed.stats.proofsToday'), color: '#E85D4A' },
+                { value: '347', label: t('landing.proofFeed.stats.activePlayers'), color: '#C8E650' },
+                { value: '89%', label: t('landing.proofFeed.stats.verifiedRate'), color: '#00E5FF' },
               ].map(s => (
                 <div key={s.label} className="text-center crt-card px-4 py-3">
                   <p className="font-pixel text-lg relative z-10"
@@ -234,7 +236,7 @@ export default function ProofFeed() {
         >
           <div className="max-w-6xl mx-auto px-5 md:px-8 py-4 flex items-center gap-3 overflow-x-auto">
             <span className="font-pixel text-[7px] text-muted-foreground tracking-wider flex-shrink-0">
-              <span className="text-[#E85D4A]">▸</span> FILTER:
+              <span className="text-[#E85D4A]">▸</span> {t('landing.proofFeed.filter')}
             </span>
             {CATEGORIES.map(cat => (
               <button
@@ -249,11 +251,11 @@ export default function ProofFeed() {
                   boxShadow: activeCategory === cat ? `0 0 12px ${categoryColors[cat]}22` : 'none',
                 }}
               >
-                {cat}
+                {t(`landing.proofFeed.categories.${cat}`)}
               </button>
             ))}
             <div className="ml-auto font-pixel text-[7px] text-muted-foreground flex-shrink-0">
-              {filtered.length} ENTRIES
+              {filtered.length} {t('landing.proofFeed.entries')}
             </div>
           </div>
         </div>
@@ -270,12 +272,12 @@ export default function ProofFeed() {
             <div className="text-center mt-12">
               <div className="inline-flex flex-col items-center gap-3">
                 <div className="font-pixel text-[7px] text-muted-foreground tracking-widest">
-                  — API FEED WILL LOAD MORE —
+                  {t('landing.proofFeed.apiFeedLoadMore')}
                 </div>
                 <button className="font-pixel text-[8px] border border-[#E85D4A]/50 text-[#E85D4A] px-8 py-3 hover:bg-[#E85D4A]/10 transition-all arcade-btn"
                   style={{ textShadow: '0 0 6px #E85D4A66' }}
                 >
-                  LOAD MORE
+                  {t('landing.proofFeed.loadMore')}
                 </button>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { Search, DollarSign, CalendarDays, Calendar, Building2, CheckCircle, Clo
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const statusConfig = {
   completed: { label: 'COMPLETED', color: '#C8E650', icon: CheckCircle },
@@ -13,6 +14,7 @@ const statusConfig = {
 };
 
 export default function SysAdminPayments() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -41,8 +43,8 @@ export default function SysAdminPayments() {
         console.error("Error fetching platform payments:", err);
         setError(err.message || "Failed to load platform payments");
         toast({
-          title: "Error Loading Payments",
-          description: err.message || "Could not fetch platform payment history.",
+          title: t("sysadmin.payments.toast.errorLoading"),
+          description: err.message || t("sysadmin.payments.toast.errorDescription"),
           variant: "destructive",
         });
       } finally {
@@ -87,7 +89,7 @@ export default function SysAdminPayments() {
   if (error) {
     return (
       <div className="text-center py-20 bg-card border border-border">
-        <h2 className="font-pixel text-[12px] text-red-400 tracking-widest">ERROR LOADING REVENUE DATA</h2>
+        <h2 className="font-pixel text-[12px] text-red-400 tracking-widest">{t("sysadmin.payments.error")}</h2>
         <p className="font-body text-sm text-muted-foreground/60 mt-2">{error}</p>
       </div>
     );
@@ -100,7 +102,7 @@ export default function SysAdminPayments() {
         <div className="flex items-center gap-3">
           <div className="w-2 h-8 bg-[#A663E0]" />
           <h1 className="font-pixel text-xl text-foreground tracking-tight">
-            PLATFORM REVENUE
+            {t("sysadmin.payments.title")}
           </h1>
         </div>
       </div>
@@ -120,7 +122,7 @@ export default function SysAdminPayments() {
               <div className="w-8 h-8 flex items-center justify-center border border-[#4EE6D0]/40 bg-[#4EE6D0]/10">
                 <CalendarDays className="w-4 h-4 text-[#4EE6D0]" />
               </div>
-              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">THIS MONTH</span>
+              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">{t("sysadmin.payments.thisMonth")}</span>
             </div>
             <p className="font-pixel text-3xl text-foreground">${thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
@@ -140,7 +142,7 @@ export default function SysAdminPayments() {
               <div className="w-8 h-8 flex items-center justify-center border border-[#C8E650]/40 bg-[#C8E650]/10">
                 <Calendar className="w-4 h-4 text-[#C8E650]" />
               </div>
-              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">THIS YEAR</span>
+              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">{t("sysadmin.payments.thisYear")}</span>
             </div>
             <p className="font-pixel text-3xl text-foreground">${thisYearRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
@@ -160,7 +162,7 @@ export default function SysAdminPayments() {
               <div className="w-8 h-8 flex items-center justify-center border border-[#A663E0]/40 bg-[#A663E0]/10">
                 <DollarSign className="w-4 h-4 text-[#A663E0]" />
               </div>
-              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">LIFETIME</span>
+              <span className="font-pixel text-[8px] text-muted-foreground tracking-widest">{t("sysadmin.payments.lifetime")}</span>
             </div>
             <p className="font-pixel text-3xl text-[#A663E0]" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.4)' }}>
               ${lifetimeRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -175,7 +177,7 @@ export default function SysAdminPayments() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by business name..."
+            placeholder={t("sysadmin.payments.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-card border border-border pl-10 pr-4 py-3 font-body text-sm text-foreground focus:border-[#A663E0] focus:outline-none transition-colors"
@@ -192,7 +194,7 @@ export default function SysAdminPayments() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {s.toUpperCase()}
+              {t(`sysadmin.payments.filter.${s}`)}
             </button>
           ))}
         </div>
@@ -201,11 +203,11 @@ export default function SysAdminPayments() {
       {/* Table */}
       <div className="bg-card border border-border overflow-hidden">
         <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-secondary/30">
-          <span className="col-span-4 font-pixel text-[6px] text-muted-foreground tracking-widest">BUSINESS</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">AMOUNT</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">DATE</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">METHOD</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">STATUS</span>
+          <span className="col-span-4 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("sysadmin.payments.table.business")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("sysadmin.payments.table.amount")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("sysadmin.payments.table.date")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("sysadmin.payments.table.method")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">{t("sysadmin.payments.table.status")}</span>
         </div>
 
         {filtered.map((p, i) => {
@@ -243,7 +245,7 @@ export default function SysAdminPayments() {
                   style={{ color: sc.color, backgroundColor: sc.color + '15', border: `1px solid ${sc.color}44` }}
                 >
                   <StatusIcon className="w-3 h-3" />
-                  {sc.label}
+                  {t(`sysadmin.payments.filter.${p.status}`)}
                 </span>
               </div>
             </motion.div>
@@ -252,7 +254,7 @@ export default function SysAdminPayments() {
 
         {filtered.length === 0 && (
           <div className="text-center py-12">
-            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">NO PAYMENTS FOUND</p>
+            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">{t("sysadmin.payments.noPayments")}</p>
           </div>
         )}
       </div>

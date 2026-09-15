@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import PhoneMockup from './PhoneMockup';
 
 export default function HeroSection() {
+  const { t } = useTranslation();
   const [cursor, setCursor] = useState(true);
   useEffect(() => {
     const t = setInterval(() => setCursor(c => !c), 500);
@@ -36,7 +38,7 @@ export default function HeroSection() {
             >
               <span className="w-2 h-2 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 6px #C8E650' }} />
               <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest glow-lime">
-                INSERT COIN TO START
+                {t('landing.hero.insertCoin')}
               </span>
               <span className="w-2 h-2 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 6px #C8E650' }} />
             </div>
@@ -50,21 +52,20 @@ export default function HeroSection() {
               <span className="block text-[clamp(0.55rem,1.8vw,0.9rem)] text-[#C8E650] tracking-wide"
                 style={{ textShadow: '0 0 15px #C8E650, 0 0 30px #C8E65066' }}
               >
-                TURN YOUR LIFE INTO A GAME
+                {t('landing.hero.subtitle')}
               </span>
             </h1>
 
             <p className="font-body text-base text-muted-foreground leading-relaxed mb-8 max-w-md border-l-2 border-[#E85D4A]/50 pl-4">
-              Complete real-world missions. Train, connect with people, learn new things.
-              Earn XP for actions done far away from your phone.
+              {t('landing.hero.description')}
             </p>
 
             {/* Stats row — arcade counter style */}
             <div className="flex gap-6 mb-8">
               {[
-                { value: '3', label: 'MISSION TYPES', color: '#E85D4A' },
-                { value: '5', label: 'RANKS', color: '#C8E650' },
-                { value: '∞', label: 'XP', color: '#00E5FF' },
+                { value: '3', label: t('landing.hero.stats.missions'), color: '#E85D4A' },
+                { value: '5', label: t('landing.hero.stats.ranks'), color: '#C8E650' },
+                { value: '∞', label: t('landing.hero.stats.xp'), color: '#00E5FF' },
               ].map(s => (
                 <div key={s.label} className="text-center crt-card px-4 py-3">
                   <p className="font-pixel text-xl relative z-10"
@@ -92,8 +93,8 @@ export default function HeroSection() {
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                 </svg>
                 <div>
-                  <p className="font-pixel text-[6px] opacity-70 tracking-wider">DOWNLOAD ON THE</p>
-                  <p className="font-pixel text-[10px] tracking-wide">APP STORE</p>
+                  <p className="font-pixel text-[6px] opacity-70 tracking-wider">{t('landing.hero.downloadApple')}</p>
+                  <p className="font-pixel text-[10px] tracking-wide">{t('landing.hero.appStore')}</p>
                 </div>
               </a>
               {/* Google Play */}
@@ -108,8 +109,8 @@ export default function HeroSection() {
                   <path d="M3.18 23.76c.3.17.64.24.99.2l.12-.04L13.64 14 10 10.37l-6.82 12.5c-.1.28-.1.6 0 .89zM20.54 10.4l-2.96-1.7-3.9 3.56 3.89 3.89 3-1.73c.85-.49.85-1.52-.03-2.02zM2.1.28C1.9.5 1.78.84 1.78 1.26v21.47c0 .42.12.76.33.98L2.2 23.8l12.04-12.04v-.3L2.2.2l-.1.08zM13.64 10l-10.46-9.8-.12-.04c-.35-.04-.69.03-.99.2-.08.29-.08.61.01.89L13.64 14l.01-.01L13.64 10z" />
                 </svg>
                 <div>
-                  <p className="font-pixel text-[6px] opacity-70 tracking-wider">GET IT ON</p>
-                  <p className="font-pixel text-[10px] tracking-wide">GOOGLE PLAY</p>
+                  <p className="font-pixel text-[6px] opacity-70 tracking-wider">{t('landing.hero.downloadGoogle')}</p>
+                  <p className="font-pixel text-[10px] tracking-wide">{t('landing.hero.googlePlay')}</p>
                 </div>
               </a>
             </div>
@@ -118,7 +119,7 @@ export default function HeroSection() {
             <p className="font-pixel text-[8px] text-muted-foreground mt-4"
               style={{ textShadow: '0 0 4px rgba(200,230,80,0.3)' }}
             >
-              <span className="text-[#C8E650]">▸</span> PRESS START{cursor ? '█' : ' '}
+              <span className="text-[#C8E650]">▸</span> {t('landing.hero.pressStart')}{cursor ? '█' : ' '}
             </p>
           </motion.div>
 

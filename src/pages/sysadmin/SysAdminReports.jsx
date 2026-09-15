@@ -6,8 +6,10 @@ import {
   Search, Filter, Trash2, Clock, AlertOctagon, CheckCircle2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminReports() {
+  const { t, i18n } = useTranslation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -52,12 +54,12 @@ export default function SysAdminReports() {
       });
 
       if (error) {
-        alert(`Error: ${error.message}`);
+        alert(t("sysadmin.reports.toast.error", { message: error.message }));
       } else {
         setReports(prev => prev.filter(r => r.id !== reportId));
       }
     } catch (e) {
-      alert('Failed to execute action');
+      alert(t("sysadmin.reports.toast.actionFailed"));
     } finally {
       setProcessingId(null);
       setActionModal(null);
@@ -75,8 +77,8 @@ export default function SysAdminReports() {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Content Moderation</h1>
-          <p className="text-zinc-400">Review user reports for posts, comments, and other users.</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{t("sysadmin.reports.title")}</h1>
+          <p className="text-zinc-400">{t("sysadmin.reports.subtitle")}</p>
         </div>
         <div className="mt-4 md:mt-0 flex bg-zinc-900 border border-white/10 rounded-lg p-1">
           {['pending', 'resolved', 'dismissed'].map(f => (
@@ -89,19 +91,19 @@ export default function SysAdminReports() {
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {t(`sysadmin.reports.filter.${f}`)}
             </button>
           ))}
         </div>
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-zinc-400">Loading reports...</div>
+        <div className="py-20 text-center text-zinc-400">{t("sysadmin.reports.loading")}</div>
       ) : reports.length === 0 ? (
         <div className="text-center py-20 bg-zinc-900/30 border border-white/5 rounded-xl">
           <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500/50 mb-4" />
-          <h3 className="text-lg font-medium text-white">No {filter} reports</h3>
-          <p className="text-zinc-400">You're all caught up here.</p>
+          <h3 className="text-lg font-medium text-white">{t("sysadmin.reports.noReports", { filter: t(`sysadmin.reports.filter.${filter}`).toLowerCase() })}</h3>
+          <p className="text-zinc-400">{t("sysadmin.reports.caughtUp")}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -120,7 +122,7 @@ export default function SysAdminReports() {
                   </span>
                   <span className="text-xs text-zinc-400 flex items-center">
                     <Clock size={12} className="mr-1" />
-                    {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: i18n.language === 'bg' ? require('date-fns/locale/bg') : undefined })}
                   </span>
                 </div>
                 
@@ -129,12 +131,12 @@ export default function SysAdminReports() {
                 </h3>
                 
                 <div className="flex items-center gap-2 text-sm text-zinc-400">
-                  <span>Reported by</span>
+                  <span>{t("sysadmin.reports.reportedBy")}</span>
                   <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full text-zinc-300">
                     {report.reporter?.avatar_url && (
                       <img src={report.reporter.avatar_url} className="w-4 h-4 rounded-full" alt="" />
                     )}
-                    <span className="font-medium">{report.reporter?.username || 'Unknown'}</span>
+                    <span className="font-medium">{report.reporter?.username || t("sysadmin.reports.unknown")}</span>
                     <span className={`text-xs ml-1 ${report.reporter?.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}`}>
                       (TS: {report.reporter?.trust_score ?? 50})
                     </span>
@@ -149,7 +151,7 @@ export default function SysAdminReports() {
                     disabled={processingId === report.id}
                     className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg font-medium transition-colors"
                   >
-                    Dismiss
+                    {t("sysadmin.reports.dismissBtn")}
                   </button>
                   <button
                     onClick={() => setActionModal({ report, type: 'resolve' })}
@@ -157,7 +159,7 @@ export default function SysAdminReports() {
                     className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg flex items-center font-medium transition-colors"
                   >
                     <ShieldAlert size={16} className="mr-2" />
-                    Take Action
+                    {t("sysadmin.reports.actionBtn")}
                   </button>
                 </div>
               )}
@@ -165,10 +167,10 @@ export default function SysAdminReports() {
               {filter !== 'pending' && (
                 <div className="flex flex-col items-end justify-center text-sm">
                   <span className={`font-medium ${filter === 'resolved' ? 'text-emerald-400' : 'text-zinc-500'}`}>
-                    {filter.toUpperCase()}
+                    {t(`sysadmin.reports.filter.${filter}`).toUpperCase()}
                   </span>
                   {report.resolver && (
-                    <span className="text-zinc-500 text-xs mt-1">by {report.resolver.username}</span>
+                    <span className="text-zinc-500 text-xs mt-1">{t("sysadmin.reports.byResolver", { username: report.resolver.username })}</span>
                   )}
                 </div>
               )}
@@ -188,32 +190,32 @@ export default function SysAdminReports() {
               className="bg-zinc-900 border border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl"
             >
               <h3 className="text-xl font-bold text-white mb-2">
-                {actionModal.type === 'resolve' ? 'Resolve Report' : 'Dismiss Report'}
+                {actionModal.type === 'resolve' ? t("sysadmin.reports.modal.resolveTitle") : t("sysadmin.reports.modal.dismissTitle")}
               </h3>
               
               {actionModal.type === 'resolve' ? (
                 <>
                   <p className="text-zinc-400 mb-6">
-                    What action do you want to take against this {actionModal.report.content_type}?
+                    {t("sysadmin.reports.modal.resolveDesc", { type: actionModal.report.content_type })}
                   </p>
                   <div className="space-y-3 mb-6">
                     <button 
                       onClick={() => handleAction(actionModal.report.id, 'resolved', 'remove_content')}
                       className="w-full flex items-center justify-center gap-2 p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg transition-colors"
                     >
-                      <Trash2 size={16} /> Delete {actionModal.report.content_type}
+                      <Trash2 size={16} /> {t("sysadmin.reports.modal.deleteBtn", { type: actionModal.report.content_type })}
                     </button>
                     <button 
                       onClick={() => handleAction(actionModal.report.id, 'resolved', 'warn_user')}
                       className="w-full flex items-center justify-center gap-2 p-3 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg transition-colors"
                     >
-                      <AlertTriangle size={16} /> Mark Resolved (No Deletion)
+                      <AlertTriangle size={16} /> {t("sysadmin.reports.modal.markResolvedBtn")}
                     </button>
                   </div>
                 </>
               ) : (
                 <p className="text-zinc-400 mb-6">
-                  Are you sure you want to dismiss this report? The reporter will not be notified, and no action will be taken.
+                  {t("sysadmin.reports.modal.dismissDesc")}
                 </p>
               )}
               
@@ -222,14 +224,14 @@ export default function SysAdminReports() {
                   onClick={() => setActionModal(null)}
                   className="px-4 py-2 text-zinc-300 hover:text-white"
                 >
-                  Cancel
+                  {t("sysadmin.reports.modal.cancel")}
                 </button>
                 {actionModal.type === 'dismiss' && (
                   <button 
                     onClick={() => handleAction(actionModal.report.id, 'dismissed')}
                     className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium"
                   >
-                    Confirm Dismiss
+                    {t("sysadmin.reports.modal.confirmDismiss")}
                   </button>
                 )}
               </div>

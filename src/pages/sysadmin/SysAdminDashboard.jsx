@@ -3,8 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { Users, Building2, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminDashboard() {
+  const { t } = useTranslation();
   const { data: stats, isLoading } = useQuery({
     queryKey: ['sysadmin-stats'],
     queryFn: async () => {
@@ -34,7 +36,7 @@ export default function SysAdminDashboard() {
       <div className="flex items-center gap-3">
         <div className="w-2 h-8 bg-[#A663E0]" />
         <h1 className="font-pixel text-xl text-foreground tracking-tight" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
-          SYSTEM DASHBOARD
+          {t("sysadmin.dashboard.title")}
         </h1>
       </div>
 
@@ -44,7 +46,7 @@ export default function SysAdminDashboard() {
             <Users className="w-24 h-24 text-[#4EE6D0]" />
           </div>
           <div className="relative z-10">
-            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">TOTAL PLAYERS</h3>
+            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">{t("sysadmin.dashboard.totalPlayers")}</h3>
             <p className="font-pixel text-4xl text-foreground">{stats?.totalUsers || 0}</p>
           </div>
         </motion.div>
@@ -54,7 +56,7 @@ export default function SysAdminDashboard() {
             <Building2 className="w-24 h-24 text-[#E85D4A]" />
           </div>
           <div className="relative z-10">
-            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">PENDING BUSINESSES</h3>
+            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">{t("sysadmin.dashboard.pendingBusinesses")}</h3>
             <p className="font-pixel text-4xl text-foreground">{stats?.pendingBusinesses || 0}</p>
           </div>
         </motion.div>
@@ -64,7 +66,7 @@ export default function SysAdminDashboard() {
             <Target className="w-24 h-24 text-[#C8E650]" />
           </div>
           <div className="relative z-10">
-            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">ACTIVE MISSIONS</h3>
+            <h3 className="font-pixel text-[10px] text-muted-foreground tracking-widest mb-4">{t("sysadmin.dashboard.activeMissions")}</h3>
             <p className="font-pixel text-4xl text-foreground">{stats?.activeMissions || 0}</p>
           </div>
         </motion.div>

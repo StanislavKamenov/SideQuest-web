@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-d
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   LayoutDashboard,
   CalendarDays,
@@ -20,14 +21,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
 import ArcadeScene from '@/components/landing/3d/ArcadeScene';
 import HeroArcade from '@/components/landing/3d/HeroArcade';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 const navItems = [
-  { to: '/admin', icon: LayoutDashboard, label: 'OVERVIEW', end: true },
-  { to: '/admin/events', icon: CalendarDays, label: 'EVENTS' },
-  { to: '/admin/redemptions', icon: Gift, label: 'REDEMPTIONS' },
-  { to: '/admin/payments', icon: CreditCard, label: 'PAYMENTS' },
-  { to: '/admin/billing', icon: Receipt, label: 'BILLING' },
-  { to: '/admin/settings', icon: Settings, label: 'SETTINGS' },
+  { to: '/admin', icon: LayoutDashboard, labelKey: 'admin.nav.overview', end: true },
+  { to: '/admin/events', icon: CalendarDays, labelKey: 'admin.nav.events' },
+  { to: '/admin/redemptions', icon: Gift, labelKey: 'admin.nav.redemptions' },
+  { to: '/admin/payments', icon: CreditCard, labelKey: 'admin.nav.payments' },
+  { to: '/admin/billing', icon: Receipt, labelKey: 'admin.nav.billing' },
+  { to: '/admin/settings', icon: Settings, labelKey: 'admin.nav.settings' },
 ];
 
 function SidebarLink({ to, icon: Icon, label, active, onClick }) {
@@ -65,6 +67,7 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
 }
 
 export default function AdminLayout() {
+  const { t } = useTranslation();
   const { user, profile, logout, isSysAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -139,20 +142,23 @@ export default function AdminLayout() {
           <span className="font-pixel text-[6px] text-[#C8E650] tracking-widest"
             style={{ textShadow: '0 0 6px #C8E65066' }}
           >
-            COMMAND CENTER
+            {t("admin.sidebar.commandCenter")}
           </span>
         </div>
       </div>
 
       {/* Nav items */}
       <nav className="flex-1 py-4">
-        <div className="px-4 mb-3">
-          <span className="font-pixel text-[6px] text-muted-foreground/60 tracking-widest">NAVIGATION</span>
+        <div className="px-4 mb-3 flex items-center justify-between">
+          <span className="font-pixel text-[6px] text-muted-foreground/60 tracking-widest">{t("admin.sidebar.navigation")}</span>
+          <LanguageSwitcher />
         </div>
         {navItems.map((item) => (
           <SidebarLink
             key={item.to}
-            {...item}
+            to={item.to}
+            icon={item.icon}
+            label={t(item.labelKey)}
             active={isActive(item.to, item.end)}
             onClick={() => setSidebarOpen(false)}
           />
@@ -168,7 +174,7 @@ export default function AdminLayout() {
             style={{ textShadow: '0 0 6px #A663E066' }}
           >
             <Settings className="w-3 h-3" />
-            SYS ADMIN PANEL
+            {t("admin.sidebar.sysAdminBtn")}
           </button>
         )}
 
@@ -196,7 +202,7 @@ export default function AdminLayout() {
           className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-border font-pixel text-[7px] text-muted-foreground hover:text-[#E85D4A] hover:border-[#E85D4A]/50 transition-all tracking-wider"
         >
           <LogOut className="w-3 h-3" />
-          LOG OUT
+          {t("admin.sidebar.logoutBtn")}
         </button>
       </div>
     </>
@@ -273,15 +279,17 @@ export default function AdminLayout() {
               <div className="w-16 h-16 rounded-full border border-border bg-background flex items-center justify-center mb-6 relative z-10">
                 <Lock className="w-7 h-7 text-muted-foreground" />
               </div>
-              <h2 className="font-pixel text-lg text-foreground tracking-widest mb-3 relative z-10">FEATURE LOCKED</h2>
+              <h2 className="font-pixel text-lg text-foreground tracking-widest mb-3 relative z-10">{t("admin.restricted.title")}</h2>
               <p className="font-body text-sm text-muted-foreground max-w-md mx-auto mb-8 leading-relaxed relative z-10">
-                This section is available on the <span className="text-[#6B9FD4] font-semibold">Starter</span> plan and above. Upgrade to unlock advanced analytics and powerful tools to grow your brand.
+                <Trans i18nKey="admin.restricted.message">
+                  This section is available on the <span className="text-[#6B9FD4] font-semibold">Starter</span> plan and above. Upgrade to unlock advanced analytics and powerful tools to grow your brand.
+                </Trans>
               </p>
               <Link 
                 to="/admin/billing" 
                 className="px-8 py-3 bg-foreground text-background font-pixel text-[9px] tracking-widest hover:bg-foreground/90 transition-all relative z-10"
               >
-                VIEW PLANS
+                {t("admin.restricted.viewPlansBtn")}
               </Link>
             </div>
           ) : (

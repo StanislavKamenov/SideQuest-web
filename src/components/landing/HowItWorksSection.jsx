@@ -1,14 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-const steps = [
-  { num: '01', title: 'PICK A MISSION', desc: 'Browse active missions — Body, Social, or Mind. Pick the one that challenges you today.', color: '#E85D4A', cmd: 'INIT' },
-  { num: '02', title: 'ACT IN THE REAL WORLD', desc: 'Put down the phone and do it. Go outside, call a friend, lift some weights.', color: '#6B9FD4', cmd: 'EXECUTE' },
-  { num: '03', title: 'UPLOAD PROOF', desc: 'Take a photo or record a short video. Honesty is the core of SideQuest.', color: '#7BC67E', cmd: 'VERIFY' },
-  { num: '04', title: 'EARN XP', desc: 'Get XP points and climb the leaderboard. From Recruit to Legend through real actions.', color: '#C8E650', cmd: 'REWARD' },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function HowItWorksSection() {
+  const { t } = useTranslation();
+
+  const steps = [
+    { num: '01', title: t('landing.howItWorks.steps.pick.title'), desc: t('landing.howItWorks.steps.pick.desc'), color: '#E85D4A', cmd: 'INIT' },
+    { num: '02', title: t('landing.howItWorks.steps.act.title'), desc: t('landing.howItWorks.steps.act.desc'), color: '#6B9FD4', cmd: 'EXECUTE' },
+    { num: '03', title: t('landing.howItWorks.steps.proof.title'), desc: t('landing.howItWorks.steps.proof.desc'), color: '#7BC67E', cmd: 'VERIFY' },
+    { num: '04', title: t('landing.howItWorks.steps.earn.title'), desc: t('landing.howItWorks.steps.earn.desc'), color: '#C8E650', cmd: 'REWARD' },
+  ];
+
   return (
     <section id="how-it-works" className="py-24 relative"
       style={{ background: 'linear-gradient(180deg, rgba(10,9,18,0.92) 0%, rgba(12,11,22,0.92) 100%)' }}
@@ -22,15 +25,15 @@ export default function HowItWorksSection() {
         >
           <div className="inline-flex items-center gap-2 border border-[#C8E650]/30 px-3 py-1 mb-6">
             <span className="w-1.5 h-1.5 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 6px #C8E650' }} />
-            <span className="font-pixel text-[7px] text-[#C8E650] tracking-widest">TUTORIAL SEQUENCE</span>
+            <span className="font-pixel text-[7px] text-[#C8E650] tracking-widest">{t('landing.howItWorks.badge')}</span>
           </div>
           <h2 className="font-pixel text-[clamp(0.7rem,2.5vw,1.2rem)] text-foreground mb-4 leading-relaxed"
             style={{ textShadow: '0 0 20px #C8E65088' }}
           >
-            HOW IT WORKS
+            {t('landing.howItWorks.title')}
           </h2>
           <p className="font-body text-muted-foreground max-w-md mx-auto">
-            Four steps. No excuses. Just action.
+            {t('landing.howItWorks.description')}
           </p>
         </motion.div>
 
@@ -97,7 +100,7 @@ export default function HowItWorksSection() {
                     </div>
 
                     <div className="font-pixel text-[7px] text-muted-foreground/60 mb-1 tracking-wider relative z-10">
-                      STAGE {step.num}
+                      {t('landing.howItWorks.stage')} {step.num}
                     </div>
                     <div className="font-pixel text-[10px] leading-relaxed relative z-10" style={{ color: step.color }}>
                       {step.title}
@@ -116,7 +119,7 @@ export default function HowItWorksSection() {
                       />
                     </div>
                     <div className="font-pixel text-[6px] text-muted-foreground mt-1 relative z-10 flex justify-between">
-                      <span>{(i + 1) * 25}% COMPLETE</span>
+                      <span>{(i + 1) * 25}% {t('landing.howItWorks.complete')}</span>
                       <span style={{ color: step.color + '88' }}>█{'░'.repeat(3 - i)}{'█'.repeat(i)}</span>
                     </div>
                   </div>

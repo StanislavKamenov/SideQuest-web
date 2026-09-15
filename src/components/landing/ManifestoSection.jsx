@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function ManifestoSection({ image }) {
+  const { t } = useTranslation();
   return (
     <section className="py-24 md:py-40 relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-border" />
@@ -19,7 +21,7 @@ export default function ManifestoSection({ image }) {
             <div className="relative">
               <img
                 src={image}
-                alt="Човек върви по горска пътека в сутрешна мъгла"
+                alt={t('landing.manifesto.alt')}
                 className="w-full aspect-[16/7] object-cover grayscale-[25%] contrast-[1.05]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
@@ -32,14 +34,13 @@ export default function ManifestoSection({ image }) {
                   transition={{ duration: 0.8, delay: 0.3 }}
                 >
                   <p className="font-display text-[clamp(1.5rem,4vw,3rem)] leading-[1.15] tracking-[-0.02em] font-bold text-foreground max-w-3xl">
-                    Не броим часове на екрана.
+                    {t('landing.manifesto.title')}
                     <br />
-                    <span className="italic font-normal">Броим часове в живота.</span>
+                    <span className="italic font-normal">{t('landing.manifesto.subtitle')}</span>
                   </p>
                   <div className="h-px bg-foreground/20 my-6 max-w-sm" />
                   <p className="font-body text-base text-muted-foreground max-w-lg">
-                    SideQuest не е поредната социална мрежа. Това е платформа, която те награждава
-                    за неща, направени далеч от телефона. Всеки ден е нова възможност за мисия.
+                    {t('landing.manifesto.description')}
                   </p>
                 </motion.blockquote>
               </div>

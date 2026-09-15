@@ -4,15 +4,18 @@ import { Search, DollarSign, CreditCard, ArrowUpRight, Clock, CheckCircle, XCirc
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
+// Note: The labels will be fetched from translation
 const statusConfig = {
-  completed: { label: 'COMPLETED', color: '#C8E650', icon: CheckCircle },
-  pending: { label: 'PENDING', color: '#E8956A', icon: Clock },
-  failed: { label: 'FAILED', color: '#E85D4A', icon: XCircle },
-  refunded: { label: 'REFUNDED', color: '#6B9FD4', icon: RotateCcw },
+  completed: { color: '#C8E650', icon: CheckCircle },
+  pending: { color: '#E8956A', icon: Clock },
+  failed: { color: '#E85D4A', icon: XCircle },
+  refunded: { color: '#6B9FD4', icon: RotateCcw },
 };
 
 export default function AdminPayments() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -41,8 +44,8 @@ export default function AdminPayments() {
         console.error("Error fetching payments:", err);
         setError(err.message || "Failed to load payments");
         toast({
-          title: "Error Loading Payments",
-          description: err.message || "Could not fetch payment history.",
+          title: t("admin.payments.errorToastTitle"),
+          description: err.message || t("admin.payments.errorToastDesc"),
           variant: "destructive",
         });
       } finally {
@@ -88,7 +91,7 @@ export default function AdminPayments() {
   if (error) {
     return (
       <div className="text-center py-20 bg-card border border-border">
-        <h2 className="font-pixel text-[12px] text-red-400 tracking-widest">ERROR LOADING PAYMENTS</h2>
+        <h2 className="font-pixel text-[12px] text-red-400 tracking-widest">{t("admin.payments.errorTitle")}</h2>
         <p className="font-body text-sm text-muted-foreground/60 mt-2">{error}</p>
       </div>
     );
@@ -99,10 +102,10 @@ export default function AdminPayments() {
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-          PAYMENTS & INVOICES
+          {t("admin.payments.title")}
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          Track your payments and invoices to SideQuest
+          {t("admin.payments.subtitle")}
         </p>
       </div>
 
@@ -117,7 +120,7 @@ export default function AdminPayments() {
             <div className="w-9 h-9 flex items-center justify-center border-2 border-[#C8E650]/40 bg-[#C8E650]/10">
               <DollarSign className="w-4 h-4 text-[#C8E650]" />
             </div>
-            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">LIFETIME SPENT</span>
+            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">{t("admin.payments.lifetimeSpent")}</span>
           </div>
           <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-[#C8E650]" style={{ textShadow: '0 0 12px #C8E65044' }}>
             ${totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -134,7 +137,7 @@ export default function AdminPayments() {
             <div className="w-9 h-9 flex items-center justify-center border-2 border-[#E8956A]/40 bg-[#E8956A]/10">
               <Clock className="w-4 h-4 text-[#E8956A]" />
             </div>
-            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">PENDING</span>
+            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">{t("admin.payments.pending")}</span>
           </div>
           <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-[#E8956A]" style={{ textShadow: '0 0 12px #E8956A44' }}>
             ${totalPending.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -151,7 +154,7 @@ export default function AdminPayments() {
             <div className="w-9 h-9 flex items-center justify-center border-2 border-[#6B9FD4]/40 bg-[#6B9FD4]/10">
               <ArrowUpRight className="w-4 h-4 text-[#6B9FD4]" />
             </div>
-            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">SPENT THIS MONTH</span>
+            <span className="font-pixel text-[7px] text-muted-foreground tracking-widest">{t("admin.payments.spentThisMonth")}</span>
           </div>
           <p className="font-pixel text-[clamp(1rem,2.5vw,1.5rem)] text-[#6B9FD4]" style={{ textShadow: '0 0 12px #6B9FD444' }}>
             ${thisMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -165,7 +168,7 @@ export default function AdminPayments() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by customer or invoice..."
+            placeholder={t("admin.payments.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-card border border-border pl-10 pr-4 py-2.5 font-body text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-[#E85D4A] focus:outline-none transition-colors"
@@ -182,7 +185,7 @@ export default function AdminPayments() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {s.toUpperCase()}
+              {t(`admin.payments.filter.${s}`)}
             </button>
           ))}
         </div>
@@ -191,12 +194,12 @@ export default function AdminPayments() {
       {/* Table */}
       <div className="bg-card border border-border overflow-hidden">
         <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-border bg-secondary/30">
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">INVOICE</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">CUSTOMER</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">AMOUNT</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">DATE</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">STATUS</span>
-          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">ACTION</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.payments.table.invoice")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.payments.table.customer")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.payments.table.amount")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.payments.table.date")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest">{t("admin.payments.table.status")}</span>
+          <span className="col-span-2 font-pixel text-[6px] text-muted-foreground tracking-widest text-right">{t("admin.payments.table.action")}</span>
         </div>
 
         {filtered.map((p, i) => {
@@ -229,7 +232,7 @@ export default function AdminPayments() {
                   style={{ color: sc.color, backgroundColor: sc.color + '15', border: `1px solid ${sc.color}44` }}
                 >
                   <StatusIcon className="w-2.5 h-2.5" />
-                  {sc.label}
+                  {t(`admin.payments.filter.${p.status === 'failed' ? 'failed' : p.status}`)}
                 </span>
               </div>
               <div className="col-span-2 flex justify-end">
@@ -241,7 +244,7 @@ export default function AdminPayments() {
                     className="flex items-center gap-1.5 px-3 py-1 border border-border bg-secondary/10 hover:bg-secondary/30 transition-colors font-pixel text-[6px] tracking-wider text-muted-foreground hover:text-foreground"
                   >
                     <ExternalLink className="w-2.5 h-2.5" />
-                    VIEW INVOICE
+                    {t("admin.payments.viewInvoice")}
                   </a>
                 )}
               </div>
@@ -251,7 +254,7 @@ export default function AdminPayments() {
 
         {filtered.length === 0 && (
           <div className="text-center py-12">
-            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">NO PAYMENTS FOUND</p>
+            <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">{t("admin.payments.noPayments")}</p>
           </div>
         )}
       </div>

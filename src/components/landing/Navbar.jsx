@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import logo from '@/assets/logo.png';
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, isBusiness } = useAuth();
@@ -49,10 +52,10 @@ export default function Navbar() {
         {/* Desktop nav — arcade HUD style */}
         <div className="hidden md:flex items-center gap-1">
           {[
-            { to: '/#features', label: 'FEATURES' },
-            { to: '/#how-it-works', label: 'HOW IT WORKS' },
-            { to: '/proof', label: 'GALLERY' },
-            { to: '/faq', label: 'FAQ' },
+            { to: '/#features', label: t('navigation.features') },
+            { to: '/#how-it-works', label: t('navigation.howItWorks') },
+            { to: '/proof', label: t('navigation.gallery') },
+            { to: '/faq', label: t('navigation.faq') },
           ].map(({ to, label }) => (
             <Link
               key={to}
@@ -76,14 +79,14 @@ export default function Navbar() {
               className="font-pixel text-[8px] bg-[#C8E650] text-background px-4 py-2 hover:opacity-90 transition-all tracking-wide arcade-btn"
               style={{ boxShadow: '0 2px 0 0 #8fa030, 0 0 12px rgba(200,230,80,0.2)' }}
             >
-              ⚙ DASHBOARD
+              {t('navigation.dashboard')}
             </Link>
           ) : (
             <Link
               to="/login"
               className="font-pixel text-[8px] border-2 border-[#E85D4A] text-[#E85D4A] px-4 py-2 hover:bg-[#E85D4A] hover:text-white transition-all tracking-wide neon-border-pulse"
             >
-              LOG IN
+              {t('navigation.login')}
             </Link>
           )}
 
@@ -94,8 +97,11 @@ export default function Navbar() {
             className="font-pixel text-[8px] bg-foreground text-background px-4 py-2 hover:opacity-90 transition-all tracking-wide ml-1 arcade-btn"
             style={{ boxShadow: '0 2px 0 0 rgba(0,0,0,0.5), 0 0 12px rgba(255,255,255,0.1)' }}
           >
-            ↓ DOWNLOAD
+            {t('landing.download')}
           </a>
+
+          <div className="w-px h-6 bg-border mx-2" />
+          <LanguageSwitcher />
         </div>
 
         {/* Mobile toggle */}
@@ -120,10 +126,10 @@ export default function Navbar() {
           <div className="h-px my-2" style={{ background: 'linear-gradient(90deg, transparent, #E85D4A44, transparent)' }} />
 
           {[
-            { to: '/#features', label: 'FEATURES' },
-            { to: '/#how-it-works', label: 'HOW IT WORKS' },
-            { to: '/proof', label: 'GALLERY' },
-            { to: '/faq', label: 'FAQ' },
+            { to: '/#features', label: t('navigation.features') },
+            { to: '/#how-it-works', label: t('navigation.howItWorks') },
+            { to: '/proof', label: t('navigation.gallery') },
+            { to: '/faq', label: t('navigation.faq') },
           ].map(({ to, label }) => (
             <Link
               key={to}
@@ -143,7 +149,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="block font-pixel text-[8px] bg-foreground text-background px-4 py-3 text-center arcade-btn"
             >
-              ↓ DOWNLOAD APP
+              {t('landing.downloadApp')}
             </a>
 
             {isAuthenticated && isBusiness ? (
@@ -152,7 +158,7 @@ export default function Navbar() {
                 className="block font-pixel text-[8px] bg-[#C8E650] text-background px-4 py-3 text-center arcade-btn"
                 onClick={() => setMenuOpen(false)}
               >
-                ⚙ DASHBOARD
+                {t('navigation.dashboard')}
               </Link>
             ) : (
               <Link
@@ -160,9 +166,13 @@ export default function Navbar() {
                 className="block font-pixel text-[8px] border-2 border-[#E85D4A] text-[#E85D4A] px-4 py-3 text-center hover:bg-[#E85D4A] hover:text-white transition-all"
                 onClick={() => setMenuOpen(false)}
               >
-                LOG IN
+                {t('navigation.login')}
               </Link>
             )}
+            
+            <div className="pt-4 flex justify-center border-t border-border/50">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       )}

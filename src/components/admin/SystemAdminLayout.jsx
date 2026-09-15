@@ -21,16 +21,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo.png';
 import ArcadeScene from '@/components/landing/3d/ArcadeScene';
 import HeroArcade from '@/components/landing/3d/HeroArcade';
+import LanguageSwitcher from '../LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const navItems = [
-  { to: '/sysadmin', icon: LayoutDashboard, label: 'OVERVIEW', end: true },
-  { to: '/sysadmin/businesses', icon: Building2, label: 'BUSINESSES' },
-  { to: '/sysadmin/missions', icon: Target, label: 'MISSIONS' },
-  { to: '/sysadmin/players', icon: Users, label: 'PLAYERS' },
-  { to: '/sysadmin/review-queue', icon: ShieldAlert, label: 'REVIEW QUEUE' },
-  { to: '/sysadmin/reports', icon: MessageSquare, label: 'REPORTS' },
-  { to: '/sysadmin/audit-log', icon: Database, label: 'AUDIT LOG' },
-  { to: '/sysadmin/payments', icon: DollarSign, label: 'PAYMENTS' },
+  { to: '/sysadmin', icon: LayoutDashboard, labelKey: 'sysadmin.nav.overview', end: true },
+  { to: '/sysadmin/businesses', icon: Building2, labelKey: 'sysadmin.nav.businesses' },
+  { to: '/sysadmin/missions', icon: Target, labelKey: 'sysadmin.nav.missions' },
+  { to: '/sysadmin/players', icon: Users, labelKey: 'sysadmin.nav.players' },
+  { to: '/sysadmin/review-queue', icon: ShieldAlert, labelKey: 'sysadmin.nav.reviewQueue' },
+  { to: '/sysadmin/reports', icon: MessageSquare, labelKey: 'sysadmin.nav.reports' },
+  { to: '/sysadmin/audit-log', icon: Database, labelKey: 'sysadmin.nav.auditLog' },
+  { to: '/sysadmin/payments', icon: DollarSign, labelKey: 'sysadmin.nav.payments' },
 ];
 
 function SidebarLink({ to, icon: Icon, label, active, onClick }) {
@@ -68,6 +70,7 @@ function SidebarLink({ to, icon: Icon, label, active, onClick }) {
 }
 
 export default function SystemAdminLayout() {
+  const { t } = useTranslation();
   const { user, profile, logout, hasBusinessRecord } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -109,20 +112,23 @@ export default function SystemAdminLayout() {
           <span className="font-pixel text-[6px] text-[#4EE6D0] tracking-widest"
             style={{ textShadow: '0 0 6px #4EE6D066' }}
           >
-            SYSTEM TERMINAL
+            {t("sysadmin.sidebar.systemTerminal")}
           </span>
         </div>
       </div>
 
       {/* Nav items */}
       <nav className="flex-1 py-4">
-        <div className="px-4 mb-3">
-          <span className="font-pixel text-[6px] text-muted-foreground/60 tracking-widest">NAVIGATION</span>
+        <div className="px-4 mb-3 flex items-center justify-between">
+          <span className="font-pixel text-[6px] text-muted-foreground/60 tracking-widest">{t("sysadmin.sidebar.navigation")}</span>
+          <LanguageSwitcher />
         </div>
         {navItems.map((item) => (
           <SidebarLink
             key={item.to}
-            {...item}
+            to={item.to}
+            icon={item.icon}
+            label={t(item.labelKey)}
             active={isActive(item.to, item.end)}
             onClick={() => setSidebarOpen(false)}
           />
@@ -138,7 +144,7 @@ export default function SystemAdminLayout() {
             style={{ textShadow: '0 0 6px #E85D4A66' }}
           >
             <ArrowLeftRight className="w-3 h-3" />
-            BUSINESS PANEL
+            {t("sysadmin.sidebar.businessPanelBtn")}
           </button>
         )}
 
@@ -166,7 +172,7 @@ export default function SystemAdminLayout() {
           className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-border font-pixel text-[7px] text-muted-foreground hover:text-[#A663E0] hover:border-[#A663E0]/50 transition-all tracking-wider"
         >
           <LogOut className="w-3 h-3" />
-          LOG OUT
+          {t("sysadmin.sidebar.logoutBtn")}
         </button>
       </div>
     </>

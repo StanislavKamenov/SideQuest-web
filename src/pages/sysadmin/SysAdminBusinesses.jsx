@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { Building2, Check, X, Search, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminBusinesses() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('pending_review');
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -34,10 +36,10 @@ export default function SysAdminBusinesses() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['sysadmin-businesses']);
-      toast({ title: 'Business status updated', className: 'bg-[#C8E650] text-black font-pixel' });
+      toast({ title: t("sysadmin.businesses.toast.updated"), className: 'bg-[#C8E650] text-black font-pixel' });
     },
     onError: (err) => {
-      toast({ title: 'Failed to update status', description: err.message, variant: 'destructive', className: 'font-pixel' });
+      toast({ title: t("sysadmin.businesses.toast.updateFailed"), description: err.message, variant: 'destructive', className: 'font-pixel' });
     }
   });
 
@@ -47,7 +49,7 @@ export default function SysAdminBusinesses() {
         <div className="flex items-center gap-3">
           <div className="w-2 h-8 bg-[#A663E0]" />
           <h1 className="font-pixel text-xl text-foreground tracking-tight">
-            BUSINESSES
+            {t("sysadmin.businesses.title")}
           </h1>
         </div>
       </div>
@@ -63,7 +65,7 @@ export default function SysAdminBusinesses() {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {status.replace('_', ' ')}
+            {t(`sysadmin.businesses.filter.${status}`)}
           </button>
         ))}
       </div>
@@ -74,7 +76,7 @@ export default function SysAdminBusinesses() {
         </div>
       ) : businesses?.length === 0 ? (
         <div className="bg-card border border-border p-12 text-center text-muted-foreground font-pixel text-[10px]">
-          NO BUSINESSES FOUND
+          {t("sysadmin.businesses.noBusinesses")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -91,10 +93,10 @@ export default function SysAdminBusinesses() {
                 <div>
                   <h3 className="font-pixel text-sm text-foreground">{business.name}</h3>
                   <p className="font-body text-xs text-muted-foreground mt-1">
-                    {business.category || 'Uncategorized'} • {business.city || 'No location'}
+                    {business.category || t("sysadmin.businesses.uncategorized")} • {business.city || t("sysadmin.businesses.noLocation")}
                   </p>
                   <p className="font-body text-[10px] text-muted-foreground/70 mt-0.5">
-                    VAT: {business.vat_number || 'N/A'} • Contact: {business.contact_email}
+                    {t("sysadmin.businesses.vat")} {business.vat_number || t("sysadmin.businesses.na")} • {t("sysadmin.businesses.contact")} {business.contact_email}
                   </p>
                 </div>
               </div>
@@ -107,14 +109,14 @@ export default function SysAdminBusinesses() {
                       disabled={updateStatus.isPending}
                       className="flex items-center gap-2 px-3 py-2 bg-[#C8E650]/10 border border-[#C8E650]/50 text-[#C8E650] hover:bg-[#C8E650]/20 font-pixel text-[8px] transition-colors"
                     >
-                      <Check className="w-3 h-3" /> APPROVE
+                      <Check className="w-3 h-3" /> {t("sysadmin.businesses.approveBtn")}
                     </button>
                     <button
                       onClick={() => updateStatus.mutate({ id: business.id, status: 'rejected' })}
                       disabled={updateStatus.isPending}
                       className="flex items-center gap-2 px-3 py-2 bg-[#E85D4A]/10 border border-[#E85D4A]/50 text-[#E85D4A] hover:bg-[#E85D4A]/20 font-pixel text-[8px] transition-colors"
                     >
-                      <X className="w-3 h-3" /> REJECT
+                      <X className="w-3 h-3" /> {t("sysadmin.businesses.rejectBtn")}
                     </button>
                   </>
                 )}
@@ -125,7 +127,7 @@ export default function SysAdminBusinesses() {
                     disabled={updateStatus.isPending}
                     className="flex items-center gap-2 px-3 py-2 bg-[#E85D4A]/10 border border-[#E85D4A]/50 text-[#E85D4A] hover:bg-[#E85D4A]/20 font-pixel text-[8px] transition-colors"
                   >
-                    SUSPEND
+                    {t("sysadmin.businesses.suspendBtn")}
                   </button>
                 )}
                 
@@ -135,7 +137,7 @@ export default function SysAdminBusinesses() {
                     disabled={updateStatus.isPending}
                     className="flex items-center gap-2 px-3 py-2 bg-[#C8E650]/10 border border-[#C8E650]/50 text-[#C8E650] hover:bg-[#C8E650]/20 font-pixel text-[8px] transition-colors"
                   >
-                    REINSTATE
+                    {t("sysadmin.businesses.reinstateBtn")}
                   </button>
                 )}
               </div>

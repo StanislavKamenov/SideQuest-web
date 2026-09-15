@@ -4,8 +4,10 @@ import { supabase } from '@/lib/supabaseClient';
 import { Search, Loader2, Database, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminAuditLog() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [expandedRow, setExpandedRow] = useState(null);
 
@@ -35,8 +37,8 @@ export default function SysAdminAuditLog() {
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Audit Logs</h1>
-          <p className="text-zinc-400">Immutable record of all administrative actions taken on the platform.</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{t("sysadmin.auditLog.title")}</h1>
+          <p className="text-zinc-400">{t("sysadmin.auditLog.subtitle")}</p>
         </div>
       </div>
 
@@ -44,7 +46,7 @@ export default function SysAdminAuditLog() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
         <input
           type="text"
-          placeholder="Search by action, target type, or ID..."
+          placeholder={t("sysadmin.auditLog.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-zinc-900 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors"
@@ -58,8 +60,8 @@ export default function SysAdminAuditLog() {
       ) : logs?.length === 0 ? (
         <div className="bg-zinc-900/50 border border-white/5 p-12 text-center text-zinc-400 rounded-xl">
           <Database className="mx-auto h-12 w-12 text-zinc-700 mb-4" />
-          <h3 className="text-lg font-medium text-white">No logs found</h3>
-          <p className="text-zinc-500">No administrative actions match your search.</p>
+          <h3 className="text-lg font-medium text-white">{t("sysadmin.auditLog.noLogs")}</h3>
+          <p className="text-zinc-500">{t("sysadmin.auditLog.noLogsDesc")}</p>
         </div>
       ) : (
         <div className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
@@ -67,12 +69,12 @@ export default function SysAdminAuditLog() {
             <table className="w-full text-left text-sm text-zinc-400">
               <thead className="bg-white/5 text-xs uppercase text-zinc-300 font-medium">
                 <tr>
-                  <th className="px-6 py-4">Timestamp</th>
-                  <th className="px-6 py-4">Admin</th>
-                  <th className="px-6 py-4">Action</th>
-                  <th className="px-6 py-4">Target Type</th>
-                  <th className="px-6 py-4">Target ID</th>
-                  <th className="px-6 py-4 text-right">Details</th>
+                  <th className="px-6 py-4">{t("sysadmin.auditLog.table.timestamp")}</th>
+                  <th className="px-6 py-4">{t("sysadmin.auditLog.table.admin")}</th>
+                  <th className="px-6 py-4">{t("sysadmin.auditLog.table.action")}</th>
+                  <th className="px-6 py-4">{t("sysadmin.auditLog.table.targetType")}</th>
+                  <th className="px-6 py-4">{t("sysadmin.auditLog.table.targetId")}</th>
+                  <th className="px-6 py-4 text-right">{t("sysadmin.auditLog.table.details")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -92,7 +94,7 @@ export default function SysAdminAuditLog() {
                           ) : (
                             <div className="w-5 h-5 rounded-full bg-zinc-800" />
                           )}
-                          {log.admin?.username || 'Unknown'}
+                          {log.admin?.username || t("sysadmin.auditLog.unknown")}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -132,12 +134,12 @@ export default function SysAdminAuditLog() {
                               className="bg-black/30 overflow-hidden"
                             >
                               <div className="px-6 py-4">
-                                <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Metadata Snapshot</h4>
+                                <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">{t("sysadmin.auditLog.metadata")}</h4>
                                 <pre className="bg-black border border-white/5 rounded-lg p-4 font-mono text-xs text-zinc-300 overflow-x-auto">
                                   {JSON.stringify(log.metadata, null, 2)}
                                 </pre>
                                 <div className="mt-4 text-xs text-zinc-500 font-mono">
-                                  Log ID: {log.id}
+                                  {t("sysadmin.auditLog.logId")} {log.id}
                                 </div>
                               </div>
                             </motion.div>

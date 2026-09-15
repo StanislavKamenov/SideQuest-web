@@ -1,0 +1,749 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading...",
+    "search": "Search",
+    "next": "Next",
+    "previous": "Previous",
+    "edit": "Edit",
+    "actions": "Actions",
+    "back": "Back"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "⚙ DASHBOARD",
+    "events": "Events",
+    "missions": "Missions",
+    "payments": "Payments",
+    "settings": "Settings",
+    "login": "LOG IN",
+    "features": "FEATURES",
+    "howItWorks": "HOW IT WORKS",
+    "gallery": "GALLERY",
+    "faq": "FAQ"
+  },
+  "landing": {
+    "download": "↓ DOWNLOAD",
+    "downloadApp": "↓ DOWNLOAD APP",
+    "hero": {
+      "insertCoin": "INSERT COIN TO START",
+      "subtitle": "TURN YOUR LIFE INTO A GAME",
+      "description": "Complete real-world missions. Train, connect with people, learn new things. Earn XP for actions done far away from your phone.",
+      "stats": {
+        "missions": "MISSION TYPES",
+        "ranks": "RANKS",
+        "xp": "XP"
+      },
+      "downloadApple": "DOWNLOAD ON THE",
+      "appStore": "APP STORE",
+      "downloadGoogle": "GET IT ON",
+      "googlePlay": "GOOGLE PLAY",
+      "pressStart": "PRESS START"
+    },
+    "features": {
+      "badge": "SYSTEM FEATURES",
+      "title": "FEATURES",
+      "description": "Everything you need to turn everyday habits into a systematic change.",
+      "items": {
+        "realMissions": {
+          "title": "REAL MISSIONS",
+          "desc": "Health, social life, and mind. Concrete actions — not abstract goals."
+        },
+        "proofRequired": {
+          "title": "PROOF REQUIRED",
+          "desc": "Photo or video confirmation. No self-deception — honesty is mandatory."
+        },
+        "liveMap": {
+          "title": "LIVE MAP",
+          "desc": "Active missions and hotspots near you in real time."
+        },
+        "xpLeaderboard": {
+          "title": "XP & LEADERBOARD",
+          "desc": "Earn experience and climb from Recruit to Legend."
+        },
+        "squadMode": {
+          "title": "SQUAD MODE",
+          "desc": "Invite friends and complete challenges together."
+        },
+        "profile": {
+          "title": "PROFILE",
+          "desc": "Full history, stats and achievements in one place."
+        }
+      }
+    },
+    "howItWorks": {
+      "badge": "TUTORIAL SEQUENCE",
+      "title": "HOW IT WORKS",
+      "description": "Four steps. No excuses. Just action.",
+      "stage": "STAGE",
+      "complete": "COMPLETE",
+      "steps": {
+        "pick": {
+          "title": "PICK A MISSION",
+          "desc": "Browse active missions — Body, Social, or Mind. Pick the one that challenges you today."
+        },
+        "act": {
+          "title": "ACT IN THE REAL WORLD",
+          "desc": "Put down the phone and do it. Go outside, call a friend, lift some weights."
+        },
+        "proof": {
+          "title": "UPLOAD PROOF",
+          "desc": "Take a photo or record a short video. Honesty is the core of SideQuest."
+        },
+        "earn": {
+          "title": "EARN XP",
+          "desc": "Get XP points and climb the leaderboard. From Recruit to Legend through real actions."
+        }
+      }
+    },
+    "pillars": {
+      "title": "SELECT MISSION TYPE",
+      "items": {
+        "body": {
+          "title": "BODY",
+          "desc": "Running, workouts, sleep, nutrition — missions that keep you moving every day."
+        },
+        "social": {
+          "title": "SOCIAL",
+          "desc": "Meet a friend, call a loved one. Real connections are built offline."
+        },
+        "mind": {
+          "title": "MIND",
+          "desc": "Reading, meditation, new skills. Grow beyond your comfort zone."
+        }
+      }
+    },
+    "manifesto": {
+      "alt": "A person walking on a forest path in morning fog",
+      "title": "We don't count hours on the screen.",
+      "subtitle": "We count hours in life.",
+      "description": "SideQuest is not just another social network. It is a platform that rewards you for things done away from the phone. Every day is a new opportunity for a mission."
+    },
+    "footer": {
+      "downloadApple": "DOWNLOAD ON THE",
+      "appStore": "APP STORE",
+      "downloadGoogle": "GET IT ON",
+      "googlePlay": "GOOGLE PLAY",
+      "badge": "GAME OVER? NO WAY.",
+      "title": "CONTINUE?",
+      "subtitle": "INSERT COIN TO PLAY",
+      "credits": "CREDITS: ∞",
+      "description": "Download SideQuest and start earning XP for the things that actually matter — done away from your screen.",
+      "brandDesc": "A gamified app for real-world missions. Earn XP for living, not scrolling.",
+      "production": "PRODUCTION",
+      "product": {
+        "title": "PRODUCT",
+        "features": "Features",
+        "howItWorks": "How It Works",
+        "leaderboard": "Leaderboard",
+        "missionTypes": "Mission Types"
+      },
+      "download": {
+        "title": "DOWNLOAD",
+        "ios": "App Store (iOS)",
+        "android": "Google Play (Android)"
+      },
+      "faq": {
+        "title": "FAQ",
+        "general": "General Info",
+        "gameplay": "Gameplay & XP",
+        "security": "Security & Tech"
+      },
+      "copyright": "© 2026 SIDEQUEST ARCADE — ALL RIGHTS RESERVED",
+      "build": "v2.0.0 ▸ BUILD_ARCADE"
+    },
+    "marquee": {
+      "realMissions": "REAL MISSIONS",
+      "xpSystem": "XP SYSTEM",
+      "squadMode": "SQUAD MODE",
+      "liveMap": "LIVE MAP",
+      "proofRequired": "PROOF REQUIRED",
+      "ranks": "5 RANKS"
+    },
+    "faqPage": {
+      "badge": "KNOWLEDGE DATABASE",
+      "title": "HELP TERMINAL",
+      "description": "Need help on your quest? Search our knowledge base or browse questions by category below.",
+      "searchPlaceholder": "SEARCH THE KNOWLEDGE BASE...",
+      "noResults": "NO SEARCH RESULTS FOUND ON YOUR RADAR.",
+      "categories": {
+        "general": {
+          "title": "GENERAL",
+          "q1": { "q": "WHAT IS SIDEQUEST?", "a": "SideQuest is a gamified productivity and lifestyle app that turns your real-world activities into epic quests. By completing daily tasks, habits, and adventurous missions, you earn experience points (XP), level up, and unlock pixel-art achievements." },
+          "q2": { "q": "HOW DOES THE APP ENCOURAGE SCREEN-FREE TIME?", "a": "Unlike traditional apps that keep you scrolling, SideQuest rewards you for taking action in the real world. Many of our quests are specifically designed to be completed offline (like outdoor exploration, workouts, or learning a physical skill). You log your completion, get approved, and then put your phone back down." },
+          "q3": { "q": "IS SIDEQUEST FREE TO USE?", "a": "Yes, SideQuest is completely free to download and play! We offer core questing, leveling, and leaderboard systems to all players. We also have a premium tier for advanced players who want detailed analytics, custom quest templates, and exclusive pixel-art cosmetics." }
+        },
+        "gameplay": {
+          "title": "GAMEPLAY & XP",
+          "q1": { "q": "HOW DO I EARN XP?", "a": "You earn XP by completing quests, logging daily habits, and hitting streaks. Each quest has a difficulty level (Easy, Medium, Hard, Epic) which determines how much XP you receive. Some quests also offer special item loot!" },
+          "q2": { "q": "WHAT IS \"PROOF OF COMPLETION\"?", "a": "To keep the gameplay fair, certain community and guild quests require you to submit a \"proof\" — this could be a photo of your completed workout, a screenshot of your learning streak, or a short log. Other users or auto-moderation verify your proof before XP is awarded." },
+          "q3": { "q": "CAN I CREATE MY OWN CUSTOM QUESTS?", "a": "Absolutely! You can create custom quests for your own daily chores, routines, or personal goals. You can set the XP values, repetition schedule, and add reminders." }
+        },
+        "security": {
+          "title": "SECURITY & TECH",
+          "q1": { "q": "HOW IS MY PRIVACY PROTECTED?", "a": "Your privacy is our number one priority. Any photo proofs you upload for private quests are visible only to you. For public/guild quests, you can choose what to share. We never sell your personal data or location history." },
+          "q2": { "q": "CAN I SYNC SIDEQUEST WITH MY HEALTH APPS?", "a": "Yes! SideQuest supports integrations with Apple Health and Google Fit. You can auto-complete fitness and sleep quests by syncing your device data directly." },
+          "q3": { "q": "WHAT PLATFORMS IS SIDEQUEST AVAILABLE ON?", "a": "SideQuest is built using React Native & Expo, making it available on both iOS (App Store) and Android (Google Play Store). You can find download links at the top and bottom of our site." }
+        }
+      }
+    },
+    "proofFeed": {
+      "video": "VIDEO",
+      "verified": "VERIFIED",
+      "badge": "LIVE PROOF FEED",
+      "title": "HIGH SCORE GALLERY",
+      "description": "Real missions. Real people. Real proof. Every photo and video uploaded by SideQuest players — verified and logged.",
+      "stats": {
+        "proofsToday": "PROOFS TODAY",
+        "activePlayers": "ACTIVE PLAYERS",
+        "verifiedRate": "VERIFIED RATE"
+      },
+      "filter": "FILTER:",
+      "entries": "ENTRIES",
+      "apiFeedLoadMore": "— API FEED WILL LOAD MORE —",
+      "loadMore": "LOAD MORE",
+      "categories": {
+        "ALL": "ALL",
+        "BODY": "BODY",
+        "SOCIAL": "SOCIAL",
+        "MIND": "MIND"
+      }
+    },
+    "notFound": {
+      "gameOver": "GAME OVER",
+      "errorTitle": "ERROR: PAGE NOT FOUND",
+      "errorDescStart": "The route",
+      "errorDescEnd": "does not exist in the arcade. It may have been removed or you entered an incorrect path.",
+      "returnHome": "🪙 INSERT COIN — RETURN TO ARCADE",
+      "goBack": "← GO BACK",
+      "prompt": "INSERT COIN TO CONTINUE"
+    }
+  },
+  "auth": {
+    "login": {
+      "badge": "PLAYER LOGIN STATION",
+      "title": "AUTHENTICATE",
+      "subtitle": "Access your business command center",
+      "terminal": "AUTH_TERMINAL.exe",
+      "googleBtn": "CONTINUE WITH GOOGLE",
+      "or": "OR",
+      "emailLabel": "EMAIL",
+      "emailPlaceholder": "you@business.com",
+      "passwordLabel": "PASSWORD",
+      "passwordPlaceholder": "••••••••",
+      "loginBtn": "LOG IN",
+      "loadingBtn": "AUTHENTICATING...",
+      "footerNote": "BUSINESS ACCOUNTS ONLY",
+      "backToArcade": "BACK TO ARCADE",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "googleFailed": "Google login failed"
+      },
+      "accessDenied": {
+        "title": "ACCESS DENIED",
+        "message": "This account is not a business account. Only business accounts can access the admin panel."
+      }
+    },
+    "register": {
+      "passwordsNotMatch": "Passwords do not match",
+      "registrationFailed": "Registration failed",
+      "invalidOtp": "Invalid verification code",
+      "codeSent": "Code sent",
+      "codeSentDesc": "Check your email for the new code.",
+      "failedResend": "Failed to resend code",
+      "verifyEmailTitle": "Verify your email",
+      "verifyEmailSubtitleStart": "We sent a code to",
+      "verifyBtn": "Verify",
+      "verifyingBtn": "Verifying...",
+      "didntReceiveCode": "Didn't receive the code?",
+      "resendBtn": "Resend",
+      "title": "Create your account",
+      "subtitle": "Sign up to get started",
+      "alreadyHaveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "googleBtn": "Continue with Google",
+      "or": "or",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "createAccountBtn": "Create account",
+      "creatingAccountBtn": "Creating account..."
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "We'll send you a link to reset it",
+      "backToLogin": "Back to log in",
+      "successMessage": "If an account exists with that email, you'll receive a password reset link shortly.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "sendingBtn": "Sending...",
+      "sendBtn": "Send reset link"
+    },
+    "resetPassword": {
+      "passwordsNotMatch": "Passwords do not match",
+      "failedReset": "Failed to reset password",
+      "invalidLinkTitle": "Invalid reset link",
+      "invalidLinkSubtitle": "This password reset link is missing or invalid",
+      "requestNewLink": "Request a new link",
+      "invalidLinkMessage": "The link you used appears to be incomplete. Please request a new password reset email.",
+      "title": "New password",
+      "subtitle": "Enter your new password below",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "resettingBtn": "Resetting...",
+      "resetBtn": "Reset password"
+    },
+    "unregistered": {
+      "title": "Access Restricted",
+      "message": "You are not registered to use this application. Please contact the app administrator to request access.",
+      "suggestionsHeader": "If you believe this is an error, you can:",
+      "suggestion1": "Verify you are logged in with the correct account",
+      "suggestion2": "Contact the app administrator for access",
+      "suggestion3": "Try logging out and back in again"
+    }
+  },
+  "admin": {
+    "nav": {
+      "overview": "OVERVIEW",
+      "events": "EVENTS",
+      "redemptions": "REDEMPTIONS",
+      "payments": "PAYMENTS",
+      "billing": "BILLING",
+      "settings": "SETTINGS"
+    },
+    "sidebar": {
+      "commandCenter": "COMMAND CENTER",
+      "navigation": "NAVIGATION",
+      "sysAdminBtn": "SYS ADMIN PANEL",
+      "logoutBtn": "LOG OUT"
+    },
+    "restricted": {
+      "title": "FEATURE LOCKED",
+      "message": "This section is available on the <1>Starter</1> plan and above. Upgrade to unlock advanced analytics and powerful tools to grow your brand.",
+      "viewPlansBtn": "VIEW PLANS"
+    },
+    "dashboard": {
+      "errorTitle": "ERROR LOADING DASHBOARD",
+      "noBusinessTitle": "NO BUSINESS FOUND",
+      "noBusinessMessage": "It seems you don't have a registered business profile.",
+      "title": "DASHBOARD",
+      "welcomeMessage": "Welcome back, {{name}}! Here's what's happening with your business.",
+      "kpiActiveEvents": "ACTIVE EVENTS",
+      "kpiRedemptions": "REDEMPTIONS",
+      "recentActivityTitle": "RECENT ACTIVITY",
+      "recentActivitySubtitle": "Latest redemptions",
+      "redeemedMessage": "<0>{{user}}</0> redeemed <2>{{reward}}</2>",
+      "noRecentActivity": "NO RECENT ACTIVITY"
+    },
+    "events": {
+      "title": "EVENTS",
+      "subtitle": "Manage your missions and challenges",
+      "createEventBtn": "CREATE EVENT",
+      "searchPlaceholder": "Search events...",
+      "noEventsFound": "NO EVENTS FOUND",
+      "filter": {
+        "active": "ACTIVE",
+        "upcoming": "UPCOMING",
+        "completed": "COMPLETED",
+        "expired": "EXPIRED"
+      },
+      "fullText": "FULL",
+      "createModal": {
+        "title": "CREATE EVENT",
+        "subtitle": "Place a new mission on the map",
+        "errorPrefix": "ERROR: ",
+        "infoMessage": "Creating an event for your business venue. Category and type are automatically set to 'event'.",
+        "rarityLabel": "● RARITY · DROP TIER",
+        "rarityDesc": "Higher rarity = bolder card + bigger default coin reward.",
+        "briefingLabel": "● BRIEFING",
+        "briefingTitle": "TITLE *",
+        "briefingTitlePlaceholder": "e.g. Sunset photo at the bridge",
+        "briefingDesc": "DESCRIPTION",
+        "briefingDescPlaceholder": "What should people do?",
+        "coverImage": "COVER IMAGE (OPTIONAL)",
+        "removeImage": "REMOVE IMAGE",
+        "pickImage": "PICK AN IMAGE",
+        "proofLabel": "● PROOF · PLAYER UPLOADS",
+        "proofDesc": "Choose what players must submit to complete this challenge.",
+        "locationLabel": "● LOCATION · DROP POINT",
+        "radiusLabel": "● RADIUS · COMPLETION ZONE",
+        "customBtn": "CUSTOM +",
+        "radiusPlaceholder": "Radius in meters",
+        "durationLabel": "● DURATION · ACTIVE TIME",
+        "durationPlaceholder": "Duration in hours",
+        "rewardsLabel": "● REWARDS · OUTPUT",
+        "xpLabel": "XP",
+        "coinsLabel": "COINS",
+        "activeTitle": "ACTIVE IMMEDIATELY",
+        "activeDesc": "Visible to nearby players right away",
+        "couponLabel": "● COUPON / REWARD",
+        "attachRewardTitle": "ATTACH REWARD CODE",
+        "attachRewardDesc": "Users will receive a coupon upon completion",
+        "rewardTitleLabel": "REWARD TITLE (OPTIONAL)",
+        "rewardTitlePlaceholder": "e.g. Free Coffee",
+        "rewardDescLabel": "REWARD DESCRIPTION",
+        "rewardDescPlaceholder": "Valid for any small drink",
+        "codeTypeLabel": "CODE TYPE",
+        "codeTypes": {
+          "generated": { "title": "App Generated", "desc": "RL-XXXX-XXXX" },
+          "shared": { "title": "Shared Code", "desc": "Same code for all" },
+          "unique": { "title": "Unique Codes", "desc": "Pre-uploaded list" }
+        },
+        "promoCodeLabel": "YOUR PROMO CODE *",
+        "promoCodePlaceholder": "e.g. SUMMER20",
+        "uniqueCodesLabel": "UNIQUE CODES LIST (CSV OR NEWLINES) *",
+        "uniqueCodesPlaceholder": "CODE1\\nCODE2\\nCODE3",
+        "limitsLabel": "REDEMPTION LIMITS (AT VENUE)",
+        "maxTotal": "MAX USAGES TOTAL",
+        "maxPerUser": "MAX PER USER",
+        "unlimited": "UNLIMITED",
+        "cancelBtn": "CANCEL",
+        "deployBtn": "DEPLOY EVENT",
+        "deployingBtn": "DEPLOYING..."
+      }
+    },
+    "payments": {
+      "errorToastTitle": "Error Loading Payments",
+      "errorToastDesc": "Could not fetch payment history.",
+      "errorTitle": "ERROR LOADING PAYMENTS",
+      "title": "PAYMENTS & INVOICES",
+      "subtitle": "Track your payments and invoices to SideQuest",
+      "lifetimeSpent": "LIFETIME SPENT",
+      "pending": "PENDING",
+      "spentThisMonth": "SPENT THIS MONTH",
+      "searchPlaceholder": "Search by customer or invoice...",
+      "filter": {
+        "all": "ALL",
+        "completed": "COMPLETED",
+        "pending": "PENDING",
+        "failed": "FAILED",
+        "refunded": "REFUNDED"
+      },
+      "table": {
+        "invoice": "INVOICE",
+        "customer": "CUSTOMER",
+        "amount": "AMOUNT",
+        "date": "DATE",
+        "status": "STATUS",
+        "action": "ACTION"
+      },
+      "viewInvoice": "VIEW INVOICE",
+      "noPayments": "NO PAYMENTS FOUND"
+    },
+    "redemptions": {
+      "title": "REDEMPTIONS",
+      "subtitle": "Review and manage reward redemption requests",
+      "searchPlaceholder": "Search by user or reward...",
+      "filter": {
+        "all": "ALL",
+        "pending": "PENDING",
+        "approved": "APPROVED",
+        "rejected": "REJECTED"
+      },
+      "table": {
+        "user": "USER",
+        "reward": "REWARD",
+        "xp": "XP",
+        "date": "DATE",
+        "status": "STATUS",
+        "actions": "ACTIONS"
+      },
+      "approveBtn": "APPROVE",
+      "rejectBtn": "REJECT",
+      "noRedemptions": "NO REDEMPTIONS FOUND"
+    },
+    "billing": {
+      "errorLoading": "Error Loading Billing",
+      "checkoutSuccessTitle": "Checkout Successful!",
+      "checkoutSuccessDesc": "Your subscription is being updated. It may take a few moments to reflect.",
+      "checkoutCanceledTitle": "Checkout Canceled",
+      "checkoutCanceledDesc": "You have not been charged.",
+      "checkoutFailedTitle": "Checkout Failed",
+      "checkoutFailedDesc": "Failed to initialize secure checkout.",
+      "noBusinessProfile": "NO BUSINESS PROFILE FOUND",
+      "noBusinessProfileDesc": "You need an active business profile to access billing.",
+      "title": "BILLING & SUBSCRIPTION",
+      "subtitle": "Manage your plan, limits, and billing details",
+      "currentPlan": "CURRENT PLAN:",
+      "cancelsSoon": "CANCELS SOON",
+      "eventQuotaUsage": "EVENT QUOTA USAGE",
+      "billingPeriodEnds": "Current billing period ends: {{date}}",
+      "availablePlans": "AVAILABLE PLANS",
+      "perMonth": "/ mo",
+      "includes": "INCLUDES:",
+      "currentPlanBtn": "CURRENT PLAN",
+      "upgradeBtn": "UPGRADE",
+      "processingBtn": "PROCESSING",
+      "unavailableBtn": "UNAVAILABLE",
+      "stripeNotice": "Payments are processed securely via Stripe. Upgrading to a new tier will instantly increase your event quota. If you have questions about your billing or need a custom enterprise solution, please contact support.",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "quota": "1 event / month",
+          "features": [
+            "1 Active Event",
+            "Basic Analytics",
+            "Standard Support"
+          ]
+        },
+        "starter": {
+          "name": "Starter",
+          "quota": "5 events / month",
+          "features": [
+            "5 Active Events",
+            "Advanced Analytics",
+            "Priority Support",
+            "Basic Customization"
+          ]
+        },
+        "business": {
+          "name": "Business",
+          "quota": "15 events / month",
+          "features": [
+            "15 Active Events",
+            "Custom Branding",
+            "Dedicated Account Manager",
+            "API Access"
+          ]
+        },
+        "unlimited": {
+          "name": "Unlimited",
+          "quota": "Unlimited events",
+          "features": [
+            "Unlimited Events",
+            "White-label Solution",
+            "24/7 Phone Support",
+            "Custom Integrations"
+          ]
+        }
+      }
+    },
+    "settings": {
+      "title": "SETTINGS",
+      "subtitle": "Manage your business profile and preferences",
+      "businessProfile": "BUSINESS PROFILE",
+      "businessProfileDesc": "Your company information",
+      "changeLogo": "CHANGE LOGO",
+      "logoSpecs": "PNG, JPG up to 2MB",
+      "businessName": "BUSINESS NAME",
+      "email": "EMAIL",
+      "phone": "PHONE",
+      "website": "WEBSITE",
+      "address": "ADDRESS",
+      "description": "DESCRIPTION",
+      "saved": "SAVED ✓",
+      "saveChanges": "SAVE CHANGES",
+      "notificationsTitle": "NOTIFICATIONS",
+      "notificationsDesc": "Choose what you get notified about",
+      "notifications": {
+        "emailOnNewRedemption": {
+          "label": "Email on new redemption",
+          "desc": "Get notified when a user redeems a reward"
+        },
+        "emailWeeklySummary": {
+          "label": "Weekly summary email",
+          "desc": "Receive a weekly digest of your business metrics"
+        },
+        "pushOnNewParticipant": {
+          "label": "Push on new participant",
+          "desc": "Get a push notification when someone joins an event"
+        }
+      },
+      "dangerZone": "DANGER ZONE",
+      "deleteAccount": "Delete business account",
+      "deleteAccountDesc": "This action cannot be undone",
+      "deleteBtn": "DELETE"
+    }
+  },
+  "sysadmin": {
+    "nav": {
+      "overview": "OVERVIEW",
+      "businesses": "BUSINESSES",
+      "missions": "MISSIONS",
+      "players": "PLAYERS",
+      "reviewQueue": "REVIEW QUEUE",
+      "reports": "REPORTS",
+      "auditLog": "AUDIT LOG",
+      "payments": "PAYMENTS"
+    },
+    "sidebar": {
+      "systemTerminal": "SYSTEM TERMINAL",
+      "navigation": "NAVIGATION",
+      "businessPanelBtn": "BUSINESS PANEL",
+      "logoutBtn": "LOG OUT"
+    },
+    "dashboard": {
+      "title": "SYSTEM DASHBOARD",
+      "totalPlayers": "TOTAL PLAYERS",
+      "pendingBusinesses": "PENDING BUSINESSES",
+      "activeMissions": "ACTIVE MISSIONS"
+    },
+    "businesses": {
+      "toast": {
+        "updated": "Business status updated",
+        "updateFailed": "Failed to update status"
+      },
+      "title": "BUSINESSES",
+      "filter": {
+        "pending_review": "PENDING REVIEW",
+        "approved": "APPROVED",
+        "rejected": "REJECTED",
+        "suspended": "SUSPENDED"
+      },
+      "noBusinesses": "NO BUSINESSES FOUND",
+      "uncategorized": "Uncategorized",
+      "noLocation": "No location",
+      "vat": "VAT:",
+      "na": "N/A",
+      "contact": "Contact:",
+      "approveBtn": "APPROVE",
+      "rejectBtn": "REJECT",
+      "suspendBtn": "SUSPEND",
+      "reinstateBtn": "REINSTATE"
+    },
+    "missions": {
+      "toast": {
+        "activated": "Mission Activated",
+        "deactivated": "Mission Deactivated",
+        "updateFailed": "Failed to update mission"
+      },
+      "title": "MISSIONS",
+      "search": "Search missions...",
+      "tab": {
+        "active": "ACTIVE",
+        "deactivated": "DEACTIVATED",
+        "completed": "COMPLETED"
+      },
+      "noMissions": "NO MISSIONS FOUND",
+      "xp": "XP",
+      "coins": "Coins",
+      "by": "By:",
+      "system": "System",
+      "completedBtn": "COMPLETED",
+      "deactivateBtn": "DEACTIVATE",
+      "activateBtn": "ACTIVATE"
+    },
+    "payments": {
+      "toast": {
+        "errorLoading": "Error Loading Payments",
+        "errorDescription": "Could not fetch platform payment history."
+      },
+      "error": "ERROR LOADING REVENUE DATA",
+      "title": "PLATFORM REVENUE",
+      "thisMonth": "THIS MONTH",
+      "thisYear": "THIS YEAR",
+      "lifetime": "LIFETIME",
+      "search": "Search by business name...",
+      "filter": {
+        "all": "ALL",
+        "completed": "COMPLETED",
+        "pending": "PENDING",
+        "failed": "FAILED",
+        "refunded": "REFUNDED"
+      },
+      "table": {
+        "business": "BUSINESS",
+        "amount": "AMOUNT",
+        "date": "DATE",
+        "method": "METHOD",
+        "status": "STATUS"
+      },
+      "noPayments": "NO PAYMENTS FOUND"
+    },
+    "players": {
+      "toast": {
+        "adminGranted": "Admin Rights Granted",
+        "adminRevoked": "Admin Rights Revoked",
+        "updateFailed": "Failed to update user",
+        "userBanned": "User Banned",
+        "userUnbanned": "User Unbanned",
+        "banFailed": "Failed to update ban status"
+      },
+      "title": "User Management",
+      "subtitle": "Manage players, enforce bans, and monitor trust scores.",
+      "search": "Search by username...",
+      "noPlayers": "No players found matching your search.",
+      "unknown": "Unknown",
+      "admin": "ADMIN",
+      "banned": "BANNED",
+      "xp": "XP",
+      "trustScore": "Trust Score:",
+      "unban": "Unban",
+      "ban": "Ban",
+      "revokeAdmin": "Revoke Admin",
+      "makeAdmin": "Make Admin",
+      "trustHistory": {
+        "title": "Trust Score History",
+        "noHistory": "No history available for this user."
+      },
+      "banModal": {
+        "unbanTitle": "Unban {{username}}?",
+        "banTitle": "Ban {{username}}?",
+        "unbanDesc": "They will regain access to the platform immediately.",
+        "banDesc": "They will be instantly locked out of creating content, submitting proofs, or redeeming rewards. A database trigger enforces this.",
+        "reasonLabel": "Reason for ban (for audit logs)",
+        "reasonPlaceholder": "e.g. GPS Spoofing",
+        "cancel": "Cancel",
+        "confirmUnban": "Confirm Unban",
+        "confirmBan": "Confirm Ban"
+      }
+    },
+    "reports": {
+      "toast": {
+        "error": "Error: {{message}}",
+        "actionFailed": "Failed to execute action"
+      },
+      "title": "Content Moderation",
+      "subtitle": "Review user reports for posts, comments, and other users.",
+      "filter": {
+        "pending": "Pending",
+        "resolved": "Resolved",
+        "dismissed": "Dismissed"
+      },
+      "loading": "Loading reports...",
+      "noReports": "No {{filter}} reports",
+      "caughtUp": "You're all caught up here.",
+      "reportedBy": "Reported by",
+      "unknown": "Unknown",
+      "dismissBtn": "Dismiss",
+      "actionBtn": "Take Action",
+      "byResolver": "by {{username}}",
+      "modal": {
+        "resolveTitle": "Resolve Report",
+        "dismissTitle": "Dismiss Report",
+        "resolveDesc": "What action do you want to take against this {{type}}?",
+        "deleteBtn": "Delete {{type}}",
+        "markResolvedBtn": "Mark Resolved (No Deletion)",
+        "dismissDesc": "Are you sure you want to dismiss this report? The reporter will not be notified, and no action will be taken.",
+        "cancel": "Cancel",
+        "confirmDismiss": "Confirm Dismiss"
+      }
+    },
+    "auditLog": {
+      "title": "Audit Logs",
+      "subtitle": "Immutable record of all administrative actions taken on the platform.",
+      "search": "Search by action, target type, or ID...",
+      "noLogs": "No logs found",
+      "noLogsDesc": "No administrative actions match your search.",
+      "table": {
+        "timestamp": "Timestamp",
+        "admin": "Admin",
+        "action": "Action",
+        "targetType": "Target Type",
+        "targetId": "Target ID",
+        "details": "Details"
+      },
+      "unknown": "Unknown",
+      "metadata": "Metadata Snapshot",
+      "logId": "Log ID:"
+    }
+  }
+}

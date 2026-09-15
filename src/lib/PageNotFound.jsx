@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function PageNotFound() {
+  const { t } = useTranslation();
   const location = useLocation();
   const pageName = location.pathname.substring(1);
-  const [glitchText, setGlitchText] = useState('GAME OVER');
+  const original = t('landing.notFound.gameOver');
+  const [glitchText, setGlitchText] = useState(original);
 
   // Glitch text effect
   useEffect(() => {
     const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const original = 'GAME OVER';
     let interval;
     let count = 0;
 
@@ -29,7 +31,7 @@ export default function PageNotFound() {
     }, 80);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [original]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
@@ -86,10 +88,10 @@ export default function PageNotFound() {
             <span className="w-1.5 h-1.5 bg-[#E85D4A] animate-pulse" style={{ boxShadow: '0 0 4px #E85D4A' }} />
           </div>
           <p className="font-pixel text-[7px] text-[#E85D4A] mb-2 tracking-wider relative z-10" style={{ textShadow: '0 0 6px #E85D4A66' }}>
-            ERROR: PAGE NOT FOUND
+            {t('landing.notFound.errorTitle')}
           </p>
           <p className="font-body text-sm text-muted-foreground leading-relaxed relative z-10">
-            The route <span className="font-pixel text-[8px] text-[#00E5FF]" style={{ textShadow: '0 0 6px #00E5FF66' }}>/{pageName}</span> does not exist in the arcade. It may have been removed or you entered an incorrect path.
+            {t('landing.notFound.errorDescStart')} <span className="font-pixel text-[8px] text-[#00E5FF]" style={{ textShadow: '0 0 6px #00E5FF66' }}>/{pageName}</span> {t('landing.notFound.errorDescEnd')}
           </p>
         </div>
 
@@ -100,20 +102,20 @@ export default function PageNotFound() {
             className="block w-full bg-[#E85D4A] text-white px-6 py-3 font-pixel text-[9px] tracking-wider hover:bg-[#d44d3a] transition-all arcade-btn text-center"
             style={{ boxShadow: '0 3px 0 0 #9d3324, 0 0 16px rgba(232,93,74,0.3)' }}
           >
-            🪙 INSERT COIN — RETURN TO ARCADE
+            {t('landing.notFound.returnHome')}
           </Link>
 
           <button
             onClick={() => window.history.back()}
             className="block w-full border-2 border-border text-muted-foreground px-6 py-3 font-pixel text-[9px] tracking-wider hover:border-[#C8E650]/50 hover:text-[#C8E650] transition-all text-center"
           >
-            ← GO BACK
+            {t('landing.notFound.goBack')}
           </button>
         </div>
 
         {/* Blinking prompt */}
         <p className="font-pixel text-[7px] text-muted-foreground/40 mt-10">
-          <span className="text-[#C8E650]">▸</span> INSERT COIN TO CONTINUE<span className="blink">█</span>
+          <span className="text-[#C8E650]">▸</span> {t('landing.notFound.prompt')}<span className="blink">█</span>
         </p>
       </motion.div>
     </div>

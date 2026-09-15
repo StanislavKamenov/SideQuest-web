@@ -4,41 +4,61 @@ import { CreditCard, CheckCircle2, AlertCircle, Zap, Shield, Infinity } from 'lu
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
-const PLANS = [
+const getPlans = (t) => [
   { 
     id: "free", 
-    name: "Free", 
+    name: t("admin.billing.plans.free.name"), 
     price: "€0", 
-    quota: "1 event / month",
-    features: ["1 Active Event", "Basic Analytics", "Standard Support"],
+    quota: t("admin.billing.plans.free.quota"),
+    features: [
+      t("admin.billing.plans.free.features.0"),
+      t("admin.billing.plans.free.features.1"),
+      t("admin.billing.plans.free.features.2")
+    ],
     icon: Shield,
     color: "text-muted-foreground"
   },
   { 
     id: "starter", 
-    name: "Starter", 
+    name: t("admin.billing.plans.starter.name"), 
     price: "€9.99", 
-    quota: "5 events / month",
-    features: ["5 Active Events", "Advanced Analytics", "Priority Support", "Basic Customization"],
+    quota: t("admin.billing.plans.starter.quota"),
+    features: [
+      t("admin.billing.plans.starter.features.0"),
+      t("admin.billing.plans.starter.features.1"),
+      t("admin.billing.plans.starter.features.2"),
+      t("admin.billing.plans.starter.features.3")
+    ],
     icon: Zap,
     color: "text-[#6B9FD4]"
   },
   { 
     id: "business", 
-    name: "Business", 
+    name: t("admin.billing.plans.business.name"), 
     price: "€19.99", 
-    quota: "15 events / month",
-    features: ["15 Active Events", "Custom Branding", "Dedicated Account Manager", "API Access"],
+    quota: t("admin.billing.plans.business.quota"),
+    features: [
+      t("admin.billing.plans.business.features.0"),
+      t("admin.billing.plans.business.features.1"),
+      t("admin.billing.plans.business.features.2"),
+      t("admin.billing.plans.business.features.3")
+    ],
     icon: CreditCard,
     color: "text-[#E8C36A]"
   },
   { 
     id: "unlimited", 
-    name: "Unlimited", 
+    name: t("admin.billing.plans.unlimited.name"), 
     price: "€29.99", 
-    quota: "Unlimited events",
-    features: ["Unlimited Events", "White-label Solution", "24/7 Phone Support", "Custom Integrations"],
+    quota: t("admin.billing.plans.unlimited.quota"),
+    features: [
+      t("admin.billing.plans.unlimited.features.0"),
+      t("admin.billing.plans.unlimited.features.1"),
+      t("admin.billing.plans.unlimited.features.2"),
+      t("admin.billing.plans.unlimited.features.3")
+    ],
     icon: Infinity,
     color: "text-[#A663E0]"
   },
@@ -47,6 +67,7 @@ const PLANS = [
 const TIER_ORDER = { "free": 0, "starter": 1, "business": 2, "unlimited": 3 };
 
 export default function AdminBilling() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -87,7 +108,7 @@ export default function AdminBilling() {
     } catch (error) {
       console.error("Error fetching billing data:", error);
       toast({
-        title: "Error Loading Billing",
+        title: t("admin.billing.errorLoading"),
         description: error.message,
         variant: "destructive",
       });
@@ -107,8 +128,8 @@ export default function AdminBilling() {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
       toast({
-        title: "Checkout Successful!",
-        description: "Your subscription is being updated. It may take a few moments to reflect.",
+        title: t("admin.billing.checkoutSuccessTitle"),
+        description: t("admin.billing.checkoutSuccessDesc"),
       });
       // Clean up URL
       window.history.replaceState(null, '', window.location.pathname);
@@ -117,8 +138,8 @@ export default function AdminBilling() {
     }
     if (query.get("canceled")) {
       toast({
-        title: "Checkout Canceled",
-        description: "You have not been charged.",
+        title: t("admin.billing.checkoutCanceledTitle"),
+        description: t("admin.billing.checkoutCanceledDesc"),
         variant: "destructive",
       });
       window.history.replaceState(null, '', window.location.pathname);
@@ -149,8 +170,8 @@ export default function AdminBilling() {
     } catch (error) {
       console.error("Stripe Error:", error);
       toast({
-        title: "Checkout Failed",
-        description: error.message || "Failed to initialize secure checkout.",
+        title: t("admin.billing.checkoutFailedTitle"),
+        description: error.message || t("admin.billing.checkoutFailedDesc"),
         variant: "destructive",
       });
       setIsCheckoutLoading(false);
@@ -169,8 +190,8 @@ export default function AdminBilling() {
   if (!business) {
     return (
       <div className="text-center py-20 bg-card border border-border">
-        <h2 className="font-pixel text-[12px] text-muted-foreground tracking-widest">NO BUSINESS PROFILE FOUND</h2>
-        <p className="font-body text-sm text-muted-foreground/60 mt-2">You need an active business profile to access billing.</p>
+        <h2 className="font-pixel text-[12px] text-muted-foreground tracking-widest">{t("admin.billing.noBusinessProfile")}</h2>
+        <p className="font-body text-sm text-muted-foreground/60 mt-2">{t("admin.billing.noBusinessProfileDesc")}</p>
       </div>
     );
   }
@@ -186,10 +207,10 @@ export default function AdminBilling() {
       {/* Header */}
       <div>
         <h1 className="font-pixel text-[clamp(0.7rem,2vw,1rem)] text-foreground glow-red mb-2 leading-relaxed">
-          BILLING & SUBSCRIPTION
+          {t("admin.billing.title")}
         </h1>
         <p className="font-body text-sm text-muted-foreground">
-          Manage your plan, limits, and billing details
+          {t("admin.billing.subtitle")}
         </p>
       </div>
 
@@ -197,7 +218,7 @@ export default function AdminBilling() {
       <div className="bg-card border border-border p-6 flex flex-col md:flex-row gap-8 items-start md:items-center">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h2 className="font-pixel text-[10px] text-foreground tracking-widest">CURRENT PLAN: <span className="text-[#E85D4A]">{currentTier.toUpperCase()}</span></h2>
+            <h2 className="font-pixel text-[10px] text-foreground tracking-widest">{t("admin.billing.currentPlan")} <span className="text-[#E85D4A]">{currentTier.toUpperCase()}</span></h2>
             {subscription?.status !== 'active' && (
               <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-500 font-pixel text-[6px] tracking-wider">
                 {subscription?.status?.toUpperCase()}
@@ -205,14 +226,14 @@ export default function AdminBilling() {
             )}
             {subscription?.cancel_at_period_end && (
               <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-500 font-pixel text-[6px] tracking-wider">
-                CANCELS SOON
+                {t("admin.billing.cancelsSoon")}
               </span>
             )}
           </div>
           
           <div className="space-y-3 mt-6">
             <div className="flex justify-between font-pixel text-[8px] tracking-wider">
-              <span className="text-muted-foreground">EVENT QUOTA USAGE</span>
+              <span className="text-muted-foreground">{t("admin.billing.eventQuotaUsage")}</span>
               <span className="text-foreground">{quotaUsed} / {isUnlimited ? '∞' : quotaTotal}</span>
             </div>
             {!isUnlimited && (
@@ -230,17 +251,17 @@ export default function AdminBilling() {
 
           {subscription?.current_period_end && (
             <p className="font-body text-xs text-muted-foreground mt-4">
-              Current billing period ends: {new Date(subscription.current_period_end).toLocaleDateString()}
+              {t("admin.billing.billingPeriodEnds", { date: new Date(subscription.current_period_end).toLocaleDateString() })}
             </p>
           )}
         </div>
       </div>
 
-      <h3 className="font-pixel text-[10px] text-foreground tracking-widest mt-8 mb-4">AVAILABLE PLANS</h3>
+      <h3 className="font-pixel text-[10px] text-foreground tracking-widest mt-8 mb-4">{t("admin.billing.availablePlans")}</h3>
       
       {/* Plans Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {PLANS.map((plan) => {
+        {getPlans(t).map((plan) => {
           const PlanIcon = plan.icon;
           const isCurrent = currentTier === plan.id;
           const canUpgrade = TIER_ORDER[plan.id] > TIER_ORDER[currentTier];
@@ -261,11 +282,11 @@ export default function AdminBilling() {
               
               <div className="mb-6">
                 <span className="font-pixel text-xl text-foreground">{plan.price}</span>
-                <span className="font-body text-xs text-muted-foreground ml-1">/ mo</span>
+                <span className="font-body text-xs text-muted-foreground ml-1">{t("admin.billing.perMonth")}</span>
               </div>
 
               <div className="flex-1">
-                <p className="font-pixel text-[7px] text-muted-foreground tracking-wider mb-3">INCLUDES:</p>
+                <p className="font-pixel text-[7px] text-muted-foreground tracking-wider mb-3">{t("admin.billing.includes")}</p>
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feat, i) => (
                     <li key={i} className="flex items-start gap-2 font-body text-xs text-muted-foreground">
@@ -279,7 +300,7 @@ export default function AdminBilling() {
               {isCurrent ? (
                 <div className="w-full py-3 border border-[#E85D4A]/50 bg-[#E85D4A]/10 text-center flex items-center justify-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#E85D4A]" />
-                  <span className="font-pixel text-[8px] text-[#E85D4A] tracking-wider">CURRENT PLAN</span>
+                  <span className="font-pixel text-[8px] text-[#E85D4A] tracking-wider">{t("admin.billing.currentPlanBtn")}</span>
                 </div>
               ) : canUpgrade ? (
                 <button 
@@ -290,10 +311,10 @@ export default function AdminBilling() {
                   {isCheckoutLoading && selectedPlan === plan.id ? (
                     <>
                       <span className="w-3 h-3 border-2 border-background/20 border-t-background rounded-full animate-spin"></span>
-                      PROCESSING
+                      {t("admin.billing.processingBtn")}
                     </>
                   ) : (
-                    'UPGRADE'
+                    t("admin.billing.upgradeBtn")
                   )}
                 </button>
               ) : (
@@ -301,7 +322,7 @@ export default function AdminBilling() {
                   disabled
                   className="w-full py-3 bg-secondary text-muted-foreground font-pixel text-[8px] tracking-wider opacity-50 cursor-not-allowed"
                 >
-                  UNAVAILABLE
+                  {t("admin.billing.unavailableBtn")}
                 </button>
               )}
             </div>
@@ -312,7 +333,7 @@ export default function AdminBilling() {
       <div className="mt-8 p-4 bg-blue-500/5 border border-blue-500/20 rounded flex gap-3">
         <AlertCircle className="w-5 h-5 text-blue-400 shrink-0" />
         <p className="font-body text-xs text-blue-400/90 leading-relaxed">
-          Payments are processed securely via Stripe. Upgrading to a new tier will instantly increase your event quota. If you have questions about your billing or need a custom enterprise solution, please contact support.
+          {t("admin.billing.stripeNotice")}
         </p>
       </div>
     </div>

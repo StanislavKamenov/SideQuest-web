@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import logo from '@/assets/logo.png';
 import { Link } from 'react-router-dom';
 
 function AppStoreBadge() {
+  const { t } = useTranslation();
   return (
     <a
       href="https://apps.apple.com"
@@ -15,14 +17,15 @@ function AppStoreBadge() {
         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
       </svg>
       <div>
-        <p className="font-pixel text-[6px] opacity-60 tracking-widest mb-0.5">DOWNLOAD ON THE</p>
-        <p className="font-pixel text-[11px] tracking-wide">APP STORE</p>
+        <p className="font-pixel text-[6px] opacity-60 tracking-widest mb-0.5">{t('landing.footer.downloadApple')}</p>
+        <p className="font-pixel text-[11px] tracking-wide">{t('landing.footer.appStore')}</p>
       </div>
     </a>
   );
 }
 
 function GooglePlayBadge() {
+  const { t } = useTranslation();
   return (
     <a
       href="https://play.google.com"
@@ -35,14 +38,15 @@ function GooglePlayBadge() {
         <path d="M3.18 23.76c.3.17.64.24.99.2l.12-.04L13.64 14 10 10.37l-6.82 12.5c-.1.28-.1.6 0 .89zM20.54 10.4l-2.96-1.7-3.9 3.56 3.89 3.89 3-1.73c.85-.49.85-1.52-.03-2.02zM2.1.28C1.9.5 1.78.84 1.78 1.26v21.47c0 .42.12.76.33.98L2.2 23.8l12.04-12.04v-.3L2.2.2l-.1.08zM13.64 10l-10.46-9.8-.12-.04c-.35-.04-.69.03-.99.2-.08.29-.08.61.01.89L13.64 14l.01-.01L13.64 10z" />
       </svg>
       <div>
-        <p className="font-pixel text-[6px] opacity-60 tracking-widest mb-0.5">GET IT ON</p>
-        <p className="font-pixel text-[11px] tracking-wide">GOOGLE PLAY</p>
+        <p className="font-pixel text-[6px] opacity-60 tracking-widest mb-0.5">{t('landing.footer.downloadGoogle')}</p>
+        <p className="font-pixel text-[11px] tracking-wide">{t('landing.footer.googlePlay')}</p>
       </div>
     </a>
   );
 }
 
 export default function FooterCTA() {
+  const { t } = useTranslation();
   return (
     <>
       {/* CTA Section — "INSERT COIN TO CONTINUE" */}
@@ -66,7 +70,7 @@ export default function FooterCTA() {
             >
               <span className="w-2 h-2 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 8px #C8E650' }} />
               <span className="font-pixel text-[8px] text-[#C8E650] tracking-widest glow-lime">
-                GAME OVER? NO WAY.
+                {t('landing.footer.badge')}
               </span>
               <span className="w-2 h-2 bg-[#C8E650] animate-pulse" style={{ boxShadow: '0 0 8px #C8E650' }} />
             </div>
@@ -76,12 +80,12 @@ export default function FooterCTA() {
               <span className="block text-[clamp(1rem,3.5vw,1.8rem)] text-foreground mb-3"
                 style={{ textShadow: '0 0 20px #E85D4A, 0 0 40px #E85D4A66' }}
               >
-                CONTINUE?
+                {t('landing.footer.title')}
               </span>
               <span className="block text-[clamp(0.55rem,1.8vw,0.9rem)] text-[#C8E650]"
                 style={{ textShadow: '0 0 15px #C8E650, 0 0 30px #C8E65066' }}
               >
-                INSERT COIN TO PLAY
+                {t('landing.footer.subtitle')}
               </span>
             </h2>
 
@@ -93,13 +97,13 @@ export default function FooterCTA() {
                 </span>
                 <span className="font-pixel text-[9px] text-[#C8E650] relative z-10"
                   style={{ textShadow: '0 0 8px #C8E650' }}>
-                  CREDITS: ∞
+                  {t('landing.footer.credits')}
                 </span>
               </div>
             </div>
 
             <p className="font-body text-muted-foreground max-w-md mx-auto mb-10">
-              Download SideQuest and start earning XP for the things that actually matter — done away from your screen.
+              {t('landing.footer.description')}
             </p>
 
             {/* Download buttons */}
@@ -137,11 +141,11 @@ export default function FooterCTA() {
                 </span>
               </div>
               <p className="font-body text-sm text-muted-foreground leading-relaxed mb-4">
-                A gamified app for real-world missions. Earn XP for living, not scrolling.
+                {t('landing.footer.brandDesc')}
               </p>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-400 animate-pulse" style={{ boxShadow: '0 0 6px #4ade80' }} />
-                <span className="font-pixel text-[7px] text-green-400 glow-lime">PRODUCTION</span>
+                <span className="font-pixel text-[7px] text-green-400 glow-lime">{t('landing.footer.production')}</span>
               </div>
             </div>
 
@@ -150,14 +154,14 @@ export default function FooterCTA() {
               <h4 className="font-pixel text-[9px] text-[#E85D4A] mb-5 tracking-wider"
                 style={{ textShadow: '0 0 8px #E85D4A66' }}
               >
-                PRODUCT
+                {t('landing.footer.product.title')}
               </h4>
               <ul className="space-y-3">
                 {[
-                  { label: 'Features', href: '#features' },
-                  { label: 'How It Works', href: '#how-it-works' },
-                  { label: 'Leaderboard', href: '#' },
-                  { label: 'Mission Types', href: '#' },
+                  { label: t('landing.footer.product.features'), href: '#features' },
+                  { label: t('landing.footer.product.howItWorks'), href: '#how-it-works' },
+                  { label: t('landing.footer.product.leaderboard'), href: '#' },
+                  { label: t('landing.footer.product.missionTypes'), href: '#' },
                 ].map(l => (
                   <li key={l.label}>
                     <a href={l.href} className="font-body text-sm text-muted-foreground hover:text-[#C8E650] transition-colors">
@@ -174,7 +178,7 @@ export default function FooterCTA() {
               <h4 className="font-pixel text-[9px] text-[#C8E650] mb-5 tracking-wider"
                 style={{ textShadow: '0 0 8px #C8E65066' }}
               >
-                DOWNLOAD
+                {t('landing.footer.download.title')}
               </h4>
               <ul className="space-y-3">
                 <li>
@@ -183,7 +187,7 @@ export default function FooterCTA() {
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                     </svg>
-                    App Store (iOS)
+                    {t('landing.footer.download.ios')}
                   </a>
                 </li>
                 <li>
@@ -192,7 +196,7 @@ export default function FooterCTA() {
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M3.18 23.76c.3.17.64.24.99.2l.12-.04L13.64 14 10 10.37l-6.82 12.5c-.1.28-.1.6 0 .89zM20.54 10.4l-2.96-1.7-3.9 3.56 3.89 3.89 3-1.73c.85-.49.85-1.52-.03-2.02zM2.1.28C1.9.5 1.78.84 1.78 1.26v21.47c0 .42.12.76.33.98L2.2 23.8l12.04-12.04v-.3L2.2.2l-.1.08zM13.64 10l-10.46-9.8-.12-.04c-.35-.04-.69.03-.99.2-.08.29-.08.61.01.89L13.64 14l.01-.01L13.64 10z" />
                     </svg>
-                    Google Play (Android)
+                    {t('landing.footer.download.android')}
                   </a>
                 </li>
               </ul>
@@ -203,13 +207,13 @@ export default function FooterCTA() {
               <h4 className="font-pixel text-[9px] text-[#6B9FD4] mb-5 tracking-wider"
                 style={{ textShadow: '0 0 8px #6B9FD466' }}
               >
-                FAQ
+                {t('landing.footer.faq.title')}
               </h4>
               <ul className="space-y-3">
                 {[
-                  { label: 'General Info', to: '/faq' },
-                  { label: 'Gameplay & XP', to: '/faq' },
-                  { label: 'Security & Tech', to: '/faq' },
+                  { label: t('landing.footer.faq.general'), to: '/faq' },
+                  { label: t('landing.footer.faq.gameplay'), to: '/faq' },
+                  { label: t('landing.footer.faq.security'), to: '/faq' },
                 ].map(l => (
                   <li key={l.label}>
                     <Link to={l.to} className="font-body text-sm text-muted-foreground hover:text-[#C8E650] transition-colors">
@@ -227,11 +231,11 @@ export default function FooterCTA() {
 
           {/* Bottom bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-pixel text-[6px] text-muted-foreground/50 tracking-widest">
-              © 2026 SIDEQUEST ARCADE — ALL RIGHTS RESERVED
+            <p className="font-pixel text-[6px] text-muted-foreground/50 tracking-widest text-center">
+              {t('landing.footer.copyright')}
             </p>
             <p className="font-pixel text-[6px] text-muted-foreground/30 tracking-wider">
-              v2.0.0 ▸ BUILD_ARCADE
+              {t('landing.footer.build')}
             </p>
           </div>
         </div>
