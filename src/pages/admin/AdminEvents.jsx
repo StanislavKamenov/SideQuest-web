@@ -51,6 +51,11 @@ export default function AdminEvents() {
   const [xpReward, setXpReward] = useState('50');
   const [coinsReward, setCoinsReward] = useState('100');
   const [isActive, setIsActive] = useState(true);
+  const [startsAtDate, setStartsAtDate] = useState(() => {
+    const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    // Remove the Z and slice for datetime-local format
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  });
   const [category, setCategory] = useState('event');
   const [isGlobal, setIsGlobal] = useState(false);
   const [durationHours, setDurationHours] = useState(24);
@@ -179,8 +184,11 @@ export default function AdminEvents() {
         cover_url = urlData.publicUrl;
       }
 
-      const starts_at = new Date().toISOString();
-      const expires_at = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+      const starts_at = isActive 
+        ? new Date().toISOString() 
+        : new Date(startsAtDate).toISOString();
+      
+      const expires_at = new Date(new Date(starts_at).getTime() + durationHours * 60 * 60 * 1000).toISOString();
 
       const missionData = {
         title,
@@ -194,7 +202,7 @@ export default function AdminEvents() {
         created_by: user.id,
         xp_reward: parseInt(xpReward),
         coins_reward: parseInt(coinsReward),
-        is_active: isActive,
+        is_active: true, // Always true so scheduled events show up
         is_global: isGlobal,
         proof_upload_type: proofType,
         cover_url,
@@ -267,6 +275,8 @@ export default function AdminEvents() {
       setCoverImage(null);
       setLocation(null);
       setIsActive(true);
+      const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      setStartsAtDate(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
       setCategory('event');
       setDurationHours(24);
       setEnableReward(false);
@@ -474,36 +484,42 @@ export default function AdminEvents() {
 
                 {/* CATEGORY */}
                 <div>
-                  <label className="font-pixel text-[8px] text-[#A663E0] tracking-widest mb-3 block">КАТЕГОРИЯ</label>
-                  <p className="font-body text-[10px] text-muted-foreground mb-3">Изберете вида на събитието/мисията.</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="font-pixel text-[8px] text-[#A663E0] tracking-widest mb-3 block">{t("admin.events.createModal.categoryLabel") || "CATEGORY"}</label>
+                  <p className="font-body text-[10px] text-muted-foreground mb-3">{t("admin.events.createModal.categoryDesc") || "Select the type of mission."}</p>
+                  <div className="grid grid-cols-3 gap-2">
                     {[
+                      { id: 'global', label: 'Global Quest' },
                       { id: 'side', label: 'Side Quest' },
                       { id: 'event', label: 'Event' }
-                    ].map(c => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => setCategory(c.id)}
-                        className={`py-2 px-1 font-pixel text-[6px] tracking-wider border transition-all ${category === c.id
-                            ? 'bg-[#A663E0]/20 border-[#A663E0] text-[#A663E0] shadow-[0_0_10px_rgba(166,99,224,0.3)]'
-                            : 'bg-secondary border-border text-muted-foreground hover:bg-secondary/80'
-                          }`}
-                      >
-                        {c.label.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className={`p-4 border transition-all flex items-center justify-between mt-4 ${isGlobal ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
-                    <div>
-                      <p className="font-pixel text-[8px] text-foreground tracking-wider">ГЛОБАЛНА МИСИЯ</p>
-                      <p className="font-body text-[10px] text-muted-foreground mt-1">Мисията ще се вижда от всички потребители, независимо от разстоянието.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={isGlobal} onChange={(e) => setIsGlobal(e.target.checked)} />
-                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
-                    </label>
+                    ].map(c => {
+                      const isSelected = c.id === 'global' ? isGlobal : category === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            if (c.id === 'global') {
+                              const next = !isGlobal;
+                              setIsGlobal(next);
+                              if (!next && category === 'global') setCategory('side');
+                            } else {
+                              if (category === c.id) {
+                                setCategory('global');
+                                setIsGlobal(true);
+                              } else {
+                                setCategory(c.id);
+                              }
+                            }
+                          }}
+                          className={`py-2 px-1 font-pixel text-[6px] tracking-wider border transition-all ${isSelected
+                              ? 'bg-[#A663E0]/20 border-[#A663E0] text-[#A663E0] shadow-[0_0_10px_rgba(166,99,224,0.3)]'
+                              : 'bg-secondary border-border text-muted-foreground hover:bg-secondary/80'
+                            }`}
+                        >
+                          {c.label.toUpperCase()}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -721,15 +737,31 @@ export default function AdminEvents() {
                     </div>
                   </div>
 
-                  <div className={`p-4 border transition-all flex items-center justify-between mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
-                    <div>
-                      <p className="font-pixel text-[8px] text-foreground tracking-wider">{t("admin.events.createModal.activeTitle")}</p>
-                      <p className="font-body text-[10px] text-muted-foreground mt-1">{t("admin.events.createModal.activeDesc")}</p>
+                  <div className={`p-4 border transition-all flex flex-col mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <p className="font-pixel text-[8px] text-foreground tracking-wider">{t("admin.events.createModal.activeTitle")}</p>
+                        <p className="font-body text-[10px] text-muted-foreground mt-1">{t("admin.events.createModal.activeDesc")}</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+                        <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
+                      </label>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
-                    </label>
+
+                    {!isActive && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <label className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-2">
+                          SCHEDULED START TIME
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={startsAtDate}
+                          onChange={(e) => setStartsAtDate(e.target.value)}
+                          className="w-full bg-background border border-border px-3 py-2 font-body text-sm focus:border-[#6B9FD4] focus:outline-none"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
