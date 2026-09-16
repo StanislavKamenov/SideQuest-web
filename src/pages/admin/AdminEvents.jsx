@@ -52,7 +52,7 @@ export default function AdminEvents() {
   const [coinsReward, setCoinsReward] = useState('100');
   const [isActive, setIsActive] = useState(true);
   const [category, setCategory] = useState('event');
-  const isGlobal = category === 'global';
+  const [isGlobal, setIsGlobal] = useState(false);
   const [durationHours, setDurationHours] = useState(24);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [location, setLocation] = useState(null);
@@ -186,7 +186,7 @@ export default function AdminEvents() {
         title,
         description,
         type: 'event',
-        category: isGlobal ? 'global' : category,
+        category: category,
         rarity,
         lat: isGlobal ? 0 : location.lat,
         lng: isGlobal ? 0 : location.lng,
@@ -476,9 +476,8 @@ export default function AdminEvents() {
                 <div>
                   <label className="font-pixel text-[8px] text-[#A663E0] tracking-widest mb-3 block">КАТЕГОРИЯ</label>
                   <p className="font-body text-[10px] text-muted-foreground mb-3">Изберете вида на събитието/мисията.</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'global', label: 'Global Quest' },
                       { id: 'side', label: 'Side Quest' },
                       { id: 'event', label: 'Event' }
                     ].map(c => (
@@ -494,6 +493,17 @@ export default function AdminEvents() {
                         {c.label.toUpperCase()}
                       </button>
                     ))}
+                  </div>
+
+                  <div className={`p-4 border transition-all flex items-center justify-between mt-4 ${isGlobal ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
+                    <div>
+                      <p className="font-pixel text-[8px] text-foreground tracking-wider">ГЛОБАЛНА МИСИЯ</p>
+                      <p className="font-body text-[10px] text-muted-foreground mt-1">Мисията ще се вижда от всички потребители, независимо от разстоянието.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" checked={isGlobal} onChange={(e) => setIsGlobal(e.target.checked)} />
+                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
+                    </label>
                   </div>
                 </div>
 
