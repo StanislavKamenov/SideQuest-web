@@ -14,8 +14,8 @@ export default function SysAdminPlayers() {
   const queryClient = useQueryClient();
 
   // Modals
-  const [trustModalUser, setTrustModalUser] = useState(null); // id
-  const [banModal, setBanModal] = useState(null); // { id, is_banned, username }
+  const [trustModalUser, setTrustModalUser] = useState(null);
+  const [banModal, setBanModal] = useState(null);
 
   const { data: players, isLoading } = useQuery({
     queryKey: ['sysadmin-players', search],
@@ -66,7 +66,7 @@ export default function SysAdminPlayers() {
       queryClient.invalidateQueries(['sysadmin-players']);
       toast({ 
         title: data.is_admin ? t("sysadmin.players.toast.adminGranted") : t("sysadmin.players.toast.adminRevoked"), 
-        className: 'bg-emerald-500 text-white font-medium' 
+        className: 'bg-[#C8E650] text-black font-pixel' 
       });
     },
     onError: (err) => {
@@ -92,65 +92,90 @@ export default function SysAdminPlayers() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{t("sysadmin.players.title")}</h1>
-          <p className="text-zinc-400">{t("sysadmin.players.subtitle")}</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-8 bg-[#A663E0]" />
+          <div>
+            <h1 className="font-pixel text-xl text-foreground tracking-tight" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
+              {t("sysadmin.players.title")}
+            </h1>
+            <p className="font-body text-sm text-muted-foreground mt-1">{t("sysadmin.players.subtitle")}</p>
+          </div>
         </div>
       </div>
 
+      {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           placeholder={t("sysadmin.players.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-zinc-900 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-emerald-500 focus:outline-none transition-colors"
+          className="w-full bg-card border-2 border-border pl-10 pr-4 py-3 font-pixel text-[9px] text-foreground placeholder:text-muted-foreground/40 focus:border-[#A663E0] focus:outline-none transition-colors tracking-wider"
+          style={{ boxShadow: 'inset 0 0 8px rgba(0,0,0,0.3)' }}
         />
       </div>
 
       {isLoading ? (
         <div className="flex justify-center p-12">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+          <div className="w-8 h-8 border-4 border-[#A663E0]/30 border-t-[#A663E0] rounded-full animate-spin" />
         </div>
       ) : players?.length === 0 ? (
-        <div className="bg-zinc-900/50 border border-white/5 p-12 text-center text-zinc-400 rounded-xl">
-          {t("sysadmin.players.noPlayers")}
+        <div className="bg-card border border-border p-12 text-center">
+          <Users className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
+          <p className="font-pixel text-[10px] text-muted-foreground tracking-wider">{t("sysadmin.players.noPlayers")}</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {players?.map(player => (
-            <div key={player.id} className={`bg-zinc-900 border rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors ${player.is_banned ? 'border-red-500/50' : 'border-white/10 hover:border-white/20'}`}>
+        <div className="space-y-3">
+          {players?.map((player, i) => (
+            <motion.div
+              key={player.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03 }}
+              className={`bg-card border-2 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
+                player.is_banned ? 'border-[#E85D4A]/50' : 'border-border hover:border-[#A663E0]/30'
+              }`}
+            >
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border ${player.is_admin || player.role === 'admin' ? 'border-emerald-500/50' : 'border-white/10'}`}>
+                <div className={`w-12 h-12 flex items-center justify-center border-2 overflow-hidden ${
+                  player.is_admin || player.role === 'admin' ? 'border-[#C8E650]/50 bg-[#C8E650]/10' : 'border-border bg-secondary/30'
+                }`}>
                   {player.avatar_url ? (
                     <img src={player.avatar_url} alt={player.username} className="w-full h-full object-cover" />
                   ) : (
-                    <Users className="w-6 h-6 text-zinc-500" />
+                    <span className="font-pixel text-[12px] text-muted-foreground">
+                      {(player.username || '?')[0]?.toUpperCase()}
+                    </span>
                   )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-lg text-white">{player.username || t("sysadmin.players.unknown")}</h3>
+                    <h3 className="font-pixel text-[11px] text-foreground tracking-wide">{player.username || t("sysadmin.players.unknown")}</h3>
                     {(player.is_admin || player.role === 'admin') && (
-                      <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs font-medium border border-emerald-500/30">
+                      <span className="font-pixel text-[6px] text-[#C8E650] border border-[#C8E650]/40 px-1.5 py-0.5 tracking-widest"
+                        style={{ textShadow: '0 0 6px #C8E65066' }}
+                      >
                         {t("sysadmin.players.admin")}
                       </span>
                     )}
                     {player.is_banned && (
-                      <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-xs font-medium border border-red-500/30 flex items-center gap-1">
-                        <Ban size={12} /> {t("sysadmin.players.banned")}
+                      <span className="font-pixel text-[6px] text-[#E85D4A] border border-[#E85D4A]/40 px-1.5 py-0.5 flex items-center gap-1 tracking-widest"
+                        style={{ textShadow: '0 0 6px #E85D4A66' }}
+                      >
+                        <Ban size={10} /> {t("sysadmin.players.banned")}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-zinc-400 flex items-center gap-3">
+                  <p className="font-pixel text-[7px] text-muted-foreground flex items-center gap-3 tracking-wider">
                     <span>{player.xp || 0} {t("sysadmin.players.xp")}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 cursor-pointer hover:text-white" onClick={() => setTrustModalUser(player.id)}>
-                      {t("sysadmin.players.trustScore")} <strong className={player.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}>{player.trust_score ?? 50}</strong>
-                      <History size={14} className="ml-1 opacity-70" />
+                    <span className="text-border">•</span>
+                    <span className="flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors" onClick={() => setTrustModalUser(player.id)}>
+                      {t("sysadmin.players.trustScore")} <strong className={player.trust_score < 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'} style={{ textShadow: player.trust_score < 50 ? '0 0 6px #E85D4A66' : '0 0 6px #C8E65066' }}>{player.trust_score ?? 50}</strong>
+                      <History size={12} className="ml-1 opacity-70" />
                     </span>
                   </p>
                 </div>
@@ -159,31 +184,31 @@ export default function SysAdminPlayers() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setBanModal({ id: player.id, is_banned: player.is_banned, username: player.username })}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                  className={`flex items-center gap-1.5 px-3 py-2 font-pixel text-[7px] tracking-wider transition-all ${
                     player.is_banned
-                      ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
-                      : 'bg-red-500/10 hover:bg-red-500/20 text-red-500'
+                      ? 'bg-secondary/50 border border-border text-muted-foreground hover:text-foreground hover:border-[#C8E650]/50'
+                      : 'bg-[#E85D4A]/10 border border-[#E85D4A]/40 text-[#E85D4A] hover:bg-[#E85D4A]/20'
                   }`}
                 >
-                  <Ban size={16} />
+                  <Ban size={14} />
                   {player.is_banned ? t("sysadmin.players.unban") : t("sysadmin.players.ban")}
                 </button>
                 <button
                   onClick={() => toggleAdmin.mutate({ id: player.id, is_admin: !player.is_admin })}
                   disabled={toggleAdmin.isPending || player.role === 'admin'}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                  className={`flex items-center gap-1.5 px-3 py-2 font-pixel text-[7px] tracking-wider transition-all ${
                     player.role === 'admin'
-                      ? 'opacity-50 cursor-not-allowed bg-zinc-800 text-zinc-500'
+                      ? 'opacity-30 cursor-not-allowed bg-secondary/30 border border-border text-muted-foreground'
                       : player.is_admin 
-                        ? 'bg-orange-500/10 hover:bg-orange-500/20 text-orange-500' 
-                        : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500'
+                        ? 'bg-[#E8956A]/10 border border-[#E8956A]/40 text-[#E8956A] hover:bg-[#E8956A]/20' 
+                        : 'bg-[#C8E650]/10 border border-[#C8E650]/40 text-[#C8E650] hover:bg-[#C8E650]/20'
                   }`}
                 >
-                  {player.is_admin ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
+                  {player.is_admin ? <ShieldAlert size={14} /> : <ShieldCheck size={14} />}
                   {player.is_admin ? t("sysadmin.players.revokeAdmin") : t("sysadmin.players.makeAdmin")}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
@@ -196,27 +221,41 @@ export default function SysAdminPlayers() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl p-6 max-w-lg w-full shadow-2xl max-h-[80vh] flex flex-col"
+              className="crt-card border-2 border-border p-6 max-w-lg w-full max-h-[80vh] flex flex-col"
+              style={{ boxShadow: '0 0 40px rgba(166,99,224,0.15)' }}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">{t("sysadmin.players.trustHistory.title")}</h3>
-                <button onClick={() => setTrustModalUser(null)} className="text-zinc-400 hover:text-white">
-                  <X size={20} />
+              {/* Terminal header */}
+              <div className="absolute top-3 left-4 flex items-center gap-2 z-10">
+                <span className="w-1.5 h-1.5 bg-[#E85D4A]" style={{ boxShadow: '0 0 4px #E85D4A' }} />
+                <span className="w-1.5 h-1.5 bg-[#C8E650]" style={{ boxShadow: '0 0 4px #C8E650' }} />
+                <span className="w-1.5 h-1.5 bg-[#6B9FD4]" style={{ boxShadow: '0 0 4px #6B9FD4' }} />
+              </div>
+
+              <div className="flex justify-between items-center mb-6 relative z-10 pt-3">
+                <h3 className="font-pixel text-[11px] text-foreground tracking-wider" style={{ textShadow: '0 0 8px #A663E066' }}>
+                  {t("sysadmin.players.trustHistory.title")}
+                </h3>
+                <button onClick={() => setTrustModalUser(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X size={18} />
                 </button>
               </div>
-              <div className="overflow-y-auto flex-1 space-y-3 pr-2">
+              <div className="overflow-y-auto flex-1 space-y-2 pr-2 relative z-10">
                 {loadingHistory ? (
-                  <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-zinc-500" /></div>
+                  <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-[#A663E0]" /></div>
                 ) : trustHistory?.length === 0 ? (
-                  <div className="text-center p-8 text-zinc-500">{t("sysadmin.players.trustHistory.noHistory")}</div>
+                  <div className="text-center p-8 font-pixel text-[8px] text-muted-foreground tracking-wider">{t("sysadmin.players.trustHistory.noHistory")}</div>
                 ) : (
                   trustHistory?.map(entry => (
-                    <div key={entry.id} className="bg-white/5 border border-white/10 rounded-lg p-3 flex justify-between items-center">
+                    <div key={entry.id} className="bg-secondary/30 border border-border p-3 flex justify-between items-center">
                       <div>
-                        <div className="text-sm font-medium text-white">{entry.reason}</div>
-                        <div className="text-xs text-zinc-500">{formatDistanceToNow(new Date(entry.created_at), { addSuffix: true, locale: i18n.language === 'bg' ? require('date-fns/locale/bg') : undefined })}</div>
+                        <div className="font-pixel text-[8px] text-foreground tracking-wide">{entry.reason}</div>
+                        <div className="font-pixel text-[6px] text-muted-foreground mt-1 tracking-wider">
+                          {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                        </div>
                       </div>
-                      <div className={`font-bold ${entry.change_amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <div className={`font-pixel text-[11px] ${entry.change_amount > 0 ? 'text-[#C8E650]' : 'text-[#E85D4A]'}`}
+                        style={{ textShadow: entry.change_amount > 0 ? '0 0 8px #C8E65066' : '0 0 8px #E85D4A66' }}
+                      >
                         {entry.change_amount > 0 ? '+' : ''}{entry.change_amount}
                       </div>
                     </div>
@@ -236,55 +275,60 @@ export default function SysAdminPlayers() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl"
+              className="crt-card border-2 border-border p-6 max-w-md w-full"
+              style={{ boxShadow: '0 0 40px rgba(232,93,74,0.15)' }}
             >
-              <h3 className="text-xl font-bold text-white mb-2">
-                {banModal.is_banned ? t("sysadmin.players.banModal.unbanTitle", { username: banModal.username }) : t("sysadmin.players.banModal.banTitle", { username: banModal.username })}
-              </h3>
-              <p className="text-zinc-400 mb-6">
-                {banModal.is_banned 
-                  ? t("sysadmin.players.banModal.unbanDesc")
-                  : t("sysadmin.players.banModal.banDesc")}
-              </p>
-              
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const reason = new FormData(e.target).get('reason');
-                handleBanToggle(banModal.id, !banModal.is_banned, reason || 'No reason provided');
-              }}>
-                {!banModal.is_banned && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-zinc-400 mb-2">{t("sysadmin.players.banModal.reasonLabel")}</label>
-                    <input 
-                      name="reason"
-                      type="text" 
-                      required
-                      className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-red-500 focus:outline-none"
-                      placeholder={t("sysadmin.players.banModal.reasonPlaceholder")}
-                    />
-                  </div>
-                )}
+              <div className="relative z-10">
+                <h3 className="font-pixel text-[11px] text-foreground mb-2 tracking-wider" style={{ textShadow: '0 0 8px #E85D4A66' }}>
+                  {banModal.is_banned ? t("sysadmin.players.banModal.unbanTitle", { username: banModal.username }) : t("sysadmin.players.banModal.banTitle", { username: banModal.username })}
+                </h3>
+                <p className="font-body text-sm text-muted-foreground mb-6">
+                  {banModal.is_banned 
+                    ? t("sysadmin.players.banModal.unbanDesc")
+                    : t("sysadmin.players.banModal.banDesc")}
+                </p>
                 
-                <div className="flex gap-3 justify-end mt-2">
-                  <button 
-                    type="button"
-                    onClick={() => setBanModal(null)}
-                    className="px-4 py-2 text-zinc-300 hover:text-white"
-                  >
-                    {t("sysadmin.players.banModal.cancel")}
-                  </button>
-                  <button 
-                    type="submit"
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                      banModal.is_banned 
-                        ? 'bg-zinc-800 hover:bg-zinc-700 text-white' 
-                        : 'bg-red-500 hover:bg-red-600 text-white'
-                    }`}
-                  >
-                    {banModal.is_banned ? t("sysadmin.players.banModal.confirmUnban") : t("sysadmin.players.banModal.confirmBan")}
-                  </button>
-                </div>
-              </form>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const reason = new FormData(e.target).get('reason');
+                  handleBanToggle(banModal.id, !banModal.is_banned, reason || 'No reason provided');
+                }}>
+                  {!banModal.is_banned && (
+                    <div className="mb-6">
+                      <label className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-2 block">{t("sysadmin.players.banModal.reasonLabel")}</label>
+                      <input 
+                        name="reason"
+                        type="text" 
+                        required
+                        className="w-full bg-[#0a0912] border-2 border-border p-3 font-body text-sm text-foreground focus:border-[#E85D4A] focus:outline-none transition-colors"
+                        style={{ boxShadow: 'inset 0 0 8px rgba(0,0,0,0.3)' }}
+                        placeholder={t("sysadmin.players.banModal.reasonPlaceholder")}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3 justify-end mt-2">
+                    <button 
+                      type="button"
+                      onClick={() => setBanModal(null)}
+                      className="px-4 py-2 font-pixel text-[8px] text-muted-foreground hover:text-foreground tracking-wider transition-colors"
+                    >
+                      {t("sysadmin.players.banModal.cancel")}
+                    </button>
+                    <button 
+                      type="submit"
+                      className={`px-4 py-2 font-pixel text-[8px] tracking-wider transition-all arcade-btn ${
+                        banModal.is_banned 
+                          ? 'bg-[#C8E650] text-black hover:bg-[#b8d640]' 
+                          : 'bg-[#E85D4A] text-white hover:bg-[#d44d3a]'
+                      }`}
+                      style={{ boxShadow: banModal.is_banned ? '0 3px 0 0 #8aa530' : '0 3px 0 0 #9d3324' }}
+                    >
+                      {banModal.is_banned ? t("sysadmin.players.banModal.confirmUnban") : t("sysadmin.players.banModal.confirmBan")}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           </div>
         )}

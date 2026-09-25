@@ -15,6 +15,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminEvents from '@/pages/admin/AdminEvents';
 import AdminRedemptions from '@/pages/admin/AdminRedemptions';
+import AdminRewards from '@/pages/admin/AdminRewards';
 import AdminPayments from '@/pages/admin/AdminPayments';
 import AdminBilling from '@/pages/admin/AdminBilling';
 import AdminSettings from '@/pages/admin/AdminSettings';
@@ -94,6 +95,7 @@ const AppRoutes = () => {
       >
         <Route index element={<AdminDashboard />} />
         <Route path="events" element={<AdminEvents />} />
+        <Route path="rewards" element={<AdminRewards />} />
         <Route path="redemptions" element={<AdminRedemptions />} />
         <Route path="payments" element={<AdminPayments />} />
         <Route path="billing" element={<AdminBilling />} />

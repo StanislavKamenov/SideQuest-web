@@ -6,15 +6,16 @@ import {
   Search, Filter, Clock, Shield, ShieldAlert, FileWarning
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export default function SysAdminReviewQueue() {
+  const { t } = useTranslation();
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   
-  // Modals / Dialogs
   const [selectedProof, setSelectedProof] = useState(null);
-  const [confirmAction, setConfirmAction] = useState(null); // { id, type: 'approve' | 'reject' }
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchQueue();
@@ -33,7 +34,6 @@ export default function SysAdminReviewQueue() {
       .order('proof_submitted_at', { ascending: false });
 
     if (!error && data) {
-      // Calculate risk and sort
       const processed = data.map(proof => {
         const trust = proof.profiles?.trust_score ?? 50;
         const flags = proof.flags || [];
@@ -57,7 +57,7 @@ export default function SysAdminReviewQueue() {
         else if (riskScore >= 1) riskLevel = 'Medium';
 
         return { ...proof, riskLevel, riskScore };
-      }).sort((a, b) => b.riskScore - a.riskScore); // Highest risk first
+      }).sort((a, b) => b.riskScore - a.riskScore);
 
       setQueue(processed);
     }
@@ -96,67 +96,91 @@ export default function SysAdminReviewQueue() {
     }
   };
 
-  const RiskBadge = ({ level }) => {
-    const colors = {
-      Critical: 'bg-red-500/20 text-red-400 border-red-500/30',
-      High: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-      Medium: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      Low: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-    };
-    const icons = {
-      Critical: <ShieldAlert size={14} className="mr-1.5" />,
-      High: <AlertTriangle size={14} className="mr-1.5" />,
-      Medium: <FileWarning size={14} className="mr-1.5" />,
-      Low: <Shield size={14} className="mr-1.5" />,
-    };
+  const riskColors = {
+    Critical: { text: '#E85D4A', border: '#E85D4A', bg: '#E85D4A' },
+    High: { text: '#E8956A', border: '#E8956A', bg: '#E8956A' },
+    Medium: { text: '#C8E650', border: '#C8E650', bg: '#C8E650' },
+    Low: { text: '#4EE6D0', border: '#4EE6D0', bg: '#4EE6D0' },
+  };
+  const riskIcons = {
+    Critical: <ShieldAlert size={12} />,
+    High: <AlertTriangle size={12} />,
+    Medium: <FileWarning size={12} />,
+    Low: <Shield size={12} />,
+  };
 
+  const RiskBadge = ({ level }) => {
+    const c = riskColors[level];
     return (
-      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${colors[level]}`}>
-        {icons[level]}
-        {level}
+      <span className="inline-flex items-center gap-1 px-2 py-1 font-pixel text-[7px] tracking-widest border"
+        style={{ color: c.text, borderColor: c.border + '44', backgroundColor: c.bg + '11', textShadow: `0 0 6px ${c.text}66` }}
+      >
+        {riskIcons[level]}
+        {level.toUpperCase()}
       </span>
     );
   };
 
   if (loading) {
-    return <div className="p-8 text-zinc-400">Loading queue...</div>;
+    return (
+      <div className="flex justify-center py-20">
+        <div className="w-8 h-8 border-4 border-[#A663E0]/30 border-t-[#A663E0] rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Proof Review Queue</h1>
-          <p className="text-zinc-400">Review flagged completions and anti-cheat escalations.</p>
-        </div>
-        <div className="flex gap-4">
-          <div className="bg-zinc-900/50 border border-white/5 rounded-lg p-4 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-white">{queue.length}</span>
-            <span className="text-xs text-zinc-400 uppercase tracking-wider">Pending</span>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-8 bg-[#A663E0]" />
+          <div>
+            <h1 className="font-pixel text-xl text-foreground tracking-tight" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
+              {t("sysadmin.reviewQueue.title") || "PROOF REVIEW QUEUE"}
+            </h1>
+            <p className="font-body text-sm text-muted-foreground mt-1">
+              {t("sysadmin.reviewQueue.subtitle") || "Review flagged completions and anti-cheat escalations."}
+            </p>
           </div>
-          <div className="bg-zinc-900/50 border border-white/5 rounded-lg p-4 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-red-400">
+        </div>
+        <div className="flex gap-3">
+          <div className="bg-card border border-border p-4 flex flex-col items-center justify-center">
+            <span className="font-pixel text-2xl text-foreground">{queue.length}</span>
+            <span className="font-pixel text-[6px] text-muted-foreground tracking-widest mt-1">
+              {t("sysadmin.reviewQueue.pending") || "PENDING"}
+            </span>
+          </div>
+          <div className="bg-card border border-[#E85D4A]/30 p-4 flex flex-col items-center justify-center">
+            <span className="font-pixel text-2xl text-[#E85D4A]" style={{ textShadow: '0 0 10px #E85D4A66' }}>
               {queue.filter(q => q.riskLevel === 'Critical').length}
             </span>
-            <span className="text-xs text-zinc-400 uppercase tracking-wider">Critical</span>
+            <span className="font-pixel text-[6px] text-[#E85D4A]/70 tracking-widest mt-1">
+              {t("sysadmin.reviewQueue.critical") || "CRITICAL"}
+            </span>
           </div>
         </div>
       </div>
 
       {queue.length === 0 ? (
-        <div className="text-center py-20 bg-zinc-900/30 border border-white/5 rounded-xl">
-          <Shield className="mx-auto h-12 w-12 text-emerald-500/50 mb-4" />
-          <h3 className="text-lg font-medium text-white">All caught up!</h3>
-          <p className="text-zinc-400">The review queue is empty.</p>
+        <div className="text-center py-20 bg-card border border-border">
+          <Shield className="mx-auto h-10 w-10 text-[#C8E650]/50 mb-4" />
+          <h3 className="font-pixel text-[11px] text-foreground tracking-wider mb-1">
+            {t("sysadmin.reviewQueue.allCaughtUp") || "ALL CAUGHT UP!"}
+          </h3>
+          <p className="font-body text-sm text-muted-foreground">
+            {t("sysadmin.reviewQueue.emptyQueue") || "The review queue is empty."}
+          </p>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {queue.map(proof => (
+        <div className="space-y-3">
+          {queue.map((proof, i) => (
             <motion.div
               key={proof.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden hover:border-white/20 transition-colors"
+              transition={{ delay: i * 0.04 }}
+              className="bg-card border-2 border-border overflow-hidden hover:border-[#A663E0]/30 transition-all"
             >
               <div className="flex flex-col md:flex-row">
                 {/* Image Thumbnail */}
@@ -166,42 +190,48 @@ export default function SysAdminReviewQueue() {
                 >
                   {proof.ai_assessment?.frames?.length > 0 ? (
                     <div className="w-full h-full grid grid-cols-2 gap-0.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                      {proof.ai_assessment.frames.slice(0, 4).map((f, i) => (
-                        <img key={i} src={f} className="w-full h-full object-cover" alt="Frame" />
+                      {proof.ai_assessment.frames.slice(0, 4).map((f, fi) => (
+                        <img key={fi} src={f} className="w-full h-full object-cover" alt="Frame" />
                       ))}
                     </div>
                   ) : proof.proof_url ? (
                     <img src={proof.proof_url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt="Proof" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-zinc-600">No Image</div>
+                    <div className="w-full h-full flex items-center justify-center font-pixel text-[8px] text-muted-foreground tracking-wider">NO IMAGE</div>
                   )}
+                  {/* CRT scanline overlay */}
+                  <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 6px)' }}
+                  />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <ExternalLink className="text-white" />
+                    <ExternalLink className="text-white w-5 h-5" />
                   </div>
                 </div>
 
                 {/* Details */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
+                <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <RiskBadge level={proof.riskLevel} />
-                        <span className="text-xs text-zinc-400 flex items-center">
-                          <Clock size={12} className="mr-1" />
-                          {proof.proof_submitted_at ? formatDistanceToNow(new Date(proof.proof_submitted_at), { addSuffix: true }) : 'Unknown time'}
+                        <span className="font-pixel text-[6px] text-muted-foreground flex items-center tracking-wider">
+                          <Clock size={10} className="mr-1" />
+                          {proof.proof_submitted_at ? formatDistanceToNow(new Date(proof.proof_submitted_at), { addSuffix: true }) : 'Unknown'}
                         </span>
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-1">
+                      <h3 className="font-pixel text-[11px] text-foreground mb-1 tracking-wide">
                         {proof.missions?.title || 'Unknown Mission'}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-zinc-400">
-                        <span>Submitted by</span>
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full text-zinc-300">
+                      <div className="flex items-center gap-2 font-pixel text-[7px] text-muted-foreground tracking-wider">
+                        <span>{t("sysadmin.reviewQueue.submittedBy") || "Submitted by"}</span>
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-secondary/30 border border-border text-foreground">
                           {proof.profiles?.avatar_url && (
-                            <img src={proof.profiles.avatar_url} className="w-4 h-4 rounded-full" alt="" />
+                            <img src={proof.profiles.avatar_url} className="w-4 h-4" alt="" />
                           )}
-                          <span className="font-medium">{proof.profiles?.username || 'Unknown'}</span>
-                          <span className={`text-xs ml-1 ${proof.profiles?.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <span>{proof.profiles?.username || 'Unknown'}</span>
+                          <span className={proof.profiles?.trust_score < 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'}
+                            style={{ textShadow: proof.profiles?.trust_score < 50 ? '0 0 6px #E85D4A66' : '0 0 6px #C8E65066' }}
+                          >
                             (TS: {proof.profiles?.trust_score ?? 50})
                           </span>
                         </div>
@@ -212,39 +242,41 @@ export default function SysAdminReviewQueue() {
                       <button
                         onClick={() => setConfirmAction({ id: proof.id, type: 'reject' })}
                         disabled={processingId === proof.id}
-                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg flex items-center font-medium transition-colors"
+                        className="px-3 py-2 bg-[#E85D4A]/10 border border-[#E85D4A]/40 text-[#E85D4A] hover:bg-[#E85D4A]/20 font-pixel text-[7px] tracking-wider flex items-center gap-1.5 transition-all"
                       >
-                        <X size={16} className="mr-2" />
-                        Reject
+                        <X size={14} />
+                        {t("sysadmin.reviewQueue.reject") || "REJECT"}
                       </button>
                       <button
                         onClick={() => setConfirmAction({ id: proof.id, type: 'approve' })}
                         disabled={processingId === proof.id}
-                        className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center font-medium transition-colors"
+                        className="px-3 py-2 bg-[#C8E650]/10 border border-[#C8E650]/40 text-[#C8E650] hover:bg-[#C8E650]/20 font-pixel text-[7px] tracking-wider flex items-center gap-1.5 transition-all"
                       >
-                        <Check size={16} className="mr-2" />
-                        Approve
+                        <Check size={14} />
+                        {t("sysadmin.reviewQueue.approve") || "APPROVE"}
                       </button>
                     </div>
                   </div>
 
                   {/* Anti Cheat Summary */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
-                    <div className="bg-white/5 rounded px-3 py-2">
-                      <span className="block text-xs text-zinc-500 uppercase">Decision Engine</span>
-                      <span className="text-sm font-bold text-zinc-300 mt-1 block">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-border/50">
+                    <div className="bg-secondary/20 border border-border px-3 py-2">
+                      <span className="block font-pixel text-[6px] text-muted-foreground tracking-widest">DECISION ENGINE</span>
+                      <span className="font-pixel text-[8px] text-foreground mt-1 block tracking-wide">
                         {proof.verification_decision ? proof.verification_decision.toUpperCase() : 'N/A'}
                       </span>
                     </div>
-                    <div className="bg-white/5 rounded px-3 py-2">
-                      <span className="block text-xs text-zinc-500 uppercase">Risk Score</span>
-                      <span className={`text-sm font-bold mt-1 block ${proof.risk_score > 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                    <div className="bg-secondary/20 border border-border px-3 py-2">
+                      <span className="block font-pixel text-[6px] text-muted-foreground tracking-widest">RISK SCORE</span>
+                      <span className={`font-pixel text-[8px] mt-1 block ${proof.risk_score > 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'}`}
+                        style={{ textShadow: proof.risk_score > 50 ? '0 0 6px #E85D4A66' : '0 0 6px #C8E65066' }}
+                      >
                         {proof.risk_score ?? 'N/A'}
                       </span>
                     </div>
-                    <div className="bg-white/5 rounded px-3 py-2 col-span-2">
-                      <span className="block text-xs text-zinc-500 uppercase">Decision Reason</span>
-                      <span className="text-sm text-zinc-300 mt-1 block truncate">
+                    <div className="bg-secondary/20 border border-border px-3 py-2 col-span-2">
+                      <span className="block font-pixel text-[6px] text-muted-foreground tracking-widest">DECISION REASON</span>
+                      <span className="font-body text-xs text-muted-foreground mt-1 block truncate">
                         {proof.verification_reason || 'N/A'}
                       </span>
                     </div>
@@ -264,33 +296,41 @@ export default function SysAdminReviewQueue() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl"
+              className="crt-card border-2 border-border p-6 max-w-md w-full"
+              style={{ boxShadow: confirmAction.type === 'approve' ? '0 0 40px rgba(200,230,80,0.15)' : '0 0 40px rgba(232,93,74,0.15)' }}
             >
-              <h3 className="text-xl font-bold text-white mb-2">
-                {confirmAction.type === 'approve' ? 'Approve Proof?' : 'Reject Proof?'}
-              </h3>
-              <p className="text-zinc-400 mb-6">
-                {confirmAction.type === 'approve' 
-                  ? 'This will award the user XP and coins, and update their trust score positively. An audit log will be created.' 
-                  : 'This will fail the mission for the user, apply a trust score penalty, and create an audit log.'}
-              </p>
-              <div className="flex gap-3 justify-end">
-                <button 
-                  onClick={() => setConfirmAction(null)}
-                  className="px-4 py-2 text-zinc-300 hover:text-white"
+              <div className="relative z-10">
+                <h3 className="font-pixel text-[11px] text-foreground mb-2 tracking-wider"
+                  style={{ textShadow: confirmAction.type === 'approve' ? '0 0 8px #C8E65066' : '0 0 8px #E85D4A66' }}
                 >
-                  Cancel
-                </button>
-                <button 
-                  onClick={() => handleReview(confirmAction.id, confirmAction.type)}
-                  className={`px-4 py-2 rounded-lg font-medium ${
-                    confirmAction.type === 'approve' 
-                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                      : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
-                >
-                  Confirm {confirmAction.type}
-                </button>
+                  {confirmAction.type === 'approve' 
+                    ? (t("sysadmin.reviewQueue.confirmApprove") || 'APPROVE PROOF?')
+                    : (t("sysadmin.reviewQueue.confirmReject") || 'REJECT PROOF?')}
+                </h3>
+                <p className="font-body text-sm text-muted-foreground mb-6">
+                  {confirmAction.type === 'approve' 
+                    ? (t("sysadmin.reviewQueue.approveDesc") || 'This will award the user XP and coins, and update their trust score positively. An audit log will be created.')
+                    : (t("sysadmin.reviewQueue.rejectDesc") || 'This will fail the mission for the user, apply a trust score penalty, and create an audit log.')}
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button 
+                    onClick={() => setConfirmAction(null)}
+                    className="px-4 py-2 font-pixel text-[8px] text-muted-foreground hover:text-foreground tracking-wider transition-colors"
+                  >
+                    {t("sysadmin.reviewQueue.cancel") || "CANCEL"}
+                  </button>
+                  <button 
+                    onClick={() => handleReview(confirmAction.id, confirmAction.type)}
+                    className={`px-4 py-2 font-pixel text-[8px] tracking-wider transition-all arcade-btn ${
+                      confirmAction.type === 'approve' 
+                        ? 'bg-[#C8E650] text-black hover:bg-[#b8d640]' 
+                        : 'bg-[#E85D4A] text-white hover:bg-[#d44d3a]'
+                    }`}
+                    style={{ boxShadow: confirmAction.type === 'approve' ? '0 3px 0 0 #8aa530' : '0 3px 0 0 #9d3324' }}
+                  >
+                    {t("sysadmin.reviewQueue.confirm") || "CONFIRM"} {confirmAction.type.toUpperCase()}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -305,75 +345,86 @@ export default function SysAdminReviewQueue() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl"
+              className="crt-card border-2 border-border max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row"
+              style={{ boxShadow: '0 0 60px rgba(166,99,224,0.15)' }}
             >
-              <div className="w-full md:w-1/2 bg-black flex items-center justify-center min-h-[300px] overflow-y-auto p-4">
+              <div className="w-full md:w-1/2 bg-black/50 flex items-center justify-center min-h-[300px] overflow-y-auto p-4 relative">
                 {selectedProof.ai_assessment?.frames?.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2 w-full">
-                    {selectedProof.ai_assessment.frames.map((f, i) => (
-                      <img key={i} src={f} className="w-full h-auto object-contain rounded border border-white/10" alt={`Frame ${i}`} />
+                    {selectedProof.ai_assessment.frames.map((f, fi) => (
+                      <img key={fi} src={f} className="w-full h-auto object-contain border border-border" alt={`Frame ${fi}`} />
                     ))}
                   </div>
                 ) : selectedProof.proof_url ? (
                   <img src={selectedProof.proof_url} className="max-w-full max-h-[90vh] object-contain" alt="Full Proof" />
                 ) : (
-                  <div className="text-zinc-500">No media</div>
+                  <div className="font-pixel text-[9px] text-muted-foreground tracking-wider">NO MEDIA</div>
                 )}
+                {/* Scanline */}
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 6px)' }}
+                />
               </div>
-              <div className="w-full md:w-1/2 p-6 overflow-y-auto">
+              <div className="w-full md:w-1/2 p-6 overflow-y-auto relative z-10">
                 <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-2xl font-bold text-white">Submission Details</h3>
-                  <button onClick={() => setSelectedProof(null)} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5">
-                    <X size={20} />
+                  <h3 className="font-pixel text-[12px] text-foreground tracking-wider" style={{ textShadow: '0 0 8px #A663E066' }}>
+                    {t("sysadmin.reviewQueue.submissionDetails") || "SUBMISSION DETAILS"}
+                  </h3>
+                  <button onClick={() => setSelectedProof(null)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <X size={18} />
                   </button>
                 </div>
                 
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-2">User Context</h4>
-                    <div className="bg-white/5 p-4 rounded-lg">
-                      <div className="text-white font-medium mb-1">{selectedProof.profiles?.full_name} (@{selectedProof.profiles?.username})</div>
-                      <div className="text-sm text-zinc-400">Trust Score: <strong className={selectedProof.profiles?.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}>{selectedProof.profiles?.trust_score}</strong></div>
+                    <h4 className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-2">USER CONTEXT</h4>
+                    <div className="bg-secondary/20 border border-border p-4">
+                      <div className="font-pixel text-[9px] text-foreground mb-1 tracking-wide">{selectedProof.profiles?.full_name} (@{selectedProof.profiles?.username})</div>
+                      <div className="font-pixel text-[7px] text-muted-foreground tracking-wider">
+                        Trust Score: <strong className={selectedProof.profiles?.trust_score < 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'}
+                          style={{ textShadow: selectedProof.profiles?.trust_score < 50 ? '0 0 6px #E85D4A66' : '0 0 6px #C8E65066' }}
+                        >{selectedProof.profiles?.trust_score}</strong>
+                      </div>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-2">Decision Engine</h4>
-                    <div className="bg-white/5 p-4 rounded-lg space-y-3">
+                    <h4 className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-2">DECISION ENGINE</h4>
+                    <div className="bg-secondary/20 border border-border p-4 space-y-3">
                       <div>
-                        <span className="text-xs text-zinc-500 uppercase">Decision</span>
-                        <div className="text-white font-bold">{selectedProof.verification_decision?.toUpperCase() || 'N/A'}</div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">DECISION</span>
+                        <div className="font-pixel text-[9px] text-foreground tracking-wide">{selectedProof.verification_decision?.toUpperCase() || 'N/A'}</div>
                       </div>
                       <div>
-                        <span className="text-xs text-zinc-500 uppercase">Reason</span>
-                        <div className="text-zinc-300 text-sm">{selectedProof.verification_reason || 'N/A'}</div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">REASON</span>
+                        <div className="font-body text-xs text-muted-foreground">{selectedProof.verification_reason || 'N/A'}</div>
                       </div>
                       <div className="flex gap-6">
                         <div>
-                          <span className="text-xs text-zinc-500 uppercase">Risk Score</span>
-                          <div className={`font-bold ${selectedProof.risk_score > 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">RISK SCORE</span>
+                          <div className={`font-pixel text-[10px] ${selectedProof.risk_score > 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'}`}>
                             {selectedProof.risk_score ?? 'N/A'}
                           </div>
                         </div>
                         <div>
-                          <span className="text-xs text-zinc-500 uppercase">AI Confidence</span>
-                          <div className="text-white font-bold">
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">AI CONFIDENCE</span>
+                          <div className="font-pixel text-[10px] text-foreground">
                             {selectedProof.ai_confidence ? `${Math.round(selectedProof.ai_confidence * 100)}%` : 'N/A'}
                           </div>
                         </div>
                       </div>
                       {selectedProof.ai_assessment?.video_consistency && (
                         <div>
-                          <span className="text-xs text-zinc-500 uppercase">Video Consistency</span>
-                          <div className="text-white font-bold">{selectedProof.ai_assessment.video_consistency.toUpperCase()}</div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">VIDEO CONSISTENCY</span>
+                          <div className="font-pixel text-[9px] text-foreground">{selectedProof.ai_assessment.video_consistency.toUpperCase()}</div>
                         </div>
                       )}
                       {selectedProof.fraud_indicators?.length > 0 && (
                         <div>
-                          <span className="text-xs text-zinc-500 uppercase">Fraud Indicators</span>
-                          <ul className="list-disc pl-4 text-red-400 text-sm mt-1">
-                            {selectedProof.fraud_indicators.map((ind, i) => (
-                              <li key={i}>{ind}</li>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest">FRAUD INDICATORS</span>
+                          <ul className="list-disc pl-4 text-[#E85D4A] font-body text-xs mt-1">
+                            {selectedProof.fraud_indicators.map((ind, fi) => (
+                              <li key={fi}>{ind}</li>
                             ))}
                           </ul>
                         </div>
@@ -382,27 +433,27 @@ export default function SysAdminReviewQueue() {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-2">Technical Meta</h4>
-                    <div className="bg-white/5 p-4 rounded-lg font-mono text-xs text-zinc-400 space-y-2">
-                      <div className="flex break-all"><span className="text-zinc-500 w-24 shrink-0">ID:</span> {selectedProof.id}</div>
-                      <div className="flex break-all"><span className="text-zinc-500 w-24 shrink-0">Hash:</span> {selectedProof.proof_hash || 'N/A'}</div>
-                      <div className="flex"><span className="text-zinc-500 w-24 shrink-0">GPS:</span> {selectedProof.proof_lat}, {selectedProof.proof_lng}</div>
+                    <h4 className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-2">TECHNICAL META</h4>
+                    <div className="bg-secondary/20 border border-border p-4 font-mono text-[10px] text-muted-foreground space-y-2">
+                      <div className="flex break-all"><span className="text-muted-foreground/50 w-20 shrink-0 font-pixel text-[6px] tracking-widest">ID:</span> {selectedProof.id}</div>
+                      <div className="flex break-all"><span className="text-muted-foreground/50 w-20 shrink-0 font-pixel text-[6px] tracking-widest">HASH:</span> {selectedProof.proof_hash || 'N/A'}</div>
+                      <div className="flex"><span className="text-muted-foreground/50 w-20 shrink-0 font-pixel text-[6px] tracking-widest">GPS:</span> {selectedProof.proof_lat}, {selectedProof.proof_lng}</div>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-2">Anti-Cheat Flags</h4>
+                    <h4 className="font-pixel text-[7px] text-muted-foreground tracking-widest mb-2">ANTI-CHEAT FLAGS</h4>
                     {selectedProof.flags?.length > 0 ? (
                       <div className="space-y-2">
-                        {selectedProof.flags.map((f, i) => (
-                          <div key={i} className="bg-red-500/10 border border-red-500/20 text-red-300 p-3 rounded-lg text-sm">
-                            <span className="font-bold">{f.reason}</span>
-                            {f.detail && <pre className="mt-2 text-xs opacity-80 overflow-x-auto">{JSON.stringify(f.detail, null, 2)}</pre>}
+                        {selectedProof.flags.map((f, fi) => (
+                          <div key={fi} className="bg-[#E85D4A]/10 border border-[#E85D4A]/30 text-[#E85D4A] p-3">
+                            <span className="font-pixel text-[8px] tracking-wider">{f.reason}</span>
+                            {f.detail && <pre className="mt-2 font-mono text-[10px] opacity-80 overflow-x-auto">{JSON.stringify(f.detail, null, 2)}</pre>}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-sm text-zinc-400">No raw flags reported by the validator.</div>
+                      <div className="font-body text-sm text-muted-foreground">No raw flags reported by the validator.</div>
                     )}
                   </div>
                 </div>

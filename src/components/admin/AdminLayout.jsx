@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   Gift,
+  Ticket,
   CreditCard,
   Receipt,
   Settings,
@@ -26,6 +27,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, labelKey: 'admin.nav.overview', end: true },
   { to: '/admin/events', icon: CalendarDays, labelKey: 'admin.nav.events' },
+  { to: '/admin/rewards', icon: Ticket, labelKey: 'admin.nav.rewards' },
   { to: '/admin/redemptions', icon: Gift, labelKey: 'admin.nav.redemptions' },
   { to: '/admin/payments', icon: CreditCard, labelKey: 'admin.nav.payments' },
   { to: '/admin/billing', icon: Receipt, labelKey: 'admin.nav.billing' },

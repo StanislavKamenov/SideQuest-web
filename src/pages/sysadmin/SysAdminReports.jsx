@@ -13,11 +13,11 @@ export default function SysAdminReports() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-  const [filter, setFilter] = useState('pending'); // pending, resolved, dismissed
+  const [filter, setFilter] = useState('pending');
 
   // Modals
   const [selectedReport, setSelectedReport] = useState(null);
-  const [actionModal, setActionModal] = useState(null); // { report, type: 'resolve' | 'dismiss' }
+  const [actionModal, setActionModal] = useState(null);
 
   useEffect(() => {
     fetchReports();
@@ -25,8 +25,6 @@ export default function SysAdminReports() {
 
   const fetchReports = async () => {
     setLoading(true);
-    
-    // We join the reporter profile.
     const { data, error } = await supabase
       .from('content_reports')
       .select(`
@@ -45,14 +43,12 @@ export default function SysAdminReports() {
 
   const handleAction = async (reportId, status, actionTaken = 'none') => {
     setProcessingId(reportId);
-    
     try {
       const { data, error } = await supabase.rpc('sysadmin_resolve_report', {
         p_report_id: reportId,
         p_status: status,
         p_action_taken: actionTaken
       });
-
       if (error) {
         alert(t("sysadmin.reports.toast.error", { message: error.message }));
       } else {
@@ -68,27 +64,35 @@ export default function SysAdminReports() {
   };
 
   const TypeIcon = ({ type }) => {
-    if (type === 'post') return <AlertOctagon size={16} className="text-blue-400" />;
-    if (type === 'comment') return <MessageSquare size={16} className="text-purple-400" />;
-    return <UserIcon size={16} className="text-orange-400" />;
+    if (type === 'post') return <AlertOctagon size={14} className="text-[#6B9FD4]" />;
+    if (type === 'comment') return <MessageSquare size={14} className="text-[#A663E0]" />;
+    return <UserIcon size={14} className="text-[#E8956A]" />;
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{t("sysadmin.reports.title")}</h1>
-          <p className="text-zinc-400">{t("sysadmin.reports.subtitle")}</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-8 bg-[#A663E0]" />
+          <div>
+            <h1 className="font-pixel text-xl text-foreground tracking-tight" style={{ textShadow: '0 0 10px rgba(166, 99, 224, 0.5)' }}>
+              {t("sysadmin.reports.title")}
+            </h1>
+            <p className="font-body text-sm text-muted-foreground mt-1">{t("sysadmin.reports.subtitle")}</p>
+          </div>
         </div>
-        <div className="mt-4 md:mt-0 flex bg-zinc-900 border border-white/10 rounded-lg p-1">
+
+        {/* Filter tabs */}
+        <div className="flex items-center gap-1 bg-card border border-border p-1">
           {['pending', 'resolved', 'dismissed'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2 font-pixel text-[8px] tracking-wider transition-all ${
                 filter === f 
-                  ? 'bg-white/10 text-white' 
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-[#A663E0]/20 text-[#A663E0]' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t(`sysadmin.reports.filter.${f}`)}
@@ -98,46 +102,51 @@ export default function SysAdminReports() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-zinc-400">{t("sysadmin.reports.loading")}</div>
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-4 border-[#A663E0]/30 border-t-[#A663E0] rounded-full animate-spin" />
+        </div>
       ) : reports.length === 0 ? (
-        <div className="text-center py-20 bg-zinc-900/30 border border-white/5 rounded-xl">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500/50 mb-4" />
-          <h3 className="text-lg font-medium text-white">{t("sysadmin.reports.noReports", { filter: t(`sysadmin.reports.filter.${filter}`).toLowerCase() })}</h3>
-          <p className="text-zinc-400">{t("sysadmin.reports.caughtUp")}</p>
+        <div className="text-center py-20 bg-card border border-border">
+          <CheckCircle2 className="mx-auto h-10 w-10 text-[#C8E650]/50 mb-4" />
+          <h3 className="font-pixel text-[11px] text-foreground tracking-wider mb-1">{t("sysadmin.reports.noReports", { filter: t(`sysadmin.reports.filter.${filter}`).toLowerCase() })}</h3>
+          <p className="font-body text-sm text-muted-foreground">{t("sysadmin.reports.caughtUp")}</p>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {reports.map(report => (
+        <div className="space-y-3">
+          {reports.map((report, i) => (
             <motion.div
               key={report.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl p-5 hover:border-white/20 transition-colors flex flex-col md:flex-row justify-between gap-4"
+              transition={{ delay: i * 0.03 }}
+              className="bg-card border-2 border-border p-5 hover:border-[#A663E0]/30 transition-all flex flex-col md:flex-row justify-between gap-4"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-300 capitalize">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-secondary/30 border border-border font-pixel text-[7px] text-muted-foreground tracking-wider capitalize">
                     <TypeIcon type={report.content_type} />
                     {report.content_type}
                   </span>
-                  <span className="text-xs text-zinc-400 flex items-center">
-                    <Clock size={12} className="mr-1" />
-                    {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: i18n.language === 'bg' ? require('date-fns/locale/bg') : undefined })}
+                  <span className="font-pixel text-[6px] text-muted-foreground flex items-center tracking-wider">
+                    <Clock size={10} className="mr-1" />
+                    {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}
                   </span>
                 </div>
                 
-                <h3 className="text-lg font-bold text-white mb-1">
+                <h3 className="font-pixel text-[10px] text-foreground mb-2 tracking-wide">
                   "{report.reason}"
                 </h3>
                 
-                <div className="flex items-center gap-2 text-sm text-zinc-400">
+                <div className="flex items-center gap-2 font-pixel text-[7px] text-muted-foreground tracking-wider">
                   <span>{t("sysadmin.reports.reportedBy")}</span>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full text-zinc-300">
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-secondary/30 border border-border text-foreground">
                     {report.reporter?.avatar_url && (
-                      <img src={report.reporter.avatar_url} className="w-4 h-4 rounded-full" alt="" />
+                      <img src={report.reporter.avatar_url} className="w-4 h-4" alt="" />
                     )}
-                    <span className="font-medium">{report.reporter?.username || t("sysadmin.reports.unknown")}</span>
-                    <span className={`text-xs ml-1 ${report.reporter?.trust_score < 50 ? 'text-red-400' : 'text-emerald-400'}`}>
+                    <span>{report.reporter?.username || t("sysadmin.reports.unknown")}</span>
+                    <span className={`${report.reporter?.trust_score < 50 ? 'text-[#E85D4A]' : 'text-[#C8E650]'}`}
+                      style={{ textShadow: report.reporter?.trust_score < 50 ? '0 0 6px #E85D4A66' : '0 0 6px #C8E65066' }}
+                    >
                       (TS: {report.reporter?.trust_score ?? 50})
                     </span>
                   </div>
@@ -149,28 +158,30 @@ export default function SysAdminReports() {
                   <button
                     onClick={() => setActionModal({ report, type: 'dismiss' })}
                     disabled={processingId === report.id}
-                    className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg font-medium transition-colors"
+                    className="px-3 py-2 bg-secondary/30 border border-border text-muted-foreground hover:text-foreground hover:border-[#6B9FD4]/50 font-pixel text-[7px] tracking-wider transition-all"
                   >
                     {t("sysadmin.reports.dismissBtn")}
                   </button>
                   <button
                     onClick={() => setActionModal({ report, type: 'resolve' })}
                     disabled={processingId === report.id}
-                    className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg flex items-center font-medium transition-colors"
+                    className="px-3 py-2 bg-[#E85D4A]/10 border border-[#E85D4A]/40 text-[#E85D4A] hover:bg-[#E85D4A]/20 font-pixel text-[7px] tracking-wider flex items-center gap-1.5 transition-all"
                   >
-                    <ShieldAlert size={16} className="mr-2" />
+                    <ShieldAlert size={14} />
                     {t("sysadmin.reports.actionBtn")}
                   </button>
                 </div>
               )}
               
               {filter !== 'pending' && (
-                <div className="flex flex-col items-end justify-center text-sm">
-                  <span className={`font-medium ${filter === 'resolved' ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                <div className="flex flex-col items-end justify-center">
+                  <span className={`font-pixel text-[8px] tracking-widest ${filter === 'resolved' ? 'text-[#C8E650]' : 'text-muted-foreground'}`}
+                    style={filter === 'resolved' ? { textShadow: '0 0 6px #C8E65066' } : {}}
+                  >
                     {t(`sysadmin.reports.filter.${filter}`).toUpperCase()}
                   </span>
                   {report.resolver && (
-                    <span className="text-zinc-500 text-xs mt-1">{t("sysadmin.reports.byResolver", { username: report.resolver.username })}</span>
+                    <span className="font-pixel text-[6px] text-muted-foreground mt-1 tracking-wider">{t("sysadmin.reports.byResolver", { username: report.resolver.username })}</span>
                   )}
                 </div>
               )}
@@ -187,53 +198,56 @@ export default function SysAdminReports() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-zinc-900 border border-white/10 rounded-xl p-6 max-w-md w-full shadow-2xl"
+              className="crt-card border-2 border-border p-6 max-w-md w-full"
+              style={{ boxShadow: '0 0 40px rgba(232,93,74,0.15)' }}
             >
-              <h3 className="text-xl font-bold text-white mb-2">
-                {actionModal.type === 'resolve' ? t("sysadmin.reports.modal.resolveTitle") : t("sysadmin.reports.modal.dismissTitle")}
-              </h3>
-              
-              {actionModal.type === 'resolve' ? (
-                <>
-                  <p className="text-zinc-400 mb-6">
-                    {t("sysadmin.reports.modal.resolveDesc", { type: actionModal.report.content_type })}
+              <div className="relative z-10">
+                <h3 className="font-pixel text-[11px] text-foreground mb-2 tracking-wider" style={{ textShadow: '0 0 8px #A663E066' }}>
+                  {actionModal.type === 'resolve' ? t("sysadmin.reports.modal.resolveTitle") : t("sysadmin.reports.modal.dismissTitle")}
+                </h3>
+                
+                {actionModal.type === 'resolve' ? (
+                  <>
+                    <p className="font-body text-sm text-muted-foreground mb-6">
+                      {t("sysadmin.reports.modal.resolveDesc", { type: actionModal.report.content_type })}
+                    </p>
+                    <div className="space-y-3 mb-6">
+                      <button 
+                        onClick={() => handleAction(actionModal.report.id, 'resolved', 'remove_content')}
+                        className="w-full flex items-center justify-center gap-2 p-3 bg-[#E85D4A]/10 border border-[#E85D4A]/40 text-[#E85D4A] hover:bg-[#E85D4A]/20 font-pixel text-[8px] tracking-wider transition-all"
+                      >
+                        <Trash2 size={14} /> {t("sysadmin.reports.modal.deleteBtn", { type: actionModal.report.content_type })}
+                      </button>
+                      <button 
+                        onClick={() => handleAction(actionModal.report.id, 'resolved', 'warn_user')}
+                        className="w-full flex items-center justify-center gap-2 p-3 bg-[#E8956A]/10 border border-[#E8956A]/40 text-[#E8956A] hover:bg-[#E8956A]/20 font-pixel text-[8px] tracking-wider transition-all"
+                      >
+                        <AlertTriangle size={14} /> {t("sysadmin.reports.modal.markResolvedBtn")}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="font-body text-sm text-muted-foreground mb-6">
+                    {t("sysadmin.reports.modal.dismissDesc")}
                   </p>
-                  <div className="space-y-3 mb-6">
-                    <button 
-                      onClick={() => handleAction(actionModal.report.id, 'resolved', 'remove_content')}
-                      className="w-full flex items-center justify-center gap-2 p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={16} /> {t("sysadmin.reports.modal.deleteBtn", { type: actionModal.report.content_type })}
-                    </button>
-                    <button 
-                      onClick={() => handleAction(actionModal.report.id, 'resolved', 'warn_user')}
-                      className="w-full flex items-center justify-center gap-2 p-3 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg transition-colors"
-                    >
-                      <AlertTriangle size={16} /> {t("sysadmin.reports.modal.markResolvedBtn")}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p className="text-zinc-400 mb-6">
-                  {t("sysadmin.reports.modal.dismissDesc")}
-                </p>
-              )}
-              
-              <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-white/5">
-                <button 
-                  onClick={() => setActionModal(null)}
-                  className="px-4 py-2 text-zinc-300 hover:text-white"
-                >
-                  {t("sysadmin.reports.modal.cancel")}
-                </button>
-                {actionModal.type === 'dismiss' && (
-                  <button 
-                    onClick={() => handleAction(actionModal.report.id, 'dismissed')}
-                    className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium"
-                  >
-                    {t("sysadmin.reports.modal.confirmDismiss")}
-                  </button>
                 )}
+                
+                <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-border">
+                  <button 
+                    onClick={() => setActionModal(null)}
+                    className="px-4 py-2 font-pixel text-[8px] text-muted-foreground hover:text-foreground tracking-wider transition-colors"
+                  >
+                    {t("sysadmin.reports.modal.cancel")}
+                  </button>
+                  {actionModal.type === 'dismiss' && (
+                    <button 
+                      onClick={() => handleAction(actionModal.report.id, 'dismissed')}
+                      className="px-4 py-2 bg-secondary/50 border border-border text-foreground font-pixel text-[8px] tracking-wider hover:bg-secondary transition-all arcade-btn"
+                    >
+                      {t("sysadmin.reports.modal.confirmDismiss")}
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>
