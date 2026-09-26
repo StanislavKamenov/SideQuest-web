@@ -210,6 +210,19 @@ export default function AdminEvents() {
         expires_at,
       };
 
+      // AI Moderation check
+      const { data: modData, error: modError } = await supabase.functions.invoke("moderate-mission", {
+        body: { title, description: description || "" },
+      });
+      
+      if (modError) {
+        throw new Error(`The moderation server is temporarily unavailable. (${modError.message || 'unknown error'})`);
+      }
+      
+      if (modData && !modData.safe) {
+        throw new Error(modData.reason || "This content violates safety rules and cannot be saved.");
+      }
+
       const { error: insertError, data: newMissions } = await supabase
         .from('missions')
         .insert(missionData)
