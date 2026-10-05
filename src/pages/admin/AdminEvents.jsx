@@ -15,6 +15,7 @@ import { demoEvents } from '@/lib/demoData';
 import MapPicker from '@/components/admin/MapPicker';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const statusColors = {
   active: { bg: 'bg-[#C8E650]/10', text: 'text-[#C8E650]', border: 'border-[#C8E650]/40' },
@@ -37,6 +38,7 @@ const categoryEmoji = {
 
 export default function AdminEvents() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [filter, setFilter] = useState('active');
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -354,7 +356,13 @@ export default function AdminEvents() {
 
     } catch (err) {
       console.error('Error creating event:', err);
-      setFormError(err.message || 'Failed to create event. Please try again.');
+      const msg = err.message || 'Failed to create event. Please try again.';
+      setFormError(msg);
+      toast({
+        title: t("admin.events.createModal.errorPrefix") || "Error",
+        description: msg,
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
