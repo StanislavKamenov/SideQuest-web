@@ -190,6 +190,36 @@ export default function AdminEvents() {
       
       const expires_at = new Date(new Date(starts_at).getTime() + durationHours * 60 * 60 * 1000).toISOString();
 
+      // --- Subscription limit check ---
+      const { data: bizData, error: bizErr } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .single();
+        
+      if (bizErr || !bizData) {
+        throw new Error("Could not find your business profile.");
+      }
+
+      const { data: subData, error: subErr } = await supabase
+        .from('business_subscriptions')
+        .select('*')
+        .eq('business_id', bizData.id)
+        .single();
+
+      if (subErr && subErr.code !== 'PGRST116') { // PGRST116 is 'not found'
+        throw new Error("Could not check subscription status.");
+      }
+
+      // If they don't have a subscription record at all, assume free tier (1 event)
+      const eventsUsed = subData ? subData.events_used : 0;
+      const eventsQuota = subData ? subData.events_quota : 1;
+
+      if (eventsUsed >= eventsQuota) {
+        throw new Error(`You have reached your limit of ${eventsQuota} event(s) for this billing period. Please upgrade your plan to create more.`);
+      }
+      // --------------------------------
+
       const missionData = {
         title,
         description,
@@ -231,6 +261,24 @@ export default function AdminEvents() {
       if (insertError) throw insertError;
 
       const missionId = newMissions[0].id;
+
+      // Increment events_used
+      if (subData) {
+        await supabase
+          .from('business_subscriptions')
+          .update({ events_used: eventsUsed + 1 })
+          .eq('business_id', bizData.id);
+      } else {
+        // Create the free subscription row if it doesn't exist
+        await supabase
+          .from('business_subscriptions')
+          .insert({
+            business_id: bizData.id,
+            tier: 'free',
+            events_quota: 1,
+            events_used: 1,
+          });
+      }
 
       if (enableReward) {
         // Fetch business
