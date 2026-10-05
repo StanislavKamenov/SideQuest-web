@@ -42,6 +42,8 @@ export default function AdminEvents() {
   const [filter, setFilter] = useState('active');
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [boostingEvent, setBoostingEvent] = useState(null);
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
   const { user } = useAuth();
   const [title, setTitle] = useState('');
@@ -368,6 +370,32 @@ export default function AdminEvents() {
     }
   };
 
+  const handleBoost = async (boostType) => {
+    if (!boostingEvent) return;
+    setIsCheckoutLoading(true);
+    try {
+      const { data: bizData } = await supabase.from('businesses').select('id').eq('owner_id', user.id).single();
+      if (!bizData) throw new Error("Could not find business profile");
+
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          business_id: bizData.id,
+          product_type: "boost",
+          boost_type: boostType,
+          mission_id: boostingEvent.id
+        }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      toast({ title: t("admin.events.createModal.errorPrefix") || "Error", description: err.message, variant: "destructive" });
+      setIsCheckoutLoading(false);
+    }
+  };
+
   const filtered = events.filter((e) => {
     const matchesFilter = e.status === filter;
     const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase());
@@ -498,6 +526,16 @@ export default function AdminEvents() {
                 />
               </div>
               <p className="font-pixel text-[6px] text-muted-foreground mt-1 text-right">{progress}% {t("admin.events.fullText")}</p>
+              
+              {event.status === 'active' && (
+                <button 
+                  onClick={() => setBoostingEvent(event)}
+                  className="w-full mt-4 py-2 border border-[#A663E0]/50 text-[#A663E0] font-pixel text-[8px] tracking-wider hover:bg-[#A663E0]/10 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-3 h-3" />
+                  BOOST MISSION
+                </button>
+              )}
             </motion.div>
           );
         })}
@@ -966,6 +1004,87 @@ export default function AdminEvents() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Boost Modal */}
+      <AnimatePresence>
+        {boostingEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => !isCheckoutLoading && setBoostingEvent(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-lg bg-card border border-[#A663E0]/30 shadow-[0_0_30px_rgba(166,99,224,0.15)] p-6 z-10"
+            >
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
+                <div>
+                  <h2 className="font-pixel text-[12px] text-foreground tracking-widest glow-purple">BOOST MISSION</h2>
+                  <p className="font-body text-xs text-muted-foreground mt-1">Get more players to join "{boostingEvent.name}"</p>
+                </div>
+                <button disabled={isCheckoutLoading} onClick={() => setBoostingEvent(null)} className="text-muted-foreground hover:text-foreground bg-secondary/50 p-2">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Standard Boost */}
+                <div className="border border-border bg-secondary/20 p-4 hover:border-[#6B9FD4]/50 transition-colors flex flex-col">
+                  <h3 className="font-pixel text-[10px] text-[#6B9FD4] tracking-widest mb-2">STANDARD 24H</h3>
+                  <div className="mb-4">
+                    <span className="font-pixel text-lg text-foreground">€5.00</span>
+                  </div>
+                  <ul className="space-y-2 mb-6 flex-1">
+                    <li className="font-body text-xs text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-3 h-3 text-[#6B9FD4]" /> Promoted for 24 hours
+                    </li>
+                    <li className="font-body text-xs text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-3 h-3 text-[#6B9FD4]" /> Top of local area search
+                    </li>
+                  </ul>
+                  <button 
+                    onClick={() => handleBoost('standard_24h')}
+                    disabled={isCheckoutLoading}
+                    className="w-full py-2.5 bg-[#6B9FD4]/10 border border-[#6B9FD4]/50 text-[#6B9FD4] font-pixel text-[8px] tracking-wider hover:bg-[#6B9FD4]/20 transition-colors"
+                  >
+                    {isCheckoutLoading ? 'PROCESSING...' : 'BUY STANDARD'}
+                  </button>
+                </div>
+
+                {/* Premium Boost */}
+                <div className="border border-[#A663E0]/30 bg-[#A663E0]/5 p-4 hover:border-[#A663E0] shadow-[0_0_15px_rgba(166,99,224,0.1)] transition-all flex flex-col">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4 text-[#A663E0] fill-[#A663E0]" />
+                    <h3 className="font-pixel text-[10px] text-[#A663E0] tracking-widest">PREMIUM</h3>
+                  </div>
+                  <div className="mb-4">
+                    <span className="font-pixel text-lg text-foreground">€15.00</span>
+                  </div>
+                  <ul className="space-y-2 mb-6 flex-1">
+                    <li className="font-body text-xs text-muted-foreground flex items-start gap-2">
+                      <Zap className="w-3 h-3 mt-0.5 text-[#A663E0]" /> Push notification to nearby players
+                    </li>
+                    <li className="font-body text-xs text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-3 h-3 text-[#A663E0]" /> Highlighted glowing pin
+                    </li>
+                    <li className="font-body text-xs text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-3 h-3 text-[#A663E0]" /> Priority listing
+                    </li>
+                  </ul>
+                  <button 
+                    onClick={() => handleBoost('premium')}
+                    disabled={isCheckoutLoading}
+                    className="w-full py-2.5 bg-[#A663E0] text-white font-pixel text-[8px] tracking-wider hover:bg-[#b575ea] transition-colors"
+                  >
+                    {isCheckoutLoading ? 'PROCESSING...' : 'BUY PREMIUM'}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
