@@ -157,7 +157,8 @@ export default function AdminBilling() {
         body: {
           business_id: business.id,
           product_type: 'subscription',
-          tier: tierId
+          tier: tierId,
+          return_url: window.location.origin + window.location.pathname
         }
       });
 
