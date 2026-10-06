@@ -180,6 +180,36 @@ export default function AdminBilling() {
     }
   };
 
+  const handleManageSubscription = async () => {
+    if (!business?.id) return;
+    
+    try {
+      setIsCheckoutLoading(true);
+
+      const { data, error } = await supabase.functions.invoke('create-portal-session', {
+        body: {
+          businessId: business.id,
+          returnUrl: window.location.origin + window.location.pathname
+        }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Portal Error:", error);
+      toast({
+        title: "Error opening portal",
+        description: error.message || "Failed to open subscription portal",
+        variant: "destructive",
+      });
+      setIsCheckoutLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -217,10 +247,10 @@ export default function AdminBilling() {
 
       {/* Current Status Overview */}
       <div className="bg-card border border-border p-6 flex flex-col md:flex-row gap-8 items-start md:items-center">
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <div className="flex items-center gap-3 mb-2">
             <h2 className="font-pixel text-[10px] text-foreground tracking-widest">{t("admin.billing.currentPlan")} <span className="text-[#E85D4A]">{currentTier.toUpperCase()}</span></h2>
-            {subscription?.status !== 'active' && (
+            {subscription?.status !== 'active' && currentTier !== 'free' && (
               <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/30 text-red-500 font-pixel text-[6px] tracking-wider">
                 {subscription?.status?.toUpperCase()}
               </span>
@@ -248,14 +278,25 @@ export default function AdminBilling() {
                 />
               </div>
             )}
+            {subscription?.current_period_end && currentTier !== "free" && (
+              <p className="font-body text-xs text-muted-foreground mt-2">
+                Current billing period ends: {new Date(subscription.current_period_end).toLocaleDateString()}
+              </p>
+            )}
           </div>
-
-          {subscription?.current_period_end && (
-            <p className="font-body text-xs text-muted-foreground mt-4">
-              {t("admin.billing.billingPeriodEnds", { date: new Date(subscription.current_period_end).toLocaleDateString() })}
-            </p>
-          )}
         </div>
+
+        {currentTier !== "free" && (
+          <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-end shrink-0">
+            <button
+              onClick={handleManageSubscription}
+              disabled={isCheckoutLoading}
+              className="px-6 py-3 border border-border bg-secondary hover:bg-secondary/80 text-foreground font-pixel text-[8px] tracking-widest transition-all disabled:opacity-50 whitespace-nowrap"
+            >
+              {isCheckoutLoading && selectedPlan === null ? "..." : "MANAGE SUBSCRIPTION"}
+            </button>
+          </div>
+        )}
       </div>
 
       <h3 className="font-pixel text-[10px] text-foreground tracking-widest mt-8 mb-4">{t("admin.billing.availablePlans")}</h3>
