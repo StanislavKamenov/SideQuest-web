@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { Heart } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import logo from '@/assets/logo.png';
 
@@ -62,13 +63,26 @@ export default function Navbar() {
               to={to}
               className="font-pixel text-[8px] text-muted-foreground hover:text-[#C8E650] transition-all tracking-wide px-3 py-2 relative group"
             >
-              {/* Hover indicator */}
               <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#C8E650] transition-all duration-300 group-hover:w-full"
                 style={{ boxShadow: '0 0 6px #C8E650' }}
               />
               {label}
             </Link>
           ))}
+
+          <div className="w-px h-6 bg-border mx-2" />
+
+          {/* Support Us */}
+          <a
+            href="https://ko-fi.com/sidequestapp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-pixel text-[8px] text-[#FF5E5B] hover:text-[#ff4f4c] transition-all tracking-wide px-3 py-2 flex items-center gap-1.5"
+            style={{ textShadow: '0 0 8px rgba(255,94,91,0.5)' }}
+          >
+            <Heart size={12} className="animate-pulse" fill="currentColor" />
+            SUPPORT
+          </a>
 
           <div className="w-px h-6 bg-border mx-2" />
 
@@ -141,6 +155,19 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
+
+          {/* Support Us */}
+          <a
+            href="https://ko-fi.com/sidequestapp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block font-pixel text-[8px] text-[#FF5E5B] py-3 px-3 hover:bg-[#FF5E5B]/5 transition-all border-b border-border/50 flex items-center"
+            style={{ textShadow: '0 0 8px rgba(255,94,91,0.5)' }}
+            onClick={() => setMenuOpen(false)}
+          >
+            <Heart size={10} className="mr-2 animate-pulse" fill="currentColor" />
+            SUPPORT
+          </a>
 
           <div className="pt-3 space-y-2">
             <a

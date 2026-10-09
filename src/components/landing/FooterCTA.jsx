@@ -45,6 +45,26 @@ function GooglePlayBadge() {
   );
 }
 
+function KofiBadge() {
+  return (
+    <a
+      href="https://ko-fi.com/sidequestapp"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-3 bg-[#FF5E5B] text-white px-6 py-3.5 hover:bg-[#ff4f4c] transition-all arcade-btn"
+      style={{ boxShadow: '0 3px 0 0 #cc4b49, 0 0 16px rgba(255,94,91,0.3)' }}
+    >
+      <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.061-4.3-.037-.046-.045-.084-.011-.131.068-.113 1.341-2.079 3.031-2.188 1.644-.105 2.584 1.258 2.584 1.258s1.616-1.542 2.879-1.42c1.479.144 2.618 1.932 2.618 1.932.188.307.039.736-.011.831-.059.112-2.6 3.109-2.6 3.109zm8.563-1.782c-.281 1.761-1.787 2.083-2.686 2.052V6.36c1.085.031 2.396.16 3.18.98 1.056 1.107.561 2.973-.494 3.49z"/>
+      </svg>
+      <div className="text-left">
+        <p className="font-pixel text-[6px] tracking-widest mb-0.5 text-white/90">BUY US A COFFEE</p>
+        <p className="font-pixel text-[11px] tracking-wide" style={{ textShadow: '0 0 6px rgba(255,255,255,0.5)' }}>SUPPORT US</p>
+      </div>
+    </a>
+  );
+}
+
 export default function FooterCTA() {
   const { t } = useTranslation();
   return (
@@ -107,9 +127,10 @@ export default function FooterCTA() {
             </p>
 
             {/* Download buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 flex-wrap">
               <AppStoreBadge />
               <GooglePlayBadge />
+              <KofiBadge />
             </div>
           </motion.div>
         </div>
