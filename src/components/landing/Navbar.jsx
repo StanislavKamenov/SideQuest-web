@@ -38,7 +38,7 @@ export default function Navbar() {
         />
       )}
 
-      <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+      <div className="w-full max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="relative">
