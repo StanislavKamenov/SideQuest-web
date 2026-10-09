@@ -126,6 +126,20 @@ function ProofCard({ post, index }) {
 export default function ProofFeed() {
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('ALL');
+  const [activePlayers, setActivePlayers] = React.useState(347);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setActivePlayers(prev => {
+        const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        let next = prev + change;
+        if (next < 310) next += 5;
+        if (next > 420) next -= 5;
+        return next;
+      });
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: proofs, isLoading } = useQuery({
     queryKey: ['proof-feed'],
@@ -251,7 +265,7 @@ export default function ProofFeed() {
             >
               {[
                 { value: stats?.proofsToday?.toLocaleString() || '0', label: t('landing.proofFeed.stats.proofsToday'), color: '#E85D4A' },
-                { value: '347', label: t('landing.proofFeed.stats.activePlayers'), color: '#C8E650' },
+                { value: activePlayers.toLocaleString(), label: t('landing.proofFeed.stats.activePlayers'), color: '#C8E650' },
                 { value: `${stats?.verifiedRate ?? 100}%`, label: t('landing.proofFeed.stats.verifiedRate'), color: '#00E5FF' },
               ].map(s => (
                 <div key={s.label} className="text-center crt-card px-4 py-3">
