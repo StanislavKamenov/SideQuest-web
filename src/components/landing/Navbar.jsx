@@ -19,9 +19,16 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-all duration-500 ${
       scrolled ? 'arcade-hud' : 'bg-transparent'
     }`}>
+      {/* Announcement Bar */}
+      <div className="w-full bg-[#E85D4A] text-white py-1.5 flex justify-center items-center"
+           style={{ boxShadow: '0 0 15px rgba(232,93,74,0.4)' }}>
+        <p className="font-pixel text-[7px] md:text-[8px] tracking-[0.2em] animate-pulse" style={{ textShadow: '0 0 8px rgba(255,255,255,0.5)' }}>
+          ⚠️ COMING SOON TO iOS ⚠️
+        </p>
+      </div>
       {/* Top neon line */}
       {scrolled && (
         <div className="absolute top-0 left-0 right-0 h-[1px]"

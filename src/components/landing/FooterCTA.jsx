@@ -127,7 +127,7 @@ export default function FooterCTA() {
             </p>
 
             {/* Download buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 flex-wrap">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-2 flex-wrap">
               <AppStoreBadge />
               <GooglePlayBadge />
               <KofiBadge />

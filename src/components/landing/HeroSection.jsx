@@ -113,10 +113,10 @@ export default function HeroSection() {
                   <p className="font-pixel text-[10px] tracking-wide">{t('landing.hero.googlePlay')}</p>
                 </div>
               </a>
-            </div>
+          </div>
 
             {/* Blinking prompt */}
-            <p className="font-pixel text-[8px] text-muted-foreground mt-4"
+            <p className="font-pixel text-[8px] text-muted-foreground"
               style={{ textShadow: '0 0 4px rgba(200,230,80,0.3)' }}
             >
               <span className="text-[#C8E650]">▸</span> {t('landing.hero.pressStart')}{cursor ? '█' : ' '}
