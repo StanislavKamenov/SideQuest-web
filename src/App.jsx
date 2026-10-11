@@ -6,7 +6,6 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
-import ProofFeed from './pages/ProofFeed';
 import ArcadeLoader from '@/components/ArcadeLoader';
 import RetroCursorTrail from '@/components/RetroCursorTrail';
 import FAQ from './pages/FAQ';
@@ -80,7 +79,6 @@ const AppRoutes = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
-      <Route path="/proof" element={<ProofFeed />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/login" element={<Login />} />
 

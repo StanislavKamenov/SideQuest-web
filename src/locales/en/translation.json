@@ -22,7 +22,6 @@
     "login": "LOG IN",
     "features": "FEATURES",
     "howItWorks": "HOW IT WORKS",
-    "gallery": "GALLERY",
     "faq": "FAQ"
   },
   "landing": {
@@ -180,36 +179,13 @@
           "title": "GAMEPLAY & XP",
           "q1": { "q": "HOW DO I EARN XP?", "a": "You earn XP by completing quests, logging daily habits, and hitting streaks. Each quest has a difficulty level (Easy, Medium, Hard, Epic) which determines how much XP you receive. Some quests also offer special item loot!" },
           "q2": { "q": "WHAT IS \"PROOF OF COMPLETION\"?", "a": "To keep the gameplay fair, certain community and guild quests require you to submit a \"proof\" — this could be a photo of your completed workout, a screenshot of your learning streak, or a short log. Other users or auto-moderation verify your proof before XP is awarded." },
-          "q3": { "q": "CAN I CREATE MY OWN CUSTOM QUESTS?", "a": "Absolutely! You can create custom quests for your own daily chores, routines, or personal goals. You can set the XP values, repetition schedule, and add reminders." }
+          "q3": { "q": "CAN I CREATE MY OWN QUESTS?", "a": "No! Currently, players cannot create their own quests. All quests in SideQuest are curated and provided by the platform." }
         },
         "security": {
           "title": "SECURITY & TECH",
           "q1": { "q": "HOW IS MY PRIVACY PROTECTED?", "a": "Your privacy is our number one priority. Any photo proofs you upload for private quests are visible only to you. For public/guild quests, you can choose what to share. We never sell your personal data or location history." },
-          "q2": { "q": "CAN I SYNC SIDEQUEST WITH MY HEALTH APPS?", "a": "Yes! SideQuest supports integrations with Apple Health and Google Fit. You can auto-complete fitness and sleep quests by syncing your device data directly." },
-          "q3": { "q": "WHAT PLATFORMS IS SIDEQUEST AVAILABLE ON?", "a": "SideQuest is built using React Native & Expo, making it available on both iOS (App Store) and Android (Google Play Store). You can find download links at the top and bottom of our site." }
+          "q2": { "q": "WHAT PLATFORMS IS SIDEQUEST AVAILABLE ON?", "a": "SideQuest is built using React Native & Expo, making it available on both iOS (App Store) and Android (Google Play Store). You can find download links at the top and bottom of our site." }
         }
-      }
-    },
-    "proofFeed": {
-      "video": "VIDEO",
-      "verified": "VERIFIED",
-      "badge": "LIVE PROOF FEED",
-      "title": "HIGH SCORE GALLERY",
-      "description": "Real missions. Real people. Real proof. Every photo and video uploaded by SideQuest players — verified and logged.",
-      "stats": {
-        "proofsToday": "PROOFS TODAY",
-        "activePlayers": "ACTIVE PLAYERS",
-        "verifiedRate": "VERIFIED RATE"
-      },
-      "filter": "FILTER:",
-      "entries": "ENTRIES",
-      "apiFeedLoadMore": "— API FEED WILL LOAD MORE —",
-      "loadMore": "LOAD MORE",
-      "categories": {
-        "ALL": "ALL",
-        "BODY": "BODY",
-        "SOCIAL": "SOCIAL",
-        "MIND": "MIND"
       }
     },
     "notFound": {

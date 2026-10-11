@@ -28,8 +28,7 @@ const getFaqData = (t) => [
     category: t('landing.faqPage.categories.security.title'), icon: Shield, color: '#6B9FD4',
     questions: [
       { q: t('landing.faqPage.categories.security.q1.q'), a: t('landing.faqPage.categories.security.q1.a') },
-      { q: t('landing.faqPage.categories.security.q2.q'), a: t('landing.faqPage.categories.security.q2.a') },
-      { q: t('landing.faqPage.categories.security.q3.q'), a: t('landing.faqPage.categories.security.q3.a') }
+      { q: t('landing.faqPage.categories.security.q2.q'), a: t('landing.faqPage.categories.security.q2.a') }
     ]
   }
 ];

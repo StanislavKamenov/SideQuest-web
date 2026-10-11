@@ -7,7 +7,7 @@ import useDeviceCapability, { getParticleCount } from './hooks/useDeviceCapabili
 
 /**
  * AmbientArcade — lighter 3D ambient layer for secondary pages.
- * Fewer elements than HeroArcade. Used on ProofFeed, FAQ, Login pages.
+ * Fewer elements than HeroArcade. Used on FAQ, Login pages.
  */
 export default function AmbientArcade({ color = '#E85D4A' }) {
   const reducedMotion = useReducedMotion();

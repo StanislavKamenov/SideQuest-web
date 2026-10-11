@@ -62,7 +62,6 @@ export default function Navbar() {
           {[
             { to: '/#features', label: t('navigation.features') },
             { to: '/#how-it-works', label: t('navigation.howItWorks') },
-            { to: '/proof', label: t('navigation.gallery') },
             { to: '/faq', label: t('navigation.faq') },
           ].map(({ to, label }) => (
             <Link
@@ -149,7 +148,6 @@ export default function Navbar() {
           {[
             { to: '/#features', label: t('navigation.features') },
             { to: '/#how-it-works', label: t('navigation.howItWorks') },
-            { to: '/proof', label: t('navigation.gallery') },
             { to: '/faq', label: t('navigation.faq') },
           ].map(({ to, label }) => (
             <Link
