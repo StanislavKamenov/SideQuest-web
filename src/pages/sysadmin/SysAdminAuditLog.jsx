@@ -18,7 +18,7 @@ export default function SysAdminAuditLog() {
         .from('admin_audit_logs')
         .select(`
           *,
-          admin:profiles!admin_id ( username, full_name, avatar_url )
+          admin:profiles!admin_id ( username, display_name, avatar_url )
         `)
         .order('created_at', { ascending: false })
         .limit(100);

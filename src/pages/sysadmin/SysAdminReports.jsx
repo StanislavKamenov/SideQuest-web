@@ -29,7 +29,7 @@ export default function SysAdminReports() {
       .from('content_reports')
       .select(`
         *,
-        reporter:profiles!reporter_id ( id, username, full_name, avatar_url, trust_score ),
+        reporter:profiles!reporter_id ( id, username, display_name, avatar_url, trust_score ),
         resolver:profiles!resolved_by ( id, username )
       `)
       .eq('status', filter)
