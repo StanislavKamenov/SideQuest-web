@@ -33,6 +33,7 @@ export default function SysAdminMissions() {
   const [isActive, setIsActive] = useState(true);
   const [category, setCategory] = useState('event');
   const [isGlobal, setIsGlobal] = useState(false);
+  const [isPremiumOnly, setIsPremiumOnly] = useState(false);
   const [durationHours, setDurationHours] = useState(24);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [location, setLocation] = useState(null);
@@ -124,6 +125,7 @@ export default function SysAdminMissions() {
         coins_reward: finalCoins,
         is_active: true, // Always true so scheduled events show up in feed logic
         is_global: isGlobal,
+        is_premium_only: isPremiumOnly,
         proof_upload_type: proofType,
         cover_url,
         starts_at,
@@ -202,6 +204,7 @@ export default function SysAdminMissions() {
       setStartsAtDate(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
       setCategory('event');
       setIsGlobal(false);
+      setIsPremiumOnly(false);
       setDurationHours(24);
       setXpReward('50');
       setCoinsReward('100');
@@ -458,6 +461,25 @@ export default function SysAdminMissions() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* PREMIUM ONLY */}
+                <div>
+                  <label className="font-pixel text-[8px] text-[#E8C36A] tracking-widest mb-3 block">PREMIUM</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsPremiumOnly(v => !v)}
+                    className={`w-full flex items-center gap-3 py-3 px-4 border text-left transition-all ${isPremiumOnly
+                        ? 'bg-[#E8C36A]/15 border-[#E8C36A] text-[#E8C36A] shadow-[0_0_10px_rgba(232,195,106,0.3)]'
+                        : 'bg-secondary border-border text-muted-foreground hover:bg-secondary/80'
+                      }`}
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>
+                      <span className="font-pixel text-[7px] tracking-wider block">PREMIUM ONLY MISSION</span>
+                      <span className="font-body text-[10px] block mt-1">Only Premium players can join this mission.</span>
+                    </span>
+                  </button>
                 </div>
 
                 {/* RARITY */}
