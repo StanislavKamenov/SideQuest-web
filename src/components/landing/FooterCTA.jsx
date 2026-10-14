@@ -259,6 +259,8 @@ export default function FooterCTA() {
                   { label: t('landing.footer.faq.general'), to: '/faq' },
                   { label: t('landing.footer.faq.gameplay'), to: '/faq' },
                   { label: t('landing.footer.faq.security'), to: '/faq' },
+                  { label: i18n.language?.startsWith('bg') ? 'Политика за поверителност' : 'Privacy Policy', to: '/privacy' },
+                  { label: i18n.language?.startsWith('bg') ? 'Условия за ползване' : 'Terms of Use', to: '/terms' },
                 ].map(l => (
                   <li key={l.label}>
                     <Link to={l.to} className="font-body text-sm text-muted-foreground hover:text-[#C8E650] transition-colors">
@@ -280,10 +282,10 @@ export default function FooterCTA() {
               {t('landing.footer.copyright')}
             </p>
             <div className="flex items-center gap-5">
-              <Link to="/privacy" className="font-pixel text-[6px] text-muted-foreground/60 hover:text-[#C8E650] tracking-widest transition-colors">
+              <Link to="/privacy" className="font-pixel text-[8px] text-muted-foreground hover:text-[#C8E650] tracking-widest transition-colors">
                 {i18n.language?.startsWith('bg') ? 'ПОВЕРИТЕЛНОСТ' : 'PRIVACY'}
               </Link>
-              <Link to="/terms" className="font-pixel text-[6px] text-muted-foreground/60 hover:text-[#C8E650] tracking-widest transition-colors">
+              <Link to="/terms" className="font-pixel text-[8px] text-muted-foreground hover:text-[#C8E650] tracking-widest transition-colors">
                 {i18n.language?.startsWith('bg') ? 'УСЛОВИЯ' : 'TERMS'}
               </Link>
             </div>
