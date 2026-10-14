@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-import { Target, Search, Loader2, Power, CheckCircle, Plus, X } from 'lucide-react';
+import { Target, Search, Loader2, Power, CheckCircle, Plus, X, Zap, Gift, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/AuthContext';
@@ -39,6 +39,18 @@ export default function SysAdminMissions() {
   const [coverImage, setCoverImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  // Reward Config State
+  const [rewardMode, setRewardMode] = useState('xp_coins'); // 'xp_coins' | 'custom_reward' | 'combined'
+  const [rewardTitle, setRewardTitle] = useState('');
+  const [rewardDescription, setRewardDescription] = useState('');
+  const [rewardCodeType, setRewardCodeType] = useState('generated');
+  const [sharedCode, setSharedCode] = useState('');
+  const [uniqueCodes, setUniqueCodes] = useState('');
+  const [maxTotal, setMaxTotal] = useState(1);
+  const [maxPerUser, setMaxPerUser] = useState(1);
+  const [isUnlimitedTotal, setIsUnlimitedTotal] = useState(true);
+  const [isUnlimitedPerUser, setIsUnlimitedPerUser] = useState(false);
   
   const radiusOptions = [50, 100, 150, 300];
 
@@ -57,6 +69,13 @@ export default function SysAdminMissions() {
     if (!isGlobal && !location) {
       setFormError("Please select a location on the map.");
       return;
+    }
+
+    if (rewardMode === 'custom_reward' || rewardMode === 'combined') {
+      if (!rewardTitle.trim()) {
+        setFormError("Моля, въведете заглавие на наградата (напр. '20% намаление').");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -87,6 +106,10 @@ export default function SysAdminMissions() {
       
       const expires_at = new Date(new Date(starts_at).getTime() + durationHours * 60 * 60 * 1000).toISOString();
 
+      const isCustomReward = rewardMode === 'custom_reward';
+      const finalXp = isCustomReward ? 0 : (parseInt(xpReward, 10) || 0);
+      const finalCoins = isCustomReward ? 0 : (parseInt(coinsReward, 10) || 0);
+
       const missionData = {
         title,
         description,
@@ -97,8 +120,8 @@ export default function SysAdminMissions() {
         lng: isGlobal ? 0 : location.lng,
         radius_m: isGlobal ? 0 : parseInt(radius),
         created_by: user.id,
-        xp_reward: parseInt(xpReward),
-        coins_reward: parseInt(coinsReward),
+        xp_reward: finalXp,
+        coins_reward: finalCoins,
         is_active: true, // Always true so scheduled events show up in feed logic
         is_global: isGlobal,
         proof_upload_type: proofType,
@@ -120,11 +143,54 @@ export default function SysAdminMissions() {
         throw new Error(modData.reason || "This content violates safety rules and cannot be saved.");
       }
 
-      const { error: insertError } = await supabase
+      const { data: newMissions, error: insertError } = await supabase
         .from('missions')
-        .insert(missionData);
+        .insert(missionData)
+        .select('id');
 
       if (insertError) throw insertError;
+      const missionId = newMissions[0].id;
+
+      if (rewardMode === 'custom_reward' || rewardMode === 'combined') {
+        const rewardData = {
+          kind: 'vip_deal',
+          source: 'event',
+          mission_id: missionId,
+          business_id: null,
+          partner_name: 'SideQuest',
+          title: rewardTitle.trim() || title.trim() + ' Награда',
+          description: rewardDescription.trim(),
+          code_type: rewardCodeType,
+          shared_code: rewardCodeType === 'shared' ? sharedCode.trim() : null,
+          max_redemptions_total: isUnlimitedTotal ? null : parseInt(maxTotal),
+          max_redemptions_per_user: isUnlimitedPerUser ? null : parseInt(maxPerUser),
+          cost_coins: 0,
+          cost_xp: 0,
+          stock: 9999999,
+          is_active: true,
+        };
+
+        const { data: newRewards, error: rewardError } = await supabase
+          .from('rewards')
+          .insert(rewardData)
+          .select('id');
+
+        if (rewardError) throw rewardError;
+
+        if (newRewards?.length > 0 && rewardCodeType === 'unique') {
+          const rewardId = newRewards[0].id;
+          const codes = uniqueCodes.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
+          if (codes.length > 0) {
+            const uniqueCodesData = codes.map(c => ({
+              reward_id: rewardId,
+              business_id: null,
+              code: c
+            }));
+            await supabase.from('reward_unique_codes').insert(uniqueCodesData);
+            await supabase.from('rewards').update({ stock: codes.length }).eq('id', rewardId);
+          }
+        }
+      }
 
       setShowCreateModal(false);
       setTitle('');
@@ -139,6 +205,16 @@ export default function SysAdminMissions() {
       setDurationHours(24);
       setXpReward('50');
       setCoinsReward('100');
+      setRewardMode('xp_coins');
+      setRewardTitle('');
+      setRewardDescription('');
+      setRewardCodeType('generated');
+      setSharedCode('');
+      setUniqueCodes('');
+      setMaxTotal(1);
+      setMaxPerUser(1);
+      setIsUnlimitedTotal(true);
+      setIsUnlimitedPerUser(false);
       setFormError(null);
       
       queryClient.invalidateQueries(['sysadmin-missions']);
@@ -158,7 +234,8 @@ export default function SysAdminMissions() {
         .from('missions')
         .select(`
           *,
-          business:businesses(name)
+          business:businesses(name),
+          rewards(id, title)
         `)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -263,8 +340,20 @@ export default function SysAdminMissions() {
                 </div>
                 <div>
                   <h3 className="font-pixel text-sm text-foreground">{mission.title}</h3>
-                  <p className="font-body text-xs text-muted-foreground mt-1">
-                    {mission.type} • {mission.xp_reward} {t("sysadmin.missions.xp")} • {mission.coin_reward} {t("sysadmin.missions.coins")}
+                  <p className="font-body text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                    <span>{mission.type}</span>
+                    <span>•</span>
+                    <span>{mission.xp_reward} {t("sysadmin.missions.xp")}</span>
+                    <span>•</span>
+                    <span>{mission.coins_reward ?? 0} {t("sysadmin.missions.coins")}</span>
+                    {mission.rewards?.[0] && (
+                      <>
+                        <span>•</span>
+                        <span className="text-[#A78BFA] font-medium flex items-center gap-1">
+                          🎁 {mission.rewards[0].title}
+                        </span>
+                      </>
+                    )}
                   </p>
                   <p className="font-body text-[10px] text-muted-foreground/70 mt-0.5">
                     {t("sysadmin.missions.by")} {mission.business?.name || t("sysadmin.missions.system")}
@@ -557,25 +646,198 @@ export default function SysAdminMissions() {
                   )}
                 </div>
 
-                {/* REWARDS & STATUS */}
+                {/* REWARD CONFIGURATION */}
                 <div>
-                  <label className="font-pixel text-[8px] text-[#E8C36A] tracking-widest mb-3 block">REWARDS</label>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">XP REWARD</span>
-                      <input
-                        type="number" value={xpReward} onChange={(e) => setXpReward(e.target.value)}
-                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">COINS REWARD</span>
-                      <input
-                        type="number" value={coinsReward} onChange={(e) => setCoinsReward(e.target.value)}
-                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
-                      />
-                    </div>
+                  <label className="font-pixel text-[8px] text-[#A78BFA] tracking-widest mb-3 block">
+                    НАГРАДА ПРИ ИЗПЪЛНЕНИЕ
+                  </label>
+                  <p className="font-body text-xs text-muted-foreground mb-4">
+                    Изберете дали мисията да дава XP & Монети, Директна награда (ваучер/промо код), или и двете комбинирано.
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-3 mb-6">
+                    <button
+                      type="button"
+                      onClick={() => setRewardMode('xp_coins')}
+                      className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                        rewardMode === 'xp_coins'
+                          ? 'bg-[#E8C36A]/10 border-[#E8C36A] text-[#E8C36A]'
+                          : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Zap size={16} className={rewardMode === 'xp_coins' ? 'text-[#E8C36A]' : 'text-muted-foreground'} />
+                        <span className="font-pixel text-[9px] tracking-wider">XP & МОНЕТИ</span>
+                      </div>
+                      <span className="font-body text-[11px] opacity-70">
+                        Без промо код
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setRewardMode('custom_reward')}
+                      className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                        rewardMode === 'custom_reward'
+                          ? 'bg-[#A78BFA]/10 border-[#A78BFA] text-[#A78BFA]'
+                          : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Gift size={16} className={rewardMode === 'custom_reward' ? 'text-[#A78BFA]' : 'text-muted-foreground'} />
+                        <span className="font-pixel text-[9px] tracking-wider">ДИРЕКТНА НАГРАДА</span>
+                      </div>
+                      <span className="font-body text-[11px] opacity-70">
+                        Ваучер (0 XP & 0 Coins)
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setRewardMode('combined')}
+                      className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                        rewardMode === 'combined'
+                          ? 'bg-[#5DE8A4]/10 border-[#5DE8A4] text-[#5DE8A4]'
+                          : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Sparkles size={16} className={rewardMode === 'combined' ? 'text-[#5DE8A4]' : 'text-muted-foreground'} />
+                        <span className="font-pixel text-[9px] tracking-wider">КОМБИНИРАНО</span>
+                      </div>
+                      <span className="font-body text-[11px] opacity-70">
+                        И двете заедно!
+                      </span>
+                    </button>
                   </div>
+
+                  {(rewardMode === 'xp_coins' || rewardMode === 'combined') && (
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">XP REWARD</span>
+                        <input
+                          type="number" value={xpReward} onChange={(e) => setXpReward(e.target.value)}
+                          className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">COINS REWARD</span>
+                        <input
+                          type="number" value={coinsReward} onChange={(e) => setCoinsReward(e.target.value)}
+                          className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {(rewardMode === 'custom_reward' || rewardMode === 'combined') && (
+                    <div className={`space-y-4 p-4 border bg-background mb-6 ${rewardMode === 'combined' ? 'border-[#5DE8A4]/30' : 'border-[#A78BFA]/30'}`}>
+                      <div className={`p-3 border flex items-center gap-2 text-xs ${rewardMode === 'combined' ? 'bg-[#5DE8A4]/10 border-[#5DE8A4]/20 text-[#5DE8A4]' : 'bg-[#A78BFA]/10 border-[#A78BFA]/20 text-[#A78BFA]'}`}>
+                        <Gift size={16} className="shrink-0" />
+                        <span>
+                          {rewardMode === 'combined'
+                            ? "Играчите получават посочените XP и монети, ЗАЕДНО с тази награда с код в „Моите купони“ при изпълнение!"
+                            : "Играчите получават тази награда с код автоматично в „Моите купони“ при изпълнение (0 XP и 0 монети)."}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">ЗАГЛАВИЕ НА НАГРАДАТА</span>
+                          <input
+                            value={rewardTitle} onChange={(e) => setRewardTitle(e.target.value)}
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none"
+                            placeholder="напр. 20% Намаление на цялата сметка"
+                          />
+                        </div>
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">ОПИСАНИЕ / УСЛОВИЯ (ПО ИЗБОР)</span>
+                          <input
+                            value={rewardDescription} onChange={(e) => setRewardDescription(e.target.value)}
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none"
+                            placeholder="напр. Важи при поръчка на място"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">ТИП ПРОМО КОД</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: 'generated', label: 'Генериран', desc: 'Автоматичен уникален код' },
+                            { id: 'shared', label: 'Споделен', desc: 'Един код за всички (напр. PROMO20)' },
+                            { id: 'unique', label: 'Списък с кодове', desc: 'Списък от предварително въведени кодове' }
+                          ].map(t => (
+                            <button
+                              key={t.id} type="button" onClick={() => setRewardCodeType(t.id)}
+                              className={`p-2 border transition-all text-left ${rewardCodeType === t.id
+                                  ? 'bg-[#A78BFA]/10 border-[#A78BFA] text-[#A78BFA]'
+                                  : 'bg-secondary border-border text-muted-foreground'
+                                }`}
+                            >
+                              <div className="font-pixel text-[7px] tracking-wider mb-1">{t.label.toUpperCase()}</div>
+                              <div className="font-body text-[9px] opacity-70">{t.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {rewardCodeType === 'shared' && (
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">СПОДЕЛЕН ПРОМО КОД</span>
+                          <input
+                            value={sharedCode} onChange={(e) => setSharedCode(e.target.value)} required
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none uppercase"
+                            placeholder="напр. DISCOUNT20"
+                          />
+                        </div>
+                      )}
+
+                      {rewardCodeType === 'unique' && (
+                        <div>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">УНИКАЛНИ ПРОМО КОДОВЕ</span>
+                          <textarea
+                            value={uniqueCodes} onChange={(e) => setUniqueCodes(e.target.value)} required rows={4}
+                            className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none resize-none"
+                            placeholder="Постави кодовете, разделени със запетая или нов ред"
+                          />
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-border mt-4">
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-3">ЛИМИТИ ЗА ИЗПОЛЗВАНЕ</span>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block">ОБЩ БРОЙ</span>
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" checked={isUnlimitedTotal} onChange={(e) => setIsUnlimitedTotal(e.target.checked)} className="rounded bg-background border-border" />
+                                <span className="font-pixel text-[6px] text-muted-foreground">НЕОГРАНИЧЕН</span>
+                              </label>
+                            </div>
+                            <input
+                              type="number" value={maxTotal} onChange={(e) => setMaxTotal(e.target.value)} disabled={isUnlimitedTotal} min="1"
+                              className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none disabled:opacity-50"
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block">МАКСИМУМ ЗА ПОТРЕБИТЕЛ</span>
+                              <label className="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" checked={isUnlimitedPerUser} onChange={(e) => setIsUnlimitedPerUser(e.target.checked)} className="rounded bg-background border-border" />
+                                <span className="font-pixel text-[6px] text-muted-foreground">НЕОГРАНИЧЕНО</span>
+                              </label>
+                            </div>
+                            <input
+                              type="number" value={maxPerUser} onChange={(e) => setMaxPerUser(e.target.value)} disabled={isUnlimitedPerUser} min="1"
+                              className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none disabled:opacity-50"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                   <div className={`p-4 border transition-all flex flex-col mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
                     <div className="flex items-center justify-between w-full">
@@ -603,7 +865,6 @@ export default function SysAdminMissions() {
                       </div>
                     )}
                   </div>
-                </div>
 
                 {/* SUBMIT */}
                 <div className="pt-6 border-t border-border">

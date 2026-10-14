@@ -13,20 +13,36 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
-    checkSession();
-
+    // IMPORTANT: this callback runs while supabase-js holds its internal auth
+    // lock (e.g. while it processes the OAuth redirect from Google). Calling
+    // any supabase method (`.from()`, `getSession()`, `signOut()`) and
+    // awaiting it *inside* the callback deadlocks — those calls wait for the
+    // lock that is waiting for this callback, so `isLoadingAuth` never flips
+    // to false and the site spins forever. We therefore stay synchronous here
+    // and defer all Supabase work to the next tick.
+    // `INITIAL_SESSION` fires on subscribe, so no separate getSession() call
+    // is needed.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (session?.user) {
-          await handleSessionUser(session.user);
+          setTimeout(async () => {
+            await handleSessionUser(session.user);
+            setIsLoadingAuth(false);
+          }, 0);
         } else {
           clearAuth();
+          setIsLoadingAuth(false);
         }
-        setIsLoadingAuth(false);
       }
     );
 
-    return () => subscription?.unsubscribe();
+    // Safety net: never leave the app on the loading screen indefinitely.
+    const timeoutId = setTimeout(() => setIsLoadingAuth(false), 10000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const clearAuth = () => {
@@ -72,19 +88,6 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Session user handling failed:', err);
       clearAuth();
-    }
-  };
-
-  const checkSession = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await handleSessionUser(session.user);
-      }
-    } catch (error) {
-      console.error('Session check failed:', error);
-    } finally {
-      setIsLoadingAuth(false);
     }
   };
 

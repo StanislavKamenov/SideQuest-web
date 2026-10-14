@@ -7,6 +7,8 @@ import {
   MapPin,
   Users,
   Zap,
+  Gift,
+  Sparkles,
   X,
   Calendar,
 } from 'lucide-react';
@@ -45,15 +47,16 @@ export default function AdminEvents() {
   const [boostingEvent, setBoostingEvent] = useState(null);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
-  const { user } = useAuth();
+  const { user, profile, isSysAdmin } = useAuth();
+  const isAdmin = isSysAdmin || profile?.role === 'admin' || profile?.is_admin;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [rarity, setRarity] = useState('common');
   const [proofType, setProofType] = useState('photo');
   const [radius, setRadius] = useState(150);
   const [isCustomRadius, setIsCustomRadius] = useState(false);
-  const [xpReward, setXpReward] = useState('50');
-  const [coinsReward, setCoinsReward] = useState('100');
+  const [xpReward, setXpReward] = useState('40');
+  const [coinsReward, setCoinsReward] = useState('10');
   const [isActive, setIsActive] = useState(true);
   const [startsAtDate, setStartsAtDate] = useState(() => {
     const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -72,6 +75,7 @@ export default function AdminEvents() {
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
 
   // Reward Config State
+  const [rewardMode, setRewardMode] = useState('xp_coins'); // 'xp_coins' | 'custom_reward'
   const [enableReward, setEnableReward] = useState(false);
   const [rewardTitle, setRewardTitle] = useState('');
   const [rewardDescription, setRewardDescription] = useState('');
@@ -95,8 +99,14 @@ export default function AdminEvents() {
           category,
           is_active,
           xp_reward,
+          coins_reward,
           starts_at,
-          expires_at
+          expires_at,
+          rewards (
+            id,
+            title,
+            description
+          )
         `)
         .eq('created_by', user.id)
         .order('created_at', { ascending: false });
@@ -119,6 +129,8 @@ export default function AdminEvents() {
           status = 'active';
         }
 
+        const attachedReward = m.rewards?.[0];
+
         return {
           id: m.id,
           name: m.title,
@@ -129,7 +141,10 @@ export default function AdminEvents() {
           location: 'Map Location',
           participants: 0,
           maxParticipants: 100,
-          xpReward: m.xp_reward || 0
+          xpReward: m.xp_reward || 0,
+          coinsReward: m.coins_reward || 0,
+          rewardTitle: attachedReward?.title || null,
+          rewardDescription: attachedReward?.description || null,
         };
       });
 
@@ -157,9 +172,51 @@ export default function AdminEvents() {
     }
   };
 
+  const handleXpChange = (e) => {
+    const val = e.target.value;
+    if (val === '') {
+      setXpReward('');
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (!isAdmin && !isNaN(num) && num > 40) {
+      setXpReward('40');
+      return;
+    }
+    setXpReward(val);
+  };
+
+  const handleCoinsChange = (e) => {
+    const val = e.target.value;
+    if (val === '') {
+      setCoinsReward('');
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (!isAdmin && !isNaN(num) && num > 10) {
+      setCoinsReward('10');
+      return;
+    }
+    setCoinsReward(val);
+  };
+
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setFormError(null);
+
+    const xpVal = parseInt(xpReward, 10) || 0;
+    const coinsVal = parseInt(coinsReward, 10) || 0;
+
+    if (!isAdmin) {
+      if (xpVal > 40) {
+        setFormError("Бизнес събитията не могат да имат повече от 40 XP като награда (Max 40 XP).");
+        return;
+      }
+      if (coinsVal > 10) {
+        setFormError("Бизнес събитията не могат да имат повече от 10 монети като награда (Max 10 Coins).");
+        return;
+      }
+    }
 
     if (!isGlobal && !location) {
       setFormError("Please select a location on the map.");
@@ -195,34 +252,70 @@ export default function AdminEvents() {
       const expires_at = new Date(new Date(starts_at).getTime() + durationHours * 60 * 60 * 1000).toISOString();
 
       // --- Subscription limit check ---
-      const { data: bizData, error: bizErr } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single();
-        
-      if (bizErr || !bizData) {
-        throw new Error("Could not find your business profile.");
-      }
+      let bizData = null;
+      let subData = null;
+      let eventsUsed = 0;
+      let eventsQuota = 1;
 
-      const { data: subData, error: subErr } = await supabase
-        .from('business_subscriptions')
-        .select('*')
-        .eq('business_id', bizData.id)
-        .single();
+      if (!isAdmin) {
+        const { data: bData, error: bizErr } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('owner_id', user.id)
+          .single();
+          
+        if (bizErr || !bData) {
+          throw new Error("Could not find your business profile.");
+        }
+        bizData = bData;
 
-      if (subErr && subErr.code !== 'PGRST116') { // PGRST116 is 'not found'
-        throw new Error("Could not check subscription status.");
-      }
+        const { data: sData, error: subErr } = await supabase
+          .from('business_subscriptions')
+          .select('*')
+          .eq('business_id', bizData.id)
+          .single();
 
-      // If they don't have a subscription record at all, assume free tier (1 event)
-      const eventsUsed = subData ? subData.events_used : 0;
-      const eventsQuota = subData ? subData.events_quota : 1;
+        if (subErr && subErr.code !== 'PGRST116') { // PGRST116 is 'not found'
+          throw new Error("Could not check subscription status.");
+        }
+        subData = sData;
 
-      if (eventsUsed >= eventsQuota) {
-        throw new Error(`You have reached your limit of ${eventsQuota} event(s) for this billing period. Please upgrade your plan to create more.`);
+        eventsUsed = subData ? subData.events_used : 0;
+        eventsQuota = subData ? subData.events_quota : 1;
+
+        if (eventsUsed >= eventsQuota) {
+          throw new Error(`You have reached your limit of ${eventsQuota} event(s) for this billing period. Please upgrade your plan to create more.`);
+        }
+      } else {
+        const { data: bData } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle();
+        bizData = bData;
       }
       // --------------------------------
+
+      if (rewardMode === 'custom_reward' || rewardMode === 'combined') {
+        if (!rewardTitle.trim()) {
+          throw new Error("Моля, въведете заглавие на наградата (напр. '20% намаление').");
+        }
+      }
+
+      const isCustomReward = rewardMode === 'custom_reward';
+      let finalXp = 0;
+      let finalCoins = 0;
+
+      if (isCustomReward) {
+        finalXp = 0;
+        finalCoins = 0;
+      } else if (!isAdmin) {
+        finalXp = Math.min(parseInt(xpReward) || 0, 40);
+        finalCoins = Math.min(parseInt(coinsReward) || 0, 10);
+      } else {
+        finalXp = parseInt(xpReward) || 0;
+        finalCoins = parseInt(coinsReward) || 0;
+      }
 
       const missionData = {
         title,
@@ -234,14 +327,15 @@ export default function AdminEvents() {
         lng: isGlobal ? 0 : location.lng,
         radius_m: isGlobal ? 0 : parseInt(radius),
         created_by: user.id,
-        xp_reward: parseInt(xpReward),
-        coins_reward: parseInt(coinsReward),
+        xp_reward: finalXp,
+        coins_reward: finalCoins,
         is_active: true, // Always true so scheduled events show up
         is_global: isGlobal,
         proof_upload_type: proofType,
         cover_url,
         starts_at,
         expires_at,
+        business_id: bizData?.id || null,
       };
 
       // AI Moderation check
@@ -266,69 +360,82 @@ export default function AdminEvents() {
 
       const missionId = newMissions[0].id;
 
-      // Increment events_used
-      if (subData) {
-        await supabase
-          .from('business_subscriptions')
-          .update({ events_used: eventsUsed + 1 })
-          .eq('business_id', bizData.id);
-      } else {
-        // Create the free subscription row if it doesn't exist
-        await supabase
-          .from('business_subscriptions')
-          .insert({
-            business_id: bizData.id,
-            tier: 'free',
-            events_quota: 1,
-            events_used: 1,
-          });
+      // Increment events_used for businesses
+      if (!isAdmin && bizData) {
+        if (subData) {
+          await supabase
+            .from('business_subscriptions')
+            .update({ events_used: eventsUsed + 1 })
+            .eq('business_id', bizData.id);
+        } else {
+          // Create the free subscription row if it doesn't exist
+          await supabase
+            .from('business_subscriptions')
+            .insert({
+              business_id: bizData.id,
+              tier: 'free',
+              events_quota: 1,
+              events_used: 1,
+            });
+        }
       }
 
-      if (enableReward) {
-        // Fetch business
-        const { data: biz, error: bizError } = await supabase
-          .from('businesses')
-          .select('id, name')
-          .eq('owner_id', user.id)
-          .single();
+      if (rewardMode === 'custom_reward' || rewardMode === 'combined' || enableReward) {
+        // Fetch business if available
+        let partnerName = 'SideQuest';
+        let bizId = null;
 
-        if (!bizError && biz) {
-          const rewardData = {
-            source: 'event',
-            mission_id: missionId,
-            business_id: biz.id,
-            partner_name: biz.name,
-            title: rewardTitle || title + ' Reward',
-            description: rewardDescription,
-            code_type: rewardCodeType,
-            shared_code: rewardCodeType === 'shared' ? sharedCode : null,
-            max_redemptions_total: isUnlimitedTotal ? null : parseInt(maxTotal),
-            max_redemptions_per_user: isUnlimitedPerUser ? null : parseInt(maxPerUser),
-            cost_coins: 0,
-            cost_xp: 0,
-            stock: 9999999, // practically unlimited claims, usage limited by max_redemptions
-            is_active: true
-          };
+        if (bizData?.id) {
+          const { data: biz } = await supabase
+            .from('businesses')
+            .select('id, name')
+            .eq('id', bizData.id)
+            .maybeSingle();
 
-          const { data: newRewards, error: rewardError } = await supabase
-            .from('rewards')
-            .insert(rewardData)
-            .select('id');
+          if (biz) {
+            partnerName = biz.name;
+            bizId = biz.id;
+          }
+        }
 
-          if (!rewardError && newRewards?.length > 0 && rewardCodeType === 'unique') {
-            const rewardId = newRewards[0].id;
-            const codes = uniqueCodes.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
-            if (codes.length > 0) {
-              const uniqueCodesData = codes.map(c => ({
-                reward_id: rewardId,
-                business_id: biz.id,
-                code: c
-              }));
-              await supabase.from('reward_unique_codes').insert(uniqueCodesData);
+        const rewardData = {
+          kind: 'vip_deal',
+          source: 'event',
+          mission_id: missionId,
+          business_id: bizId,
+          partner_name: partnerName,
+          title: rewardTitle.trim() || title.trim() + ' Награда',
+          description: rewardDescription.trim(),
+          code_type: rewardCodeType,
+          shared_code: rewardCodeType === 'shared' ? sharedCode.trim() : null,
+          max_redemptions_total: isUnlimitedTotal ? null : parseInt(maxTotal),
+          max_redemptions_per_user: isUnlimitedPerUser ? null : parseInt(maxPerUser),
+          cost_coins: 0,
+          cost_xp: 0,
+          stock: 9999999, // practically unlimited claims, usage limited by max_redemptions
+          is_active: true
+        };
 
-              // update stock to match the number of unique codes
-              await supabase.from('rewards').update({ stock: codes.length }).eq('id', rewardId);
-            }
+        const { data: newRewards, error: rewardError } = await supabase
+          .from('rewards')
+          .insert(rewardData)
+          .select('id');
+
+        if (rewardError) throw rewardError;
+
+        if (newRewards?.length > 0 && rewardCodeType === 'unique') {
+          const rewardId = newRewards[0].id;
+          const codes = uniqueCodes.split(/[\n,]+/).map(c => c.trim()).filter(c => c.length > 0);
+          if (codes.length > 0) {
+            const uniqueCodesData = codes.map(c => ({
+              reward_id: rewardId,
+              business_id: bizId,
+              code: c
+            }));
+            await supabase.from('reward_unique_codes').insert(uniqueCodesData);
+
+            // update stock to match the number of unique codes
+            await supabase.from('rewards').update({ stock: codes.length }).eq('id', rewardId);
           }
         }
       }
@@ -344,6 +451,9 @@ export default function AdminEvents() {
       setStartsAtDate(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
       setCategory('event');
       setDurationHours(24);
+      setXpReward('40');
+      setCoinsReward('10');
+      setRewardMode('xp_coins');
       setEnableReward(false);
       setRewardTitle('');
       setRewardDescription('');
@@ -507,11 +617,31 @@ export default function AdminEvents() {
                     {event.participants}/{event.maxParticipants}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Zap className="w-3 h-3 text-[#C8E650]" />
-                  <span className="font-pixel text-[7px] text-[#C8E650]">
-                    +{event.xpReward} XP
-                  </span>
+                <div className="flex items-center gap-2">
+                  {event.rewardTitle && (
+                    <div className="flex items-center gap-1.5 bg-[#A78BFA]/10 border border-[#A78BFA]/30 px-2 py-0.5">
+                      <Gift className="w-3 h-3 text-[#A78BFA]" />
+                      <span className="font-pixel text-[7px] text-[#A78BFA] truncate max-w-[160px]">
+                        {event.rewardTitle}
+                      </span>
+                    </div>
+                  )}
+                  {event.xpReward > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Zap className="w-3 h-3 text-[#C8E650]" />
+                      <span className="font-pixel text-[7px] text-[#C8E650]">
+                        +{event.xpReward} XP
+                      </span>
+                    </div>
+                  )}
+                  {event.coinsReward > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px]">🪙</span>
+                      <span className="font-pixel text-[7px] text-amber-400">
+                        +{event.coinsReward}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -824,85 +954,141 @@ export default function AdminEvents() {
                   )}
                 </div>
 
-                {/* REWARDS & STATUS */}
+                {/* REWARD CONFIGURATION */}
                 <div>
-                  <label className="font-pixel text-[8px] text-[#E8C36A] tracking-widest mb-3 block">{t("admin.events.createModal.rewardsLabel")}</label>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.xpLabel")}</span>
-                      <input
-                        type="number" value={xpReward} onChange={(e) => setXpReward(e.target.value)}
-                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.coinsLabel")}</span>
-                      <input
-                        type="number" value={coinsReward} onChange={(e) => setCoinsReward(e.target.value)}
-                        className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
-                      />
-                    </div>
-                  </div>
+                  <label className="font-pixel text-[8px] text-[#A78BFA] tracking-widest mb-3 block">
+                    НАГРАДА ПРИ ИЗПЪЛНЕНИЕ
+                  </label>
+                  <p className="font-body text-xs text-muted-foreground mb-4">
+                    {isAdmin
+                      ? "Изберете дали мисията да дава XP & Монети, Директна награда (ваучер/промо код), или и двете комбинирано."
+                      : "Изберете дали играчите ще печелят стандартни XP и монети или директна награда (ваучер / код за отстъпка)."}
+                  </p>
 
-                  <div className={`p-4 border transition-all flex flex-col mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <p className="font-pixel text-[8px] text-foreground tracking-wider">{t("admin.events.createModal.activeTitle")}</p>
-                        <p className="font-body text-[10px] text-muted-foreground mt-1">{t("admin.events.createModal.activeDesc")}</p>
+                  <div className={`grid gap-3 mb-6 ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRewardMode('xp_coins');
+                        setEnableReward(false);
+                      }}
+                      className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                        rewardMode === 'xp_coins'
+                          ? 'bg-[#E8C36A]/10 border-[#E8C36A] text-[#E8C36A]'
+                          : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Zap size={16} className={rewardMode === 'xp_coins' ? 'text-[#E8C36A]' : 'text-muted-foreground'} />
+                        <span className="font-pixel text-[9px] tracking-wider">XP & МОНЕТИ</span>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-                        <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
-                      </label>
-                    </div>
+                      <span className="font-body text-[11px] opacity-70">
+                        {isAdmin ? 'Без промо код' : 'Стандартно (макс. 40 XP / 10 Coins)'}
+                      </span>
+                    </button>
 
-                    {!isActive && (
-                      <div className="mt-4 pt-4 border-t border-border">
-                        <label className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-2">
-                          SCHEDULED START TIME
-                        </label>
-                        <input
-                          type="datetime-local"
-                          value={startsAtDate}
-                          onChange={(e) => setStartsAtDate(e.target.value)}
-                          className="w-full bg-background border border-border px-3 py-2 font-body text-sm focus:border-[#6B9FD4] focus:outline-none"
-                        />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRewardMode('custom_reward');
+                        setEnableReward(true);
+                      }}
+                      className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                        rewardMode === 'custom_reward'
+                          ? 'bg-[#A78BFA]/10 border-[#A78BFA] text-[#A78BFA]'
+                          : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Gift size={16} className={rewardMode === 'custom_reward' ? 'text-[#A78BFA]' : 'text-muted-foreground'} />
+                        <span className="font-pixel text-[9px] tracking-wider">ДИРЕКТНА НАГРАДА</span>
                       </div>
+                      <span className="font-body text-[11px] opacity-70">
+                        Ваучер / отстъпка (0 XP & 0 Coins)
+                      </span>
+                    </button>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRewardMode('combined');
+                          setEnableReward(true);
+                        }}
+                        className={`p-4 border transition-all text-left flex flex-col justify-between ${
+                          rewardMode === 'combined'
+                            ? 'bg-[#5DE8A4]/10 border-[#5DE8A4] text-[#5DE8A4]'
+                            : 'bg-secondary/40 border-border text-muted-foreground hover:border-border/80'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles size={16} className={rewardMode === 'combined' ? 'text-[#5DE8A4]' : 'text-muted-foreground'} />
+                          <span className="font-pixel text-[9px] tracking-wider">КОМБИНИРАНО</span>
+                        </div>
+                        <span className="font-body text-[11px] opacity-70">
+                          И двете заедно (XP, Монети + Ваучер)
+                        </span>
+                      </button>
                     )}
                   </div>
-                </div>
 
-                {/* CUSTOM REWARD */}
-                <div>
-                  <label className="font-pixel text-[8px] text-[#A78BFA] tracking-widest mb-3 block">{t("admin.events.createModal.couponLabel")}</label>
-                  <div className={`p-4 border transition-all flex items-center justify-between mb-4 ${enableReward ? 'border-[#A78BFA]/50 bg-[#A78BFA]/5' : 'border-border bg-secondary/30'}`}>
-                    <div>
-                      <p className="font-pixel text-[8px] text-foreground tracking-wider">{t("admin.events.createModal.attachRewardTitle")}</p>
-                      <p className="font-body text-[10px] text-muted-foreground mt-1">{t("admin.events.createModal.attachRewardDesc")}</p>
+                  {(rewardMode === 'xp_coins' || rewardMode === 'combined') && (
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">
+                          {t("admin.events.createModal.xpLabel")} {!isAdmin && "(МАКС. 40)"}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          max={!isAdmin ? 40 : undefined}
+                          value={xpReward}
+                          onChange={handleXpChange}
+                          className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">
+                          {t("admin.events.createModal.coinsLabel")} {!isAdmin && "(МАКС. 10)"}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          max={!isAdmin ? 10 : undefined}
+                          value={coinsReward}
+                          onChange={handleCoinsChange}
+                          className="w-full bg-background border border-border px-4 py-2.5 font-body text-sm focus:border-[#E8C36A] focus:outline-none"
+                        />
+                      </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={enableReward} onChange={(e) => setEnableReward(e.target.checked)} />
-                      <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#A78BFA] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#A78BFA]"></div>
-                    </label>
-                  </div>
+                  )}
 
-                  {enableReward && (
-                    <div className="space-y-4 p-4 border border-[#A78BFA]/30 bg-background">
+                  {(rewardMode === 'custom_reward' || rewardMode === 'combined') && (
+                    <div className={`space-y-4 p-4 border bg-background mb-6 ${rewardMode === 'combined' ? 'border-[#5DE8A4]/30' : 'border-[#A78BFA]/30'}`}>
+                      <div className={`p-3 border flex items-center gap-2 text-xs ${rewardMode === 'combined' ? 'bg-[#5DE8A4]/10 border-[#5DE8A4]/20 text-[#5DE8A4]' : 'bg-[#A78BFA]/10 border-[#A78BFA]/20 text-[#A78BFA]'}`}>
+                        <Gift size={16} className="shrink-0" />
+                        <span>
+                          {rewardMode === 'combined'
+                            ? "Играчите получават посочените XP и монети, ЗАЕДНО с тази награда с код в „Моите купони“ при изпълнение!"
+                            : "Играчите получават тази награда с код автоматично в „Моите купони“ при изпълнение (0 XP и 0 монети)."}
+                        </span>
+                      </div>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.rewardTitleLabel")}</span>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.rewardTitleLabel") || "ЗАГЛАВИЕ НА НАГРАДАТА"}</span>
                           <input
                             value={rewardTitle} onChange={(e) => setRewardTitle(e.target.value)}
                             className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none"
-                            placeholder={t("admin.events.createModal.rewardTitlePlaceholder")}
+                            placeholder="напр. 20% Намаление на цялата сметка"
                           />
                         </div>
                         <div>
-                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.rewardDescLabel")}</span>
+                          <span className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-1.5">{t("admin.events.createModal.rewardDescLabel") || "ОПИСАНИЕ / УСЛОВИЯ (ПО ИЗБОР)"}</span>
                           <input
                             value={rewardDescription} onChange={(e) => setRewardDescription(e.target.value)}
                             className="w-full bg-background border border-border px-4 py-2 font-body text-sm focus:border-[#A78BFA] focus:outline-none"
-                            placeholder={t("admin.events.createModal.rewardDescPlaceholder")}
+                            placeholder="напр. Важи при поръчка на място"
                           />
                         </div>
                       </div>
@@ -985,6 +1171,34 @@ export default function AdminEvents() {
 
                     </div>
                   )}
+
+                  {/* ACTIVE & SCHEDULE */}
+                  <div className={`p-4 border transition-all flex flex-col mt-4 ${isActive ? 'border-[#6B9FD4]/50 bg-[#6B9FD4]/5' : 'border-border bg-secondary/30'}`}>
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <p className="font-pixel text-[8px] text-foreground tracking-wider">{t("admin.events.createModal.activeTitle")}</p>
+                        <p className="font-body text-[10px] text-muted-foreground mt-1">{t("admin.events.createModal.activeDesc")}</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+                        <div className="w-9 h-5 bg-secondary peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6B9FD4] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#6B9FD4]"></div>
+                      </label>
+                    </div>
+
+                    {!isActive && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <label className="font-pixel text-[6px] text-muted-foreground tracking-widest block mb-2">
+                          SCHEDULED START TIME
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={startsAtDate}
+                          onChange={(e) => setStartsAtDate(e.target.value)}
+                          className="w-full bg-background border border-border px-3 py-2 font-body text-sm focus:border-[#6B9FD4] focus:outline-none"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* CTA */}
