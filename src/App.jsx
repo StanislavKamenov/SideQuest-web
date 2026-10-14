@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminEvents from '@/pages/admin/AdminEvents';
+import { PrivacyPolicy, TermsOfUse } from '@/pages/Legal';
 import AdminRedemptions from '@/pages/admin/AdminRedemptions';
 import AdminRewards from '@/pages/admin/AdminRewards';
 import AdminPayments from '@/pages/admin/AdminPayments';
@@ -80,6 +81,8 @@ const AppRoutes = () => {
       {/* Public routes */}
       <Route path="/" element={<Home />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/login" element={<Login />} />
 
       {/* Admin routes — business only */}

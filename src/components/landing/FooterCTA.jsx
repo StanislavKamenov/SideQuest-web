@@ -66,7 +66,7 @@ function KofiBadge() {
 }
 
 export default function FooterCTA() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <>
       {/* CTA Section — "INSERT COIN TO CONTINUE" */}
@@ -279,6 +279,14 @@ export default function FooterCTA() {
             <p className="font-pixel text-[6px] text-muted-foreground/50 tracking-widest text-center">
               {t('landing.footer.copyright')}
             </p>
+            <div className="flex items-center gap-5">
+              <Link to="/privacy" className="font-pixel text-[6px] text-muted-foreground/60 hover:text-[#C8E650] tracking-widest transition-colors">
+                {i18n.language?.startsWith('bg') ? 'ПОВЕРИТЕЛНОСТ' : 'PRIVACY'}
+              </Link>
+              <Link to="/terms" className="font-pixel text-[6px] text-muted-foreground/60 hover:text-[#C8E650] tracking-widest transition-colors">
+                {i18n.language?.startsWith('bg') ? 'УСЛОВИЯ' : 'TERMS'}
+              </Link>
+            </div>
             <p className="font-pixel text-[6px] text-muted-foreground/30 tracking-wider">
               {t('landing.footer.build')}
             </p>
