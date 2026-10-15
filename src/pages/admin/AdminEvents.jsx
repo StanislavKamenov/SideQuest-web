@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
   Search,
-  Filter,
   MapPin,
   Users,
   Zap,
@@ -13,7 +12,6 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { demoEvents } from '@/lib/demoData';
 import MapPicker from '@/components/admin/MapPicker';
 import EventSubmissionsModal from '@/components/admin/EventSubmissionsModal';
 import { supabase } from '@/lib/supabaseClient';
@@ -152,7 +150,6 @@ export default function AdminEvents() {
           location: 'Map Location',
           participants: counts[m.id]?.participants ?? 0,
           submissions: counts[m.id]?.submissions ?? 0,
-          maxParticipants: 100,
           xpReward: m.xp_reward || 0,
           coinsReward: m.coins_reward || 0,
           rewardTitle: attachedReward?.title || null,
@@ -586,7 +583,6 @@ export default function AdminEvents() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filtered.map((event, i) => {
           const sc = statusColors[event.status];
-          const progress = Math.round((event.participants / event.maxParticipants) * 100);
           return (
             <motion.div
               key={event.id}
@@ -626,7 +622,7 @@ export default function AdminEvents() {
                 <div className="flex items-center gap-1.5">
                   <Users className="w-3 h-3 text-muted-foreground" />
                   <span className="font-pixel text-[7px] text-muted-foreground">
-                    {event.participants}/{event.maxParticipants}
+                    {event.participants}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -657,18 +653,6 @@ export default function AdminEvents() {
                 </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="h-1.5 bg-secondary overflow-hidden">
-                <div
-                  className="h-full transition-all duration-500"
-                  style={{
-                    width: `${progress}%`,
-                    backgroundColor: progress >= 90 ? '#E85D4A' : '#C8E650',
-                  }}
-                />
-              </div>
-              <p className="font-pixel text-[6px] text-muted-foreground mt-1 text-right">{progress}% {t("admin.events.fullText")}</p>
-              
               <button
                 onClick={() => setSubmissionsEvent(event)}
                 className="w-full mt-4 py-2 border border-[#C8E650]/50 text-[#C8E650] font-pixel text-[8px] tracking-wider hover:bg-[#C8E650]/10 transition-colors flex items-center justify-center gap-2"

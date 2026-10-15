@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Check, X, AlertTriangle, MapPin, ExternalLink, 
-  Search, Filter, Clock, Shield, ShieldAlert, FileWarning,
+  Search, Clock, Shield, ShieldAlert, FileWarning,
   RefreshCw, Video, Image as ImageIcon
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';

@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { 
   Users, Search, Loader2, ShieldAlert, ShieldCheck, 
-  Ban, History, X, Crown, Sparkles, Star, Check
+  Ban, History, X, Crown, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';

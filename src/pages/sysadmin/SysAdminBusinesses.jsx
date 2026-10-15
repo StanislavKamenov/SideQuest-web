@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-import { Building2, Check, X, Search, Loader2 } from 'lucide-react';
+import { Building2, Check, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function SysAdminBusinesses() {

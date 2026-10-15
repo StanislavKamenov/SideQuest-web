@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Check, X, AlertCircle, AlertTriangle, MessageSquare, User as UserIcon, ShieldAlert,
-  Search, Filter, Trash2, Clock, AlertOctagon, CheckCircle2
+import { AlertTriangle, MessageSquare, User as UserIcon, ShieldAlert, Trash2, Clock, AlertOctagon, CheckCircle2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next';

@@ -57,4 +57,12 @@ export default [
       "react-hooks/rules-of-hooks": "error",
     },
   },
+  {
+    // React Three Fiber: props like `position`, `args`, `intensity` are Three.js
+    // properties, not DOM attributes, so this rule only produces false positives.
+    files: ["src/components/landing/3d/**/*.{js,jsx}"],
+    rules: {
+      "react/no-unknown-property": "off",
+    },
+  },
 ];

@@ -6,7 +6,6 @@ import {
   Users,
   Building2,
   Target,
-  Settings,
   LogOut,
   Menu,
   X,
