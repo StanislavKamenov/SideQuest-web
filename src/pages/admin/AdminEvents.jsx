@@ -15,6 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { demoEvents } from '@/lib/demoData';
 import MapPicker from '@/components/admin/MapPicker';
+import EventSubmissionsModal from '@/components/admin/EventSubmissionsModal';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -39,7 +40,7 @@ const categoryEmoji = {
 };
 
 export default function AdminEvents() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [filter, setFilter] = useState('active');
   const [search, setSearch] = useState('');
@@ -87,6 +88,8 @@ export default function AdminEvents() {
   const [isUnlimitedTotal, setIsUnlimitedTotal] = useState(true);
   const [isUnlimitedPerUser, setIsUnlimitedPerUser] = useState(false);
 
+  const [submissionsEvent, setSubmissionsEvent] = useState(null);
+
   const fetchEvents = async () => {
     try {
       setIsLoadingEvents(true);
@@ -112,6 +115,14 @@ export default function AdminEvents() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      // Real counts (the RPC only answers for missions this user manages).
+      const counts = {};
+      const ids = (data || []).map((m) => m.id);
+      if (ids.length) {
+        const { data: countRows } = await supabase.rpc('event_participant_counts', { p_mission_ids: ids });
+        (countRows || []).forEach((c) => { counts[c.mission_id] = c; });
+      }
 
       const now = new Date();
       const transformed = (data || []).map(m => {
@@ -139,7 +150,8 @@ export default function AdminEvents() {
           status,
           date: start.toLocaleDateString(),
           location: 'Map Location',
-          participants: 0,
+          participants: counts[m.id]?.participants ?? 0,
+          submissions: counts[m.id]?.submissions ?? 0,
           maxParticipants: 100,
           xpReward: m.xp_reward || 0,
           coinsReward: m.coins_reward || 0,
@@ -657,6 +669,14 @@ export default function AdminEvents() {
               </div>
               <p className="font-pixel text-[6px] text-muted-foreground mt-1 text-right">{progress}% {t("admin.events.fullText")}</p>
               
+              <button
+                onClick={() => setSubmissionsEvent(event)}
+                className="w-full mt-4 py-2 border border-[#C8E650]/50 text-[#C8E650] font-pixel text-[8px] tracking-wider hover:bg-[#C8E650]/10 transition-colors flex items-center justify-center gap-2"
+              >
+                <Users className="w-3 h-3" />
+                {i18n.language?.startsWith('bg') ? 'ДОКАЗАТЕЛСТВА И ЛОКАЦИЯ' : 'PROOFS & LOCATION'} ({event.submissions ?? 0})
+              </button>
+
               {event.status === 'active' && (
                 <button 
                   onClick={() => setBoostingEvent(event)}
@@ -675,6 +695,10 @@ export default function AdminEvents() {
         <div className="text-center py-16">
           <p className="font-pixel text-[9px] text-muted-foreground tracking-wider">{t("admin.events.noEventsFound")}</p>
         </div>
+      )}
+
+      {submissionsEvent && (
+        <EventSubmissionsModal event={submissionsEvent} onClose={() => setSubmissionsEvent(null)} />
       )}
 
       {/* Create Event Modal */}

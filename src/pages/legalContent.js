@@ -64,7 +64,7 @@ export const LEGAL = {
         {
           h: '4. What other people can see',
           p: [
-            'Your username, display name, avatar, bio, city, XP / rank, posts and comments are public inside the app. Your location is visible only if "Show on map" is on. Mission proofs are visible to our moderators and, if you post them to the feed, to other players. You can block any user at any time; blocked users cannot see your posts, comments or location.',
+            'Your username, display name, avatar, bio, city, XP / rank, posts and comments are public inside the app. Your location is visible only if "Show on map" is on. Mission proofs are visible to our moderators and, if you post them to the feed, to other players. When you submit a proof for an event run by a business partner, that business can see your username, the proof and the GPS position at which it was submitted, only for its own events. You can block any user at any time; blocked users cannot see your posts, comments or location.',
           ],
         },
         {
@@ -238,7 +238,7 @@ export const LEGAL = {
         {
           h: '4. Какво виждат другите',
           p: [
-            'Потребителското ти име, показваното име, аватарът, биото, градът, XP / ранг, публикациите и коментарите са публични в приложението. Локацията ти се вижда само ако „Покажи на картата“ е включено. Доказателствата са видими за нашите модератори и, ако ги публикуваш във фийда, за другите играчи. Можеш да блокираш всеки потребител по всяко време; блокираните не виждат публикациите, коментарите и локацията ти.',
+            'Потребителското ти име, показваното име, аватарът, биото, градът, XP / ранг, публикациите и коментарите са публични в приложението. Локацията ти се вижда само ако „Покажи на картата“ е включено. Доказателствата са видими за нашите модератори и, ако ги публикуваш във фийда, за другите играчи. Когато подадеш доказателство за събитие на бизнес партньор, този бизнес вижда потребителското ти име, доказателството и GPS позицията, от която е подадено, само за собствените си събития. Можеш да блокираш всеки потребител по всяко време; блокираните не виждат публикациите, коментарите и локацията ти.',
           ],
         },
         {
