@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 const navItems = [
   { to: '/sysadmin', icon: LayoutDashboard, labelKey: 'sysadmin.nav.overview', end: true },
   { to: '/sysadmin/businesses', icon: Building2, labelKey: 'sysadmin.nav.businesses' },
+  { to: '/sysadmin/leads', icon: MessageSquare, labelKey: 'sysadmin.nav.leads' },
   { to: '/sysadmin/missions', icon: Target, labelKey: 'sysadmin.nav.missions' },
   { to: '/sysadmin/players', icon: Users, labelKey: 'sysadmin.nav.players' },
   { to: '/sysadmin/review-queue', icon: ShieldAlert, labelKey: 'sysadmin.nav.reviewQueue' },

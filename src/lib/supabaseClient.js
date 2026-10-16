@@ -8,3 +8,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/**
+ * A throw-away client with its own in-memory session. Used for the password-reset code
+ * flow so the shared client's auth listener (AuthContext) is never triggered by it.
+ */
+export const createIsolatedClient = () =>
+  createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });

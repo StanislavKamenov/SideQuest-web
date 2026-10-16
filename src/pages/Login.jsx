@@ -9,7 +9,7 @@ import ArcadeScene from "@/components/landing/3d/ArcadeScene";
 import AmbientArcade from "@/components/landing/3d/AmbientArcade";
 
 export default function Login() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -197,6 +197,11 @@ export default function Login() {
                     style={{ boxShadow: 'inset 0 0 8px rgba(0,0,0,0.3)' }}
                     required
                   />
+                </div>
+                <div className="text-right">
+                  <Link to="/forgot-password" className="font-pixel text-[7px] tracking-wider text-[#C8E650] hover:underline">
+                    {i18n.language?.startsWith('bg') ? 'ЗАБРАВЕНА ПАРОЛА?' : 'FORGOT PASSWORD?'}
+                  </Link>
                 </div>
               </div>
 

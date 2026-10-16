@@ -259,6 +259,7 @@ export default function FooterCTA() {
                   { label: t('landing.footer.faq.general'), to: '/faq' },
                   { label: t('landing.footer.faq.gameplay'), to: '/faq' },
                   { label: t('landing.footer.faq.security'), to: '/faq' },
+                  { label: i18n.language?.startsWith('bg') ? 'За бизнеси: стани партньор' : 'For businesses: become a partner', to: '/partner' },
                   { label: i18n.language?.startsWith('bg') ? 'Политика за поверителност' : 'Privacy Policy', to: '/privacy' },
                   { label: i18n.language?.startsWith('bg') ? 'Условия за ползване' : 'Terms of Use', to: '/terms' },
                 ].map(l => (

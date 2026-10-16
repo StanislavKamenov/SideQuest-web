@@ -14,6 +14,9 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminEvents from '@/pages/admin/AdminEvents';
 import { PrivacyPolicy, TermsOfUse } from '@/pages/Legal';
+import ForgotPassword from '@/pages/ForgotPassword';
+import PartnerApply from '@/pages/PartnerApply';
+import SysAdminLeads from '@/pages/sysadmin/SysAdminLeads';
 import AdminRedemptions from '@/pages/admin/AdminRedemptions';
 import AdminRewards from '@/pages/admin/AdminRewards';
 import AdminPayments from '@/pages/admin/AdminPayments';
@@ -84,6 +87,8 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/partner" element={<PartnerApply />} />
 
       {/* Admin routes — business only */}
       <Route
@@ -114,6 +119,7 @@ const AppRoutes = () => {
       >
         <Route index element={<SysAdminDashboard />} />
         <Route path="businesses" element={<SysAdminBusinesses />} />
+        <Route path="leads" element={<SysAdminLeads />} />
         <Route path="missions" element={<SysAdminMissions />} />
         <Route path="players" element={<SysAdminPlayers />} />
         <Route path="payments" element={<SysAdminPayments />} />
